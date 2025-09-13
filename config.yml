@@ -56,7 +56,7 @@ params:
           title: Zhong Pengchen
           subtitle: |
             I am a student in the School of Economics at the Peking University, China.
-            My research interests focus on Quantitative History, Political Economics and Micro theory. 
+            My research interests focus on Quantitative History, Political Economics and Micro theory.<br>
             Email: 19574459596@163.com
           imageUrl: "picture.png"
           imageWidth: 160
@@ -74,6 +74,8 @@ params:
               url: tags/
             - name: Archive
               url: archive/
+            - name: Email: 19574459596@163.com
+              url: "#"
 
 
     socialIcons:
