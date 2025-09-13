@@ -3,3 +3,22 @@ This is just a placeholder blank stylesheet so as to support adding custom style
 
 Read https://github.com/adityatelange/hugo-PaperMod/wiki/FAQs#bundling-custom-css-with-themes-assets for more info
 */
+
+/* 修改网站的整体背景和文字颜色 */
+body {
+  background-color: #8fbc8f; /* 将背景色改为浅绿色 */
+  color: #ffffff;           /* 将所有文字颜色改为白色 */
+}
+
+/* 确保链接在白色背景下可见 */
+a {
+  color: #ffffff; /* 保持链接颜色为白色 */
+}
+a:hover {
+  color: #f0f0f0; /* 鼠标悬停时稍微变灰，有区分度 */
+}
+
+/* 如果有深色背景的标题，需要额外调整 */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff; /* 确保标题颜色为白色 */
+}
