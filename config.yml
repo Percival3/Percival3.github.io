@@ -32,7 +32,7 @@ params:
     disableThemeToggle: false
     ShowThemeToggleInHeader: true   # 👈 部分 fork 版本支持这个参数
     description: "This website hosts Zhong Pengchen's research papers, books, course materials, data, curriculum vitae, and contact information."
-    author: Zhong Pengchen
+    author: 钟朋辰 / Zhong Pengchen
     # googleAnalyticsID: "G-XXXXX"
     DateFormat: "November 2025"
     hideFooter: false
