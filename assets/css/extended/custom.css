@@ -1,44 +1,39 @@
-/* =======================
-   蓝色主题自定义 CSS
-   支持日间模式和夜间模式
-   ======================= */
-
-/* -----------------------
-   日间模式（浅色背景）
------------------------ */
 :root {
-  /* 主色调（链接、按钮、标题） */
+  --theme: #f9fbff;         /* 页面背景 */
+  --entry: #ffffff;         /* 文章/卡片背景 */
+  --content: #222222;       /* 文字 */
+  --border: #e6e9f0;        /* 分隔线/边框 */
   --primary: #1e6bd6;
   --primary-dark: #164a99;
   --primary-light: #4a90e2;
-
-  /* 背景和文字颜色 */
-  --content: #222222;     /* 主文字颜色 */
-  --border: #e6e9f0;      /* 分隔线/边框 */
-  --secondary: #555555;   /* 次文字颜色 */
-
-  /* 代码块背景 */
   --code-bg: #f5f5f5;
   --code-block-bg: #f0f0f0;
 }
 
-/* -----------------------
-   夜间模式（深色背景）
------------------------ */
 .dark {
-  /* 主色调 */
+  --theme: #1b1e24;
+  --entry: #2a2d35;
+  --content: #e0e6f5;
+  --border: #3a3f4d;
   --primary: #4a90e2;
   --primary-dark: #1e6bd6;
   --primary-light: #6aa8f7;
-
-  /* 背景和文字 */
-  --content: #e0e6f5;     /* 主文字颜色 */
-  --border: #3a3f4d;      /* 分隔线/边框 */
-  --secondary: #a0a8c0;   /* 次文字颜色 */
-
-  /* 代码块背景 */
   --code-bg: #37383e;
   --code-block-bg: #2e2d35;
+}
+
+/* 覆盖 list 页面背景 */
+.list {
+  background: var(--theme) !important;
+}
+.dark.list {
+  background: var(--theme) !important;
+}
+
+/* 覆盖文章页面背景 */
+article, main {
+  background: var(--entry) !important;
+  color: var(--content) !important;
 }
 
 /* -----------------------
