@@ -32,9 +32,9 @@ params:
     author: Zhong Pengchen
     # googleAnalyticsID: "G-XXXXX"
     DateFormat: "November 2025"
-    defaultTheme: light
+    defaultTheme: auto
     hideFooter: false
-    disableThemeToggle: true
+    disableThemeToggle: false
     ShowShareButtons: false
     ShowReadingTime: false
     disableSpecial1stPost: true
