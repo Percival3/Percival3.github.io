@@ -28,13 +28,14 @@ menu:
 
 
 params:
+    defaultTheme: auto
+    disableThemeToggle: false
+    ShowThemeToggleInHeader: true   # 👈 部分 fork 版本支持这个参数
     description: "This website hosts Zhong Pengchen's research papers, books, course materials, data, curriculum vitae, and contact information."
     author: Zhong Pengchen
     # googleAnalyticsID: "G-XXXXX"
     DateFormat: "November 2025"
-    defaultTheme: auto
     hideFooter: false
-    disableThemeToggle: false
     ShowShareButtons: false
     ShowReadingTime: false
     disableSpecial1stPost: true
