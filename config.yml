@@ -54,7 +54,7 @@ params:
     math: true
     profileMode:
           enabled: true
-          title: 钟朋辰（Zhong Pengchen）
+          title: Zhong Pengchen
           subtitle: "I am a student in the School of Economics at the Peking University, China. My research interests focus on Quantitative History, Political Economics and Micro theory."
           imageUrl: "picture.png"
           imageWidth: 160
