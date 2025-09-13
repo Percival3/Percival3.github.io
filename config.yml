@@ -2,6 +2,7 @@ baseURL: "https://percival3.github.io/"
 title: Zhong Pengchen
 theme: PaperMod
 
+hasCJKLanguage: true
 enableInlineShortcodes: true
 enableRobotsTXT: true
 pagination:
