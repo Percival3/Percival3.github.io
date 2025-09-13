@@ -1,0 +1,45 @@
+/* 自定义蓝色主题覆盖 */
+
+:root {
+  /* 主色调（超链接、按钮、标题） */
+  --primary: #1e6bd6;
+  --primary-dark: #164a99;
+  --primary-light: #4a90e2;
+
+  /* 背景和字体颜色 */
+  --body-bg: #f9fbff;
+  --text-color: #222;
+}
+
+/* 链接颜色 */
+a {
+  color: var(--primary);
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* 按钮样式 */
+button,
+.btn {
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover,
+.btn:hover {
+  background-color: var(--primary-dark);
+}
+
+/* 标题加一点蓝色强调 */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-dark);
+}
+
