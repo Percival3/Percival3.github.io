@@ -1,5 +1,4 @@
-/* 自定义蓝色主题覆盖 */
-
+/* 🌞 日间模式 (默认) */
 :root {
   /* 主色调（超链接、按钮、标题） */
   --primary: #1e6bd6;
@@ -9,6 +8,16 @@
   /* 背景和字体颜色 */
   --body-bg: #f9fbff;
   --text-color: #222;
+}
+
+/* 🌙 夜间模式 */
+:root.dark {
+  --primary: #4a90e2;        /* 夜间稍微柔和的蓝 */
+  --primary-dark: #357ab7;
+  --primary-light: #6ba8e5;
+
+  --body-bg: #1b1f2a;        /* 深色背景 */
+  --text-color: #eaeaea;     /* 浅色字体 */
 }
 
 /* 链接颜色 */
@@ -38,8 +47,14 @@ button:hover,
   background-color: var(--primary-dark);
 }
 
-/* 标题加一点蓝色强调 */
+/* 标题颜色 */
 h1, h2, h3, h4, h5, h6 {
   color: var(--primary-dark);
+}
+
+/* 背景和字体颜色应用 */
+body {
+  background-color: var(--body-bg);
+  color: var(--text-color);
 }
 
