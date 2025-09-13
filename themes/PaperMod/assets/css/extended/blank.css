@@ -6,7 +6,7 @@ Read https://github.com/adityatelange/hugo-PaperMod/wiki/FAQs#bundling-custom-cs
 
 /* 修改网站的整体背景和文字颜色 */
 body {
-  background-color: #8fbc8f; /* 将背景色改为浅绿色 */
+  background-color: #0373fc; /* 将背景色改为浅绿色 */
   color: #ffffff;           /* 将所有文字颜色改为白色 */
 }
 
