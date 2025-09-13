@@ -1,26 +1,23 @@
-/* 🌞 日间模式 (默认) */
+/* 日间模式 */
 :root {
-  /* 主色调（超链接、按钮、标题） */
-  --primary: #1e6bd6;
+  --theme: #f9fbff;   /* 页面背景 */
+  --entry: #ffffff;   /* 文章/卡片背景 */
+  --content: #222;    /* 文字 */
+  --border: #e6e9f0;  
+  --primary: #1e6bd6; 
   --primary-dark: #164a99;
   --primary-light: #4a90e2;
-
-  /* 背景和字体颜色 */
-  --body-bg: #f9fbff;
-  --text-color: #222;
 }
 
-/* 🌙 夜间模式 */
-/* 夜晚模式（蓝色主题 + 暗色背景） */
+/* 夜间模式 */
 .dark {
+  --theme: #1b1e24;
+  --entry: #2a2d35;
+  --content: #e0e6f5;
+  --border: #3a3f4d;
   --primary: #4a90e2;
   --primary-dark: #1e6bd6;
   --primary-light: #6aa8f7;
-
-  --theme: #1b1e24;       /* 深色背景 */
-  --entry: #2a2d35;
-  --content: #e0e6f5;     /* 浅色文字 */
-  --border: #3a3f4d;
 }
 
 /* 链接颜色 */
