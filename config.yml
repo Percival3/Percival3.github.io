@@ -54,7 +54,7 @@ params:
     profileMode:
           enabled: true
           title: Zhong Pengchen
-          subtitle: "I am a student in the School of Economics at the Peking University, China. My research interests focus on Quantitative History, Political Economics and Micro theory."
+          subtitle: "I am a student in the School of Economics at the Peking University, China. My research interests focus on Quantitative History, Political Economics and Micro theory. Email: 19574459596@163.com"
           imageUrl: "picture.png"
           imageWidth: 160
           imageHeight: 160
@@ -76,8 +76,6 @@ params:
     socialIcons:
         - name: CV
           url: cv.pdf
-        - name: Email
-          url: 19574459596@163.com
         #- name: Zoom
          # url: https://www.zoom.us/my/igelfeld
         #- name: Location
