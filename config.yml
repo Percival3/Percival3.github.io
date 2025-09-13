@@ -70,14 +70,13 @@ params:
               url: tags/
             - name: Archive
               url: archive/
-            - name: Blog
-              url: https://en.wikipedia.org/wiki/Moritz-Maria_von_Igelfeld_(character)
+
 
     socialIcons:
         - name: CV
           url: cv.pdf
         - name: Email
-          url: mailto:igelfeld@regensburg.edu
+          url: 19574459596@163.com
         #- name: Zoom
          # url: https://www.zoom.us/my/igelfeld
         #- name: Location
