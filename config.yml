@@ -77,7 +77,7 @@ params:
         - name: CV
           url: cv.pdf
         - name: Email
-          url: mailto:19574459596@163.com
+          url: 19574459596@163.com
         #- name: Zoom
          # url: https://www.zoom.us/my/igelfeld
         #- name: Location
