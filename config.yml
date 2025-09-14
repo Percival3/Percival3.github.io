@@ -34,7 +34,7 @@ params:
     description: "This website hosts Zhong Pengchen's research papers, books, course materials, data, curriculum vitae, and contact information."
     author: 钟朋辰 / Zhong Pengchen
     # googleAnalyticsID: "G-XXXXX"
-    DateFormat: "November 2025"
+    DateFormat: "2006-01-02"
     hideFooter: false
     ShowShareButtons: false
     ShowReadingTime: false
