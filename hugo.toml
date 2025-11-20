@@ -1,6 +1,6 @@
 baseURL = 'https://Percival3.github.io/'
 
-title = 'Wondering Home'
+title = 'Arcadia'
 theme = "pengchen"
 languageCode = 'zh-CN'
 defaultContentLanguage = "zh"
@@ -14,16 +14,23 @@ email = "zpc@stu.pku.edu.cn"
 phone = "195-7445-9596"
 location = "Beijing, China"
 avatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=Pengchen&backgroundColor=e6f1fe"
+
+# 社交媒体
+github = "https://github.com/xxxx"
+linkedin = "https://linkedin.com/in/xxxx"
+orcid = "https://orcid.org/xxxx"
+twitter = "https://twitter.com/xxxx"
 cvLink = "/cv.pdf"
-twitter = ""
+
 
 # Quotes
-params.quotes = [
-  "Stay hungry, stay foolish. - Steve Jobs",
-  "Economics is the study of mankind in the ordinary business of life. - Alfred Marshall",
-  "Knowing yourself is the beginning of all wisdom. - Aristotle",
-  "博学之，审问之，慎思之，明辨之，笃行之。"
-]
+[params]
+  quotes = [
+    "Stay hungry, stay foolish. - Steve Jobs",
+    "Economics is the study of mankind in the ordinary business of life. - Alfred Marshall",
+    "Knowing yourself is the beginning of all wisdom. - Aristotle",
+    "博学之，审问之，慎思之，明辨之，笃行之。"
+  ]
 
 # Menus
 [menu]

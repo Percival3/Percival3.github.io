@@ -1,0 +1,44 @@
+{{ define "main" }}
+
+<section class="flex flex-col items-center justify-center min-h-[70vh] text-center fade-in">
+
+    <!-- 主标题 -->
+    <h1 class="text-5xl md:text-6xl font-extrabold text-slate-800 dark:text-slate-100 mb-4">
+        {{ .Site.Title }}
+    </h1>
+
+    <!-- 副标题（可在 config.toml 中设置 params.subtitle） -->
+    {{ with .Site.Params.subtitle }}
+    <p class="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mb-8">
+        {{ . }}
+    </p>
+    {{ end }}
+
+    <!-- 简介（在 content/_index.md 内书写即可） -->
+    {{ if .Content }}
+    <div class="prose dark:prose-invert max-w-2xl text-center mb-10">
+        {{ .Content }}
+    </div>
+    {{ end }}
+
+    <!-- 按钮组 -->
+    <div class="flex gap-4 mt-4">
+
+        <a href="/posts"
+           class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium 
+                  shadow transition active:scale-95">
+            📚 查看文章
+        </a>
+
+        <a href="/about"
+           class="px-6 py-3 rounded-xl border border-slate-300 dark:border-slate-600
+                  text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800
+                  hover:bg-slate-100 dark:hover:bg-slate-700 transition active:scale-95">
+            👤 关于我
+        </a>
+
+    </div>
+
+</section>
+
+{{ end }}

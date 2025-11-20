@@ -7,37 +7,43 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+        }
+    </script>
 
     <!-- KaTeX 数学公式 -->
     {{ if .Site.Params.math }}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-        onload="renderMathInElement(document.body);">
-    </script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body);">
+        </script>
     {{ end }}
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- 滚动条 & 动画 -->
+    <!-- 自定义滚动条 & 动画 -->
     <style>
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn .4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
     </style>
 </head>
 
-<!-- 加入 dark class 支持 -->
-<body class="bg-slate-50 dark:bg-slate-900 dark:text-slate-100 font-sans text-slate-900 transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
+{{ partial "header.html" . }}
 
     <!-- 🌗 日夜切换按钮（右上角） -->
     <button id="theme-toggle"
-        class="fixed top-4 right-4 p-2 rounded-lg shadow bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+        class="fixed top-4 right-4 p-2 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm
+               dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 hover:scale-105 transition active:scale-95">
         <i data-lucide="moon"></i>
     </button>
 
@@ -46,38 +52,57 @@
 
         {{ partial "sidebar.html" . }}
 
-        <main class="flex-1 p-6 md:p-12 lg:p-16 overflow-y-auto min-h-screen">
+        <main class="flex-1 p-6 md:p-12 lg:p-16 overflow-y-auto min-h-screen fade-in">
             <div class="max-w-4xl mx-auto">
-                <div class="md:hidden mb-6 flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm">
+
+                <!-- 小屏标题条 -->
+                <div class="md:hidden mb-6 flex items-center justify-between 
+                            bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm">
                     <span class="font-bold text-blue-600">{{ .Title }}</span>
                     <span class="text-xs text-slate-400">Scroll down for more</span>
                 </div>
 
-                <div class="fade-in">
-                    {{ block "main" . }}{{ end }}
-                </div>
+                <!-- 页面主内容 -->
+                {{ block "main" . }}{{ end }}
             </div>
         </main>
     </div>
 
-    <!-- Lucide Icons -->
-    <script> lucide.createIcons(); </script>
+    <!-- 初始化图标 -->
+    <script>
+        lucide.createIcons();
+    </script>
 
-    <!-- 🌙 日夜模式逻辑 -->
+    <!-- 🌙 改进后的日夜切换逻辑 -->
     <script>
         const body = document.body;
         const toggleBtn = document.getElementById("theme-toggle");
+        const icon = toggleBtn.querySelector("i");
 
-        // 初始化：读取 localStorage
+        // 根据模式更新图标
+        function updateIcon() {
+            if (body.classList.contains("dark")) {
+                icon.setAttribute("data-lucide", "sun");
+            } else {
+                icon.setAttribute("data-lucide", "moon");
+            }
+            lucide.createIcons();
+        }
+
+        // 初始化：读取 localStorage 或系统偏好
         if (localStorage.theme === "dark" ||
            (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
             body.classList.add("dark");
         }
 
+        updateIcon();
+
         toggleBtn.addEventListener("click", () => {
             body.classList.toggle("dark");
             localStorage.theme = body.classList.contains("dark") ? "dark" : "light";
+            updateIcon();
         });
     </script>
+
 </body>
 </html>
