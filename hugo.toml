@@ -1,0 +1,48 @@
+baseURL = 'https://Percival3.github.io/'
+languageCode = 'en-US'
+title = 'Wondering Home'
+theme = "void"
+
+# 网站元数据
+description = "Undergraduate Student at Peking University | Economics & Philosophy"
+copyright = "© 2025 Pengchen Zhong"
+
+# Social media links
+[params]
+  [params.social]
+    email = "19574459596@163.com"
+  [params.avatar]
+    url = "https://example.com/your-avatar.jpg"
+
+# Main menu
+[[menus.main]]
+name = 'Home'
+pageRef = '/'
+weight = 10
+
+[[menus.main]]
+name = 'Posts'
+pageRef = '/posts'
+weight = 20
+
+[[menus.main]]
+name = 'Tags'
+pageRef = '/tags'
+weight = 30
+
+[[menus.main]]
+name = 'About'
+pageRef = '/about'
+weight = 40
+
+# Table of Contents (recommended)
+[markup]
+  [markup.tableOfContents]
+    startLevel = 1
+    endLevel = 6
+    ordered = false
+
+# Allow raw HTML within Markdown (for KaTeX, etc.)
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
