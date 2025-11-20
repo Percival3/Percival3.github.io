@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }} - {{ .Site.Title }}</title>
+    <!-- 1. 引入 Tailwind CSS (和你代码里一样) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. 引入 Lucide Icons (和你代码里一样) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* 滚动条样式 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900">
+    
+    <!-- 核心布局：Flex 容器 -->
+    <div class="flex flex-col md:flex-row min-h-screen">
+        
+        <!-- 3. 引入侧边栏 Sidebar -->
+        {{ partial "sidebar.html" . }}
+
+        <!-- 4. 内容区域 ContentArea -->
+        <main class="flex-1 p-6 md:p-12 lg:p-16 overflow-y-auto min-h-screen">
+            <div class="max-w-4xl mx-auto">
+                <!-- 移动端顶部提示 -->
+                <div class="md:hidden mb-6 flex items-center justify-between bg-white p-4 rounded-lg shadow-sm">
+                    <span class="font-bold text-blue-600">{{ .Title }}</span>
+                    <span class="text-xs text-slate-400">Scroll down for more</span>
+                </div>
+
+                <!-- 这里是页面具体内容 -->
+                <div class="fade-in">
+                    {{ block "main" . }}{{ end }}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 激活 Lucide 图标 -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
+
+
+#### 第三步：复刻侧边栏 (sidebar.html)
+
+把你的 React `Sidebar` 代码翻译成 Hugo 模板。注意把 `{SITE_DATA.xxx}` 变成 `{{ .Site.Params.xxx }}`。
+
+
+http://googleusercontent.com/immersive_entry_chip/0
+
+#### 第四步：定义内容页面模板 (single.html 和 list.html)
+
+React 里的 `ContentArea` 逻辑现在变成了 Hugo 的标准页面渲染。
+
+**1. 列表页模板 (用于 Blog/Posts 列表)**
+`themes/pengchen/layouts/_default/list.html`
+
+
+http://googleusercontent.com/immersive_entry_chip/1
+
+**2. 单篇文章模板 (用于显示文章详情)**
+`themes/pengchen/layouts/_default/single.html`
+
+
+http://googleusercontent.com/immersive_entry_chip/2
+
+#### 第五步：更新你的配置文件 (hugo.toml)
+
+最后，我们需要把你的 `SITE_DATA` 数据填入 `hugo.toml`，并配置菜单。
+
+
+http://googleusercontent.com/immersive_entry_chip/3
+
+### 接下来你需要做什么？
+
+1.  **创建对应的内容文件**：
+    * 创建 `content/about.md` (复制你 React 代码里 `SITE_DATA.about` 的内容进去)。
+    * 创建 `content/social.md`。
+    * 在 `content/posts/` 下创建你的文章。
+2.  **运行**：
+    * 在终端输入 `hugo server`。
+    * 打开 `localhost:1313`。
+
+**区别解释：**
+原来的 React 网站是点击按钮 -> JS 切换内容 (不刷新)。
+现在的 Hugo 网站是点击按钮 -> 浏览器跳转到新页面 (刷新，但在本地极快)。
+外观上，它们将**完全一模一样**，但现在的版本更适合写博客、管理大量文章，并且对 SEO 极其友好。
