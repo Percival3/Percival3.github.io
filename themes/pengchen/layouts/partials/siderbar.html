@@ -1,53 +1,52 @@
 <aside class="w-full md:w-80 lg:w-96 bg-blue-50/50 md:h-screen flex flex-col border-r border-blue-100 sticky top-0 flex-shrink-0">
     <div class="p-8 flex flex-col items-center text-center h-full overflow-y-auto">
-        
-        <!-- 头像 -->
+
+        <!-- Avatar -->
         <div class="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg mb-6 transition-transform hover:scale-105 duration-300">
-            <img src="{{ .Site.Params.avatar }}" alt="Avatar" class="w-full h-full object-cover" />
+            <img src="{{ .Site.Params.profile.avatar }}" alt="Avatar" class="w-full h-full object-cover">
         </div>
 
-        <!-- 姓名与头衔 -->
-        <h1 class="text-2xl font-bold text-slate-900">{{ .Site.Params.author }}</h1>
-        <p class="text-blue-600 font-medium mt-1">{{ .Site.Params.affiliation }}</p>
-        <p class="text-slate-500 text-sm mt-1">{{ .Site.Params.title }}</p>
+        <!-- Name + Affiliation -->
+        <h1 class="text-2xl font-bold text-slate-900">{{ .Site.Params.profile.name }}</h1>
+        <p class="text-blue-600 font-medium mt-1">{{ .Site.Params.profile.affiliation }}</p>
+        <p class="text-slate-500 text-sm mt-1">{{ .Site.Params.profile.title }}</p>
 
-        <!-- 静态名言 (Hugo 不方便做 JS 轮播，先放一条) -->
-        <div class="mt-8 mb-8 min-h-[80px] w-full flex items-center justify-center px-4 bg-white rounded-xl shadow-sm border border-blue-100 relative overflow-hidden">
+        <!-- Quotes Carousel: Hugo 不支持轮播，但显示第一个 -->
+        <div class="mt-8 mb-8 min-h-[80px] w-full flex items-center justify-center px-4 bg-white rounded-xl shadow-sm border border-blue-100">
             <div class="text-sm text-slate-600 italic font-serif">
                 "{{ index .Site.Params.quotes 0 }}"
             </div>
         </div>
 
-        <!-- 联系方式 -->
+        <!-- Contact -->
         <div class="w-full space-y-3 text-sm">
-            <a href="mailto:{{ .Site.Params.email }}" class="flex items-center justify-center gap-2 text-slate-600 hover:text-blue-600 transition-colors p-2 hover:bg-white rounded-lg">
-                <i data-lucide="mail" width="18"></i> {{ .Site.Params.email }}
+            <a href="mailto:{{ .Site.Params.profile.email }}" class="flex items-center justify-center gap-2 text-slate-600 hover:text-blue-600 transition-colors p-2 hover:bg-white rounded-lg">
+                <i data-lucide="mail"></i> {{ .Site.Params.profile.email }}
             </a>
+
             <div class="flex items-center justify-center gap-2 text-slate-600 p-2">
-                <i data-lucide="map-pin" width="18"></i> {{ .Site.Params.location }}
+                <i data-lucide="map-pin"></i> {{ .Site.Params.profile.location }}
             </div>
         </div>
 
-        <!-- CV 下载按钮 -->
-        <a href="{{ .Site.Params.cvLink }}" target="_blank" rel="noopener noreferrer" class="mt-6 px-6 py-2.5 bg-blue-600 text-white rounded-full font-medium shadow-md hover:bg-blue-700 transition-all hover:shadow-lg flex items-center gap-2 w-full justify-center">
-            <i data-lucide="file-text" width="18"></i> Download CV
+        <!-- CV -->
+        <a href="{{ .Site.Params.profile.cvLink }}" class="mt-6 px-6 py-2.5 bg-blue-600 text-white rounded-full font-medium shadow-md hover:bg-blue-700 transition-all hover:shadow-lg flex items-center gap-2 w-full justify-center">
+            <i data-lucide="file-text"></i> Download CV
         </a>
 
-        <!-- 导航菜单 (自动高亮当前页) -->
+        <!-- Navigation menu -->
         <nav class="mt-8 w-full space-y-1">
             {{ range .Site.Menus.main }}
-            {{ $isActive := or (eq $.RelPermalink .URL) (eq $.Section .Identifier) }}
-            <a href="{{ .URL }}" 
-               class="w-full text-left px-4 py-3 rounded-lg transition-all flex items-center justify-between group 
-               {{ if $isActive }}bg-white text-blue-600 shadow-sm font-semibold border-l-4 border-blue-600{{ else }}text-slate-500 hover:bg-white/60 hover:text-slate-700{{ end }}">
+            <a href="{{ .URL }}" class="block px-4 py-3 text-slate-600 hover:bg-white rounded-lg flex justify-between items-center">
                 <span>{{ .Name }}</span>
-                <i data-lucide="chevron-right" width="16" class="transition-opacity {{ if $isActive }}opacity-100{{ else }}opacity-0 group-hover:opacity-100{{ end }}"></i>
+                <i data-lucide="chevron-right" class="opacity-0 group-hover:opacity-100"></i>
             </a>
             {{ end }}
         </nav>
-        
+
         <div class="mt-auto pt-8 text-xs text-slate-400">
-            &copy; {{ now.Year }} {{ .Site.Params.author }}
+            © {{ now.Year }} {{ .Site.Params.profile.name }}
         </div>
+
     </div>
 </aside>

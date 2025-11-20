@@ -1,48 +1,49 @@
 baseURL = 'https://Percival3.github.io/'
 languageCode = 'en-US'
 title = 'Wondering Home'
-theme = "void"
+theme = "pengchen"
 
-# 网站元数据
-description = "Undergraduate Student at Peking University | Economics & Philosophy"
-copyright = "© 2025 Pengchen Zhong"
+[params.profile]
+name = "Pengchen Zhong"
+title = "Undergraduate Student"
+affiliation = "Peking University"
+email = "zpc@stu.pku.edu.cn"
+phone = "195-7445-9596"
+location = "Beijing, China"
+avatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=Pengchen&backgroundColor=e6f1fe"
+cvLink = "/cv.pdf"
+twitter = ""
 
-# Social media links
-[params]
-  [params.social]
-    email = "19574459596@163.com"
-  [params.avatar]
-    url = "https://example.com/your-avatar.jpg"
+# Quotes
+params.quotes = [
+  "Stay hungry, stay foolish. - Steve Jobs",
+  "Economics is the study of mankind in the ordinary business of life. - Alfred Marshall",
+  "Knowing yourself is the beginning of all wisdom. - Aristotle",
+  "博学之，审问之，慎思之，明辨之，笃行之。"
+]
 
-# Main menu
-[[menus.main]]
-name = 'Home'
-pageRef = '/'
-weight = 10
+# Menus
+[menu]
+  [[menu.main]]
+  name = "About"
+  url = "/about/"
 
-[[menus.main]]
-name = 'Posts'
-pageRef = '/posts'
-weight = 20
+  [[menu.main]]
+  name = "post"
+  url = "/post/"
 
-[[menus.main]]
-name = 'Tags'
-pageRef = '/tags'
-weight = 30
+  [[menu.main]]
+  name = "Data"
+  url = "/data/"
 
-[[menus.main]]
-name = 'About'
-pageRef = '/about'
-weight = 40
+  [[menu.main]]
+  name = "Social Work"
+  url = "/social/"
 
-# Table of Contents (recommended)
-[markup]
-  [markup.tableOfContents]
-    startLevel = 1
-    endLevel = 6
-    ordered = false
+  [[menu.main]]
+  name = "Archive"
+  url = "/archive/"
 
-# Allow raw HTML within Markdown (for KaTeX, etc.)
-  [markup.goldmark]
-    [markup.goldmark.renderer]
-      unsafe = true
+  [[menu.main]]
+  name = "Diary"
+  url = "/diary/"
