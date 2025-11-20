@@ -1,5 +1,9 @@
 ---
 title: "About"
+url: "/about/"
+type: "section"
 ---
 
-你的个人简介写这里。同 React 的 Biography 内容。
+这里写 About 内容
+
+

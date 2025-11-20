@@ -1,7 +1,10 @@
 baseURL = 'https://Percival3.github.io/'
-languageCode = 'en-US'
+
 title = 'Wondering Home'
 theme = "pengchen"
+languageCode = 'zh-CN'
+defaultContentLanguage = "zh"
+hasCJKLanguage = true
 
 [params.profile]
 name = "Pengchen Zhong"
@@ -37,7 +40,7 @@ params.quotes = [
   url = "/data/"
 
   [[menu.main]]
-  name = "Social Work"
+  name = "Social"
   url = "/social/"
 
   [[menu.main]]
