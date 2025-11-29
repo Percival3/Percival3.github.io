@@ -1,0 +1,26 @@
+---
+// src/components/Footer.astro
+interface Props {
+  lang: string;
+}
+
+const { lang } = Astro.props;
+const year = new Date().getFullYear();
+
+const footerText = {
+  zh: "构建于 Astro v5 & Tailwind v4",
+  en: "Built with Astro v5 & Tailwind v4",
+  ja: "Astro v5 & Tailwind v4 で構築",
+};
+---
+
+<footer class="py-8 mt-auto border-t border-gray-200/50 dark:border-gray-800/50 text-center">
+  <div class="container mx-auto px-4">
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+      &copy; {year} Alex Dev. All rights reserved.
+    </p>
+    <p class="text-xs text-gray-400 dark:text-gray-600">
+      {footerText[lang as keyof typeof footerText]}
+    </p>
+  </div>
+</footer>

@@ -1,0 +1,103 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import QuoteCarousel from '../../components/QuoteCarousel'; // <--- 引入新组件
+import { Mail, Download, Github, Twitter, Linkedin, Instagram } from 'lucide-react';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'zh' } },
+    { params: { lang: 'en' } },
+    { params: { lang: 'ja' } },
+  ];
+}
+
+const { lang } = Astro.params;
+
+const translations = {
+  zh: {
+    role: "全栈开发者 & UI 设计师",
+    // quote 相关字段删除了，因为我们使用了独立的轮播组件
+    email: "发邮件给我",
+    cv: "下载简历",
+    cvLink: "/cv-zh.pdf",
+  },
+  en: {
+    role: "Full Stack Developer & UI Designer",
+    email: "Email Me",
+    cv: "Download CV",
+    cvLink: "/cv-en.pdf",
+  },
+  ja: {
+    role: "フルスタックエンジニア & UI デザイナー",
+    email: "メールを送る",
+    cv: "履歴書をダウンロード",
+    cvLink: "/cv-ja.pdf",
+  }
+};
+
+const t = translations[lang as keyof typeof translations];
+---
+
+<Layout title="Profile" lang={lang}>
+  <div class="flex flex-col items-center justify-center min-h-[calc(100vh-16rem)] py-20 max-w-2xl mx-auto text-center px-4 animate-in fade-in zoom-in duration-700">
+    
+    <!-- 1. 圆形头像 -->
+    <div class="relative group mb-8">
+      <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+      <img 
+        src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=880&q=80" 
+        alt="Avatar" 
+        class="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-white dark:border-gray-950 shadow-2xl"
+      />
+    </div>
+
+    <!-- 职位/角色 -->
+    <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 mb-2">
+      Alex Dev
+    </h1>
+    <p class="text-blue-600 dark:text-blue-400 font-medium mb-8">
+      {t.role}
+    </p>
+
+    <!-- 2. 名人名言轮播 (独立组件) -->
+    <!-- 这里的 client:visible 确保只有当用户滚动到这里时才开始运行 JS，节省性能 -->
+    <QuoteCarousel client:visible />
+
+    <!-- 3 & 4. 邮件与CV下载 -->
+    <div class="flex flex-col sm:flex-row gap-4 mb-12 w-full sm:w-auto">
+      <a 
+        href="mailto:contact@example.com"
+        class="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+      >
+        <Mail className="w-4 h-4" />
+        <span>{t.email}</span>
+      </a>
+
+      <a 
+        href={t.cvLink}
+        target="_blank"
+        class="flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
+      >
+        <Download className="w-4 h-4" />
+        <span>{t.cv}</span>
+      </a>
+    </div>
+
+    <!-- 5. 社交媒体 -->
+    <div class="flex items-center gap-6 text-gray-400">
+      <a href="https://github.com" target="_blank" aria-label="GitHub" class="hover:text-gray-900 dark:hover:text-white transition-colors transform hover:scale-110">
+        <Github className="w-6 h-6" />
+      </a>
+      <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="hover:text-blue-400 transition-colors transform hover:scale-110">
+        <Twitter className="w-6 h-6" />
+      </a>
+      <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn" class="hover:text-blue-700 transition-colors transform hover:scale-110">
+        <Linkedin className="w-6 h-6" />
+      </a>
+      <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="hover:text-pink-500 transition-colors transform hover:scale-110">
+        <Instagram className="w-6 h-6" />
+      </a>
+    </div>
+
+  </div>
+</Layout>

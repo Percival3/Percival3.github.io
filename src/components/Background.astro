@@ -1,0 +1,19 @@
+---
+// src/components/Background.astro
+import BackgroundEffect from './BackgroundEffect';
+---
+
+<div class="fixed inset-0 -z-10 h-full w-full bg-white dark:bg-slate-900 transition-colors duration-700">
+  
+  <!-- 1. 静态基础层：网格背景 (保持不变，作为底层纹理) -->
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+  
+  <!-- 2. 静态光晕层 (保持不变，提供氛围) -->
+  <div class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-blue-400/20 dark:bg-blue-500/20 opacity-20 blur-[100px]"></div>
+  <div class="absolute bottom-0 left-0 -z-10 h-[300px] w-[300px] rounded-full bg-purple-400/20 dark:bg-purple-500/20 opacity-20 blur-[100px]"></div>
+
+  <!-- 3. 动态特效层 (新增) -->
+  <!-- client:only="react" 告诉 Astro 仅在浏览器端加载此组件，跳过服务端渲染 -->
+  <BackgroundEffect client:only="react" />
+  
+</div>

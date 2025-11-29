@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* 
+  Tailwind v4 默认支持 dark:前缀。
+  这里我们强制声明一下 dark 变体的行为，确保它基于 html 标签上的 .dark 类工作 
+*/
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  /* 平滑滚动 */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* 
+    使用 CSS 变量来控制核心颜色，这样切换时更流畅 
+    不需要复杂的 :root.dark body 写法，直接交给 Tailwind 的 dark: 类处理
+  */
+  body {
+    @apply bg-white text-gray-900 transition-colors duration-300;
+  }
+}
