@@ -17,6 +17,6 @@
     不需要复杂的 :root.dark body 写法，直接交给 Tailwind 的 dark: 类处理
   */
   body {
-    @apply bg-white text-gray-900 transition-colors duration-300;
+    @apply bg-white text-gray-900 dark:bg-slate-950 dark:text-white transition-colors duration-300;
   }
 }
