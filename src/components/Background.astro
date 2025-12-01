@@ -1,19 +1,44 @@
 ---
 // src/components/Background.astro
 import BackgroundEffect from './BackgroundEffect';
+
+// 风景图 URL
+const bgImage = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80";
 ---
 
-<div class="fixed inset-0 -z-10 h-full w-full bg-white dark:bg-slate-900 transition-colors duration-700">
-  
-  <!-- 1. 静态基础层：网格背景 (保持不变，作为底层纹理) -->
-  <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-  
-  <!-- 2. 静态光晕层 (保持不变，提供氛围) -->
-  <div class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-blue-400/20 dark:bg-blue-500/20 opacity-20 blur-[100px]"></div>
-  <div class="absolute bottom-0 left-0 -z-10 h-[300px] w-[300px] rounded-full bg-purple-400/20 dark:bg-purple-500/20 opacity-20 blur-[100px]"></div>
+<!-- 1. 全局底色层 (Fixed): 保证滚动到底部也有颜色，不会变白 -->
+<div class="fixed inset-0 -z-50 h-full w-full bg-white dark:bg-slate-950 transition-colors duration-500"></div>
 
-  <!-- 3. 动态特效层 (新增) -->
-  <!-- client:only="react" 告诉 Astro 仅在浏览器端加载此组件，跳过服务端渲染 -->
-  <BackgroundEffect client:only="react" />
+<!-- 2. 风景图片层 (Absolute): 随页面滚动而移动 -->
+<div class="absolute top-0 left-0 w-full h-[80vh] -z-40 pointer-events-none overflow-hidden">
+  <img 
+    src={bgImage} 
+    alt="Hero Background" 
+    class="w-full h-full object-cover opacity-90 dark:opacity-40 blur-[1px]"
+  />
   
+  <!-- 底部渐变遮罩：让图片底部平滑过渡到底色 -->
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white dark:via-slate-950/10 dark:to-slate-950"></div>
 </div>
+
+<!-- 3. 纹理与光晕层 (Fixed): 增加质感，不随滚动跑掉 -->
+<div class="fixed inset-0 -z-30 pointer-events-none">
+  <!-- 网格 -->
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-40 dark:opacity-20"></div>
+  
+  <!-- 光晕 -->
+  <div class="absolute left-0 right-0 top-0 m-auto h-[500px] w-[500px] rounded-full bg-blue-400/20 dark:bg-blue-600/10 opacity-30 blur-[120px] mix-blend-overlay"></div>
+</div>
+
+<!-- 4. 动态特效层 (Fixed): 樱花/雨滴永远在窗口内 -->
+<div class="fixed inset-0 -z-20 pointer-events-none">
+  <BackgroundEffect client:only="react" />
+</div>
+
+<style>
+  /* 优化图片边缘融合 */
+  img {
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 100%);
+  }
+</style>
