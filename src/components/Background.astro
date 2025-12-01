@@ -2,44 +2,72 @@
 // src/components/Background.astro
 import BackgroundEffect from './BackgroundEffect';
 
-// 风景图 URL
-const bgImage = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80";
+// 1. 定义两张不同的背景图
+const dayImage = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"; // 雪山
+const nightImage = "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"; // 星空
 ---
 
-<!-- 1. 全局底色层 (Fixed): 保证滚动到底部也有颜色，不会变白 -->
-<div class="fixed inset-0 -z-50 h-full w-full bg-white dark:bg-[#020617] transition-colors duration-500"></div>
+<!-- 1. 全局底色层 (保持深色底色，防止图片加载慢时闪白) -->
+<div class="fixed inset-0 -z-50 h-full w-full bg-white dark:bg-[#020617] transition-colors duration-700"></div>
 
-<!-- 2. 风景图片层 (Absolute): 随页面滚动而移动 -->
-<div class="absolute top-0 left-0 w-full h-[80vh] -z-40 pointer-events-none overflow-hidden">
+<!-- 2. 双重背景图片层 -->
+<div class="absolute top-0 left-0 w-full h-[70vh] -z-40 pointer-events-none overflow-hidden select-none">
+  
+  <!-- === A. 白天背景图 === -->
+  <!-- 
+       opacity-90: 白天显示
+       dark:opacity-0: 黑夜隐藏
+       transition-opacity duration-1000: 1秒缓慢淡出
+  -->
   <img 
-    src={bgImage} 
-    alt="Hero Background" 
-    class="w-full h-full object-cover opacity-90 dark:opacity-40 blur-[1px] transition-all duration-700 ease-in-out"
+    src={dayImage} 
+    alt="Day Background" 
+    class="absolute inset-0 w-full h-full object-cover 
+           opacity-90 dark:opacity-0 
+           blur-[1px] transition-opacity duration-1000 ease-in-out"
+  />
+
+  <!-- === B. 黑夜背景图 === -->
+  <!-- 
+       opacity-0: 白天隐藏
+       dark:opacity-30: 黑夜显示 (注意这里设为 30% 透明度，与深蓝底色融合，避免太亮)
+       mix-blend-screen: 让星空更自然地叠加在深色背景上
+  -->
+  <img 
+    src={nightImage} 
+    alt="Night Background" 
+    class="absolute inset-0 w-full h-full object-cover 
+           opacity-0 dark:opacity-30 
+           blur-[1px] transition-opacity duration-1000 ease-in-out"
   />
   
-  <!-- 底部渐变遮罩：让图片底部平滑过渡到底色 -->
-  <div class="absolute inset-0 bg-transparent dark:bg-black/50 transition-colors duration-700"></div>
-  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white dark:from-transparent dark:via-[#020617]/80 dark:to-[#020617] transition-colors duration-700"></div>
+  <!-- === 统一遮罩层 === -->
+  
+  <!-- 夜间压暗遮罩：虽然换了图，但为了保证文字清晰，夜间还是加一层淡淡的黑纱 -->
+  <div class="absolute inset-0 bg-transparent dark:bg-black/20 transition-colors duration-1000"></div>
+
+  <!-- 底部渐变融合：负责让图片平滑过渡到页面底色 -->
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white dark:from-transparent dark:via-[#020617]/80 dark:to-[#020617] transition-colors duration-1000"></div>
 </div>
 
-<!-- 3. 纹理与光晕层 (Fixed): 增加质感，不随滚动跑掉 -->
+<!-- 3. 纹理与光晕层 (保持不变) -->
 <div class="fixed inset-0 -z-30 pointer-events-none">
   <!-- 网格 -->
-  <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-40 dark:opacity-20"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-40 dark:opacity-5"></div>
   
-  <!-- 光晕 -->
-  <div class="absolute left-0 right-0 top-0 m-auto h-[500px] w-[500px] rounded-full bg-blue-400/20 dark:bg-blue-600/10 opacity-30 blur-[120px] mix-blend-overlay"></div>
+  <!-- 光晕：夜间改为深紫色，增加星空氛围 -->
+  <div class="absolute left-0 right-0 top-0 m-auto h-[500px] w-[500px] rounded-full bg-blue-400/20 dark:bg-purple-900/20 opacity-30 blur-[120px] mix-blend-overlay"></div>
 </div>
 
-<!-- 4. 动态特效层 (Fixed): 樱花/雨滴永远在窗口内 -->
+<!-- 4. 动态特效层 (樱花/雨滴) -->
 <div class="fixed inset-0 -z-20 pointer-events-none">
   <BackgroundEffect client:only="react" />
 </div>
 
 <style>
-  /* 优化图片边缘融合 */
+  /* 对两张图都应用蒙版，让底部柔和过渡 */
   img {
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
   }
 </style>
