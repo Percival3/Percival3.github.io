@@ -7,18 +7,19 @@ const bgImage = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ix
 ---
 
 <!-- 1. 全局底色层 (Fixed): 保证滚动到底部也有颜色，不会变白 -->
-<div class="fixed inset-0 -z-50 h-full w-full bg-white dark:bg-slate-950 transition-colors duration-500"></div>
+<div class="fixed inset-0 -z-50 h-full w-full bg-white dark:bg-[#020617] transition-colors duration-500"></div>
 
 <!-- 2. 风景图片层 (Absolute): 随页面滚动而移动 -->
 <div class="absolute top-0 left-0 w-full h-[80vh] -z-40 pointer-events-none overflow-hidden">
   <img 
     src={bgImage} 
     alt="Hero Background" 
-    class="w-full h-full object-cover opacity-90 dark:opacity-40 blur-[1px]"
+    class="w-full h-full object-cover opacity-90 dark:opacity-20 dark:opacity-40 blur-[1px] transition-all duration-700 ease-in-out"
   />
   
   <!-- 底部渐变遮罩：让图片底部平滑过渡到底色 -->
-  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white dark:via-slate-950/10 dark:to-slate-950"></div>
+  <div class="absolute inset-0 bg-transparent dark:bg-black/50 transition-colors duration-700"></div>
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white dark:from-transparent dark:via-[#020617]/80 dark:to-[#020617] transition-colors duration-700"></div>
 </div>
 
 <!-- 3. 纹理与光晕层 (Fixed): 增加质感，不随滚动跑掉 -->
