@@ -1,0 +1,217 @@
+---
+// src/pages/[lang]/posts/[...slug].astro
+// 单篇文章详情页
+import Layout from '../../../layouts/Layout.astro';
+import PostMeta from '../../../components/PostMeta.astro';
+import { getCollection } from 'astro:content';
+import { ArrowLeft, Tag } from 'lucide-react';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { calculateReadingStats } from '../../../utils/reading-time';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts');
+
+  // 为每种语言生成路径
+  const paths = [];
+  const langs = ['zh', 'en', 'ja'];
+
+  for (const post of allPosts) {
+    for (const lang of langs) {
+      paths.push({
+        params: {
+          lang,
+          slug: post.id.replace(/\.md$/, ''),
+        },
+        props: { post },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { post } = Astro.props;
+const { lang } = Astro.params;
+const { Content } = await post.render();
+
+// 计算阅读统计
+const stats = calculateReadingStats(post.body);
+
+// 多语言返回按钮
+const backText = {
+  zh: '返回博客列表',
+  en: 'Back to Blog',
+  ja: 'ブログ一覧に戻る',
+};
+
+const tagsText = {
+  zh: '标签',
+  en: 'Tags',
+  ja: 'タグ',
+};
+---
+
+<Layout title={post.data.title} lang={lang}>
+  <article class="container mx-auto px-4 py-12 md:py-16 max-w-4xl">
+
+    <!-- 返回按钮 -->
+    <a
+      href={getRelativeLocaleUrl(lang, 'posts')}
+      class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:gap-3 transition-all mb-8 group"
+    >
+      <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+      <span>{backText[lang as keyof typeof backText] || backText.zh}</span>
+    </a>
+
+    <!-- 文章头部 -->
+    <header class="mb-8 md:mb-12 animate-in fade-in zoom-in duration-700">
+
+      <!-- 头图(如果有) -->
+      {post.data.heroImage && (
+        <img
+          src={post.data.heroImage}
+          alt={post.data.title}
+          class="w-full h-64 md:h-96 object-cover rounded-2xl mb-8 shadow-2xl"
+        />
+      )}
+
+      <!-- 标题 -->
+      <h1 class="text-3xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 leading-tight">
+        {post.data.title}
+      </h1>
+
+      <!-- 描述 -->
+      {post.data.description && (
+        <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+          {post.data.description}
+        </p>
+      )}
+
+      <!-- 元信息 -->
+      <PostMeta
+        author={post.data.author}
+        pubDate={post.data.pubDate}
+        readingTime={stats.readingTime}
+        wordCount={stats.wordCount}
+        lang={lang}
+      />
+
+      <!-- 标签 -->
+      {post.data.tags && post.data.tags.length > 0 && (
+        <div class="mt-6">
+          <div class="flex items-center gap-2 mb-3 text-sm text-gray-600 dark:text-gray-400">
+            <Tag className="w-4 h-4" />
+            <span>{tagsText[lang as keyof typeof tagsText] || tagsText.zh}</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {post.data.tags.map(tag => (
+              <span class="px-4 py-1.5 text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- 分隔线 -->
+      <hr class="mt-8 border-gray-200 dark:border-gray-800" />
+    </header>
+
+    <!-- 文章正文 -->
+    <div class="prose prose-lg dark:prose-invert max-w-none
+                prose-headings:font-bold
+                prose-headings:text-gray-900 dark:prose-headings:text-white
+                prose-h1:text-4xl prose-h1:mb-4 prose-h1:mt-8
+                prose-h2:text-3xl prose-h2:mb-3 prose-h2:mt-6
+                prose-h3:text-2xl prose-h3:mb-2 prose-h3:mt-4
+                prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed
+                prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-gray-900 dark:prose-strong:text-white
+                prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:before:content-[''] prose-code:after:content-['']
+                prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:text-gray-100 prose-pre:shadow-xl prose-pre:rounded-xl
+                prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:italic
+                prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8
+                prose-hr:border-gray-300 dark:prose-hr:border-gray-700
+                prose-ul:my-4 prose-ol:my-4
+                prose-li:text-gray-700 dark:prose-li:text-gray-300
+                prose-table:border-collapse prose-table:w-full
+                prose-th:bg-gray-100 dark:prose-th:bg-gray-800 prose-th:p-3 prose-th:text-left
+                prose-td:border prose-td:border-gray-200 dark:prose-td:border-gray-700 prose-td:p-3
+                animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <Content />
+    </div>
+
+    <!-- 文章底部分隔线 -->
+    <hr class="mt-12 border-gray-200 dark:border-gray-800" />
+
+    <!-- 返回按钮(底部) -->
+    <div class="mt-8 text-center">
+      <a
+        href={getRelativeLocaleUrl(lang, 'posts')}
+        class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium shadow-lg hover:shadow-xl"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>{backText[lang as keyof typeof backText] || backText.zh}</span>
+      </a>
+    </div>
+
+  </article>
+</Layout>
+
+<style>
+  /* KaTeX 数学公式样式优化 */
+  :global(.katex) {
+    font-size: 1.1em;
+  }
+
+  :global(.katex-display) {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  /* 代码块优化 */
+  :global(pre) {
+    padding: 1.5rem !important;
+    overflow-x: auto;
+  }
+
+  :global(pre code) {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  /* 图片样式 */
+  :global(.prose img) {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* 响应式表格 */
+  :global(.prose table) {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    :global(.prose) {
+      font-size: 1rem;
+    }
+
+    :global(.prose h1) {
+      font-size: 2rem;
+    }
+
+    :global(.prose h2) {
+      font-size: 1.5rem;
+    }
+
+    :global(.prose h3) {
+      font-size: 1.25rem;
+    }
+  }
+</style>

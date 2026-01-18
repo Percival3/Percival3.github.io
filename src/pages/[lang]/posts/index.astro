@@ -1,0 +1,168 @@
+---
+// src/pages/[lang]/posts/index.astro
+// 博客文章列表页
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { Calendar, Clock, ArrowRight } from 'lucide-react';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { calculateReadingStats } from '../../../utils/reading-time';
+
+export async function getStaticPaths() {
+  return [
+    { params: { lang: 'zh' } },
+    { params: { lang: 'en' } },
+    { params: { lang: 'ja' } },
+  ];
+}
+
+const { lang } = Astro.params;
+
+// 获取所有文章
+const allPosts = await getCollection('posts');
+
+// 过滤掉草稿,并按日期排序
+const publishedPosts = allPosts
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 多语言标题
+const pageTitle = {
+  zh: '博客文章',
+  en: 'Blog Posts',
+  ja: 'ブログ記事',
+};
+
+const texts = {
+  zh: {
+    title: '博客',
+    subtitle: '分享技术见解与学习笔记',
+    readMore: '阅读全文',
+    minRead: '分钟',
+    noPosts: '暂无文章',
+  },
+  en: {
+    title: 'Blog',
+    subtitle: 'Sharing tech insights and learning notes',
+    readMore: 'Read More',
+    minRead: 'min',
+    noPosts: 'No posts yet',
+  },
+  ja: {
+    title: 'ブログ',
+    subtitle: '技術的な洞察と学習ノートの共有',
+    readMore: '続きを読む',
+    minRead: '分',
+    noPosts: '記事がありません',
+  },
+};
+
+const t = texts[lang as keyof typeof texts] || texts.zh;
+
+// 格式化日期
+function formatDate(date: Date, locale: string): string {
+  const localeMap = {
+    zh: 'zh-CN',
+    en: 'en-US',
+    ja: 'ja-JP',
+  };
+  return date.toLocaleDateString(localeMap[locale as keyof typeof localeMap] || 'zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+---
+
+<Layout title={pageTitle[lang as keyof typeof pageTitle] || 'Blog'} lang={lang}>
+  <div class="container mx-auto px-4 py-12 md:py-20 max-w-4xl">
+
+    <!-- 页面标题 -->
+    <div class="text-center mb-12 md:mb-16 animate-in fade-in zoom-in duration-700">
+      <h1 class="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 mb-4">
+        {t.title}
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 text-lg">
+        {t.subtitle}
+      </p>
+    </div>
+
+    <!-- 文章列表 -->
+    {publishedPosts.length > 0 ? (
+      <div class="space-y-8">
+        {publishedPosts.map((post) => {
+          const stats = calculateReadingStats(post.body);
+          const postUrl = getRelativeLocaleUrl(lang, `posts/${post.id.replace(/\.md$/, '')}`);
+
+          return (
+            <article class="group bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-gray-200/50 dark:border-gray-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
+
+              <!-- 头图(如果有) -->
+              {post.data.heroImage && (
+                <a href={postUrl}>
+                  <img
+                    src={post.data.heroImage}
+                    alt={post.data.title}
+                    class="w-full h-48 md:h-64 object-cover rounded-xl mb-6 group-hover:scale-[1.02] transition-transform duration-300"
+                  />
+                </a>
+              )}
+
+              <!-- 文章标题 -->
+              <a href={postUrl}>
+                <h2 class="text-2xl md:text-3xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {post.data.title}
+                </h2>
+              </a>
+
+              <!-- 元信息 -->
+              <div class="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <div class="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4" />
+                  <time datetime={post.data.pubDate.toISOString()}>
+                    {formatDate(post.data.pubDate, lang)}
+                  </time>
+                </div>
+                <div class="w-px h-4 bg-gray-300 dark:bg-gray-700"></div>
+                <div class="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4" />
+                  <span>{stats.readingTime} {t.minRead}</span>
+                </div>
+              </div>
+
+              <!-- 文章描述 -->
+              <p class="text-gray-700 dark:text-gray-300 mb-4 line-clamp-2">
+                {post.data.description}
+              </p>
+
+              <!-- 标签(如果有) -->
+              {post.data.tags && post.data.tags.length > 0 && (
+                <div class="flex flex-wrap gap-2 mb-4">
+                  {post.data.tags.map(tag => (
+                    <span class="px-3 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <!-- 阅读更多链接 -->
+              <a
+                href={postUrl}
+                class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium hover:gap-3 transition-all group/link"
+              >
+                <span>{t.readMore}</span>
+                <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+              </a>
+
+            </article>
+          );
+        })}
+      </div>
+    ) : (
+      <div class="text-center py-20 text-gray-500 dark:text-gray-400">
+        <p class="text-xl">{t.noPosts}</p>
+      </div>
+    )}
+
+  </div>
+</Layout>

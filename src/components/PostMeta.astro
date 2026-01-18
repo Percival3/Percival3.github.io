@@ -1,0 +1,89 @@
+---
+// src/components/PostMeta.astro
+// 文章元信息显示组件: 作者、日期、阅读时间、字数等
+import { Calendar, Clock, User, FileText } from 'lucide-react';
+
+interface Props {
+  author: string;
+  pubDate: Date;
+  readingTime: number; // 分钟
+  wordCount: number;
+  lang?: string;
+}
+
+const { author, pubDate, readingTime, wordCount, lang = 'zh' } = Astro.props;
+
+// 格式化日期
+function formatDate(date: Date, locale: string): string {
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  };
+
+  const localeMap = {
+    zh: 'zh-CN',
+    en: 'en-US',
+    ja: 'ja-JP',
+  };
+
+  return date.toLocaleDateString(localeMap[locale as keyof typeof localeMap] || 'zh-CN', options);
+}
+
+// 多语言文本
+const texts = {
+  zh: {
+    readingTime: `${readingTime} 分钟阅读`,
+    wordCount: `${wordCount.toLocaleString()} 字`,
+  },
+  en: {
+    readingTime: `${readingTime} min read`,
+    wordCount: `${wordCount.toLocaleString()} words`,
+  },
+  ja: {
+    readingTime: `${readingTime} 分`,
+    wordCount: `${wordCount.toLocaleString()} 文字`,
+  },
+};
+
+const t = texts[lang as keyof typeof texts] || texts.zh;
+---
+
+<div class="flex flex-wrap items-center gap-4 md:gap-6 text-sm text-gray-600 dark:text-gray-400">
+
+  <!-- 作者 -->
+  <div class="flex items-center gap-2">
+    <User className="w-4 h-4" />
+    <span>{author}</span>
+  </div>
+
+  <!-- 分隔符 -->
+  <div class="hidden sm:block w-px h-4 bg-gray-300 dark:bg-gray-700"></div>
+
+  <!-- 发布日期 -->
+  <div class="flex items-center gap-2">
+    <Calendar className="w-4 h-4" />
+    <time datetime={pubDate.toISOString()}>
+      {formatDate(pubDate, lang)}
+    </time>
+  </div>
+
+  <!-- 分隔符 -->
+  <div class="hidden sm:block w-px h-4 bg-gray-300 dark:bg-gray-700"></div>
+
+  <!-- 阅读时间 -->
+  <div class="flex items-center gap-2">
+    <Clock className="w-4 h-4" />
+    <span>{t.readingTime}</span>
+  </div>
+
+  <!-- 分隔符 -->
+  <div class="hidden sm:block w-px h-4 bg-gray-300 dark:bg-gray-700"></div>
+
+  <!-- 字数统计 -->
+  <div class="flex items-center gap-2">
+    <FileText className="w-4 h-4" />
+    <span>{t.wordCount}</span>
+  </div>
+
+</div>
