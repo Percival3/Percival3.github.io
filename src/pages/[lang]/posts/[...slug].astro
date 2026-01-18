@@ -3,7 +3,7 @@
 // 单篇文章详情页
 import Layout from '../../../layouts/Layout.astro';
 import PostMeta from '../../../components/PostMeta.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import { ArrowLeft, Tag } from 'lucide-react';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { calculateReadingStats } from '../../../utils/reading-time';
@@ -32,10 +32,12 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { lang } = Astro.params;
-const { Content } = await post.render();
+
+// Astro v5 新 API: 使用 render() 函数渲染内容
+const { Content } = await render(post);
 
 // 计算阅读统计
-const stats = calculateReadingStats(post.body);
+const stats = calculateReadingStats(post.body || '');
 
 // 多语言返回按钮
 const backText = {
