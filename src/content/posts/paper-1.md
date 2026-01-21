@@ -2,7 +2,7 @@
 title: "基于 Astro 构建高性能个人主页"
 pubDate: 2024-03-20
 description: "这是一篇关于如何使用 Astro 框架构建响应式个人网站的详细教程。"
-author: "Alex Dev"
+author: "Zhong Pengchen"
 tags: ["Astro", "Web Development", "Tutorial"]
 heroImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
 lang: "zh"

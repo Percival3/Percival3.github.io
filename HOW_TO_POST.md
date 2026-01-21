@@ -23,7 +23,7 @@ src/content/posts/my-new-post.md
 title: "文章标题"
 pubDate: 2024-03-22
 description: "文章简短描述"
-author: "Alex Dev"
+author: "Zhong Pengchen"
 tags: ["标签1", "标签2"]
 heroImage: "图片URL(可选)"
 lang: "zh"
@@ -153,7 +153,7 @@ $$
 title: "我的第一篇博客"
 pubDate: 2024-03-22
 description: "这是我的第一篇博客文章,分享我的学习经验。"
-author: "Alex Dev"
+author: "Zhong Pengchen"
 tags: ["学习", "经验分享", "编程"]
 heroImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&q=80"
 lang: "zh"

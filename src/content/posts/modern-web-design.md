@@ -2,7 +2,7 @@
 title: "现代 Web 设计趋势 2024"
 pubDate: 2024-03-22
 description: "探索 2024 年最新的 Web 设计趋势,包括渐变、动画效果和响应式设计最佳实践。"
-author: "Alex Dev"
+author: "Zhong Pengchen"
 tags: ["Design", "Web Development", "UI/UX", "Trends"]
 heroImage: "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
 lang: "zh"

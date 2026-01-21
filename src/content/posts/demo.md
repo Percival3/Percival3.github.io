@@ -2,7 +2,7 @@
 title: "Astro v5 + Tailwind v4 演示"
 pubDate: 2024-03-15
 description: "这是一个展示 Astro v5 和 Tailwind v4 强大功能的演示文章。"
-author: "Alex Dev"
+author: "Zhong Pengchen"
 tags: ["Astro", "Tailwind", "Demo"]
 lang: "zh"
 ---

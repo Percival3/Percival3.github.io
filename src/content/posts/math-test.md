@@ -2,6 +2,9 @@
 title: "测试数学公式与代码高亮"
 pubDate: 2024-03-21
 description: "测试 KaTeX 和 Shiki 的渲染效果"
+author: "Zhong Pengchen"
+tags: ["Math", "Code", "Test"]
+lang: "zh"
 ---
 
 ## 数学公式测试

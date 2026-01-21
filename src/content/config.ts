@@ -12,7 +12,7 @@ const posts = defineCollection({
     description: z.string(),
 
     // 可选字段
-    author: z.string().default('Alex Dev'), // 默认作者
+    author: z.string().default('Zhong Pengchen'), // 默认作者
     tags: z.array(z.string()).optional(), // 标签数组
     heroImage: z.string().optional(), // 文章头图
     draft: z.boolean().default(false), // 是否为草稿

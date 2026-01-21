@@ -3,11 +3,10 @@ import React, { useState, useEffect } from 'react';
 // 这里定义你的全局名言库，不受页面语言切换影响
 // 你可以放中文、英文混合，或者任何你喜欢的
 const GLOBAL_QUOTES = [
-  { text: "Talk is cheap. Show me the code.", author: "Linus Torvalds" },
-  { text: "知行合一，止于至善。", author: "王阳明" },
-  { text: "Stay hungry, stay foolish.", author: "Steve Jobs" },
-  { text: "Simplicity is the soul of efficiency.", author: "Austin Freeman" },
-  { text: "不积跬步，无以至千里。", author: "荀子" }
+  { text: "Cogito ergo sum", author: "René Descartes" },
+  { text: "头顶的星空和心中的律令", author: "" },
+  { text: "Stand Alone Complex", author: "" },
+  { text: "理性作为存在", author: "" },
 ];
 
 export default function QuoteCarousel() {
