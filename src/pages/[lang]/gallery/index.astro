@@ -75,9 +75,9 @@ const texts = {
 const t = texts[lang as keyof typeof texts] || texts.en;
 
 const categoryTone: Record<CreativeCategory, string> = {
-  'social-observation': 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-  anime: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
-  other: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
+  'social-observation': 'border border-white/28 dark:border-cyan-200/30 bg-slate-900/52 dark:bg-cyan-950/48 text-[#f5ead9] dark:text-cyan-100',
+  anime: 'border border-pink-200/45 dark:border-fuchsia-200/36 bg-pink-950/42 dark:bg-fuchsia-950/42 text-[#ffe4f4] dark:text-[#ffd7f2]',
+  other: 'border border-white/26 dark:border-cyan-200/22 bg-slate-900/46 dark:bg-slate-900/46 text-[#f2e8d8] dark:text-[#d6e7f6]',
 };
 ---
 
@@ -158,7 +158,7 @@ const categoryTone: Record<CreativeCategory, string> = {
                                   {t.categories[category]}
                                 </span>
                               </div>
-                              <h3 class="text-lg font-bold mb-2 text-[var(--adaptive-text-strong)] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              <h3 class="text-lg font-bold mb-2 text-[var(--adaptive-text-strong)] dark:text-gray-100 group-hover:opacity-90 transition-opacity">
                                 {item.data.title}
                               </h3>
                               <p class="text-sm text-[var(--adaptive-text-body)] dark:text-gray-400 line-clamp-2 mb-3">
@@ -168,7 +168,7 @@ const categoryTone: Record<CreativeCategory, string> = {
                               {item.data.tags && item.data.tags.length > 0 && (
                                 <div class="flex flex-wrap gap-1.5">
                                   {item.data.tags.map((tag) => (
-                                    <span class="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                                    <span class="accent-chip px-2 py-0.5 text-xs font-medium rounded-full">
                                       {tag}
                                     </span>
                                   ))}

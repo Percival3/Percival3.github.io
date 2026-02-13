@@ -73,9 +73,9 @@ const textByLang = {
 const t = textByLang[lang as keyof typeof textByLang] || textByLang.en;
 
 const categoryTone: Record<CreativeCategory, string> = {
-  'social-observation': 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-  anime: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
-  other: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
+  'social-observation': 'border border-white/28 dark:border-cyan-200/30 bg-slate-900/52 dark:bg-cyan-950/48 text-[#f5ead9] dark:text-cyan-100',
+  anime: 'border border-pink-200/45 dark:border-fuchsia-200/36 bg-pink-950/42 dark:bg-fuchsia-950/42 text-[#ffe4f4] dark:text-[#ffd7f2]',
+  other: 'border border-white/26 dark:border-cyan-200/22 bg-slate-900/46 dark:bg-slate-900/46 text-[#f2e8d8] dark:text-[#d6e7f6]',
 };
 ---
 
@@ -152,7 +152,7 @@ const categoryTone: Record<CreativeCategory, string> = {
           </div>
             <div class="flex flex-wrap gap-2">
               {item.data.tags.map((tag) => (
-                <span class="glass-chip px-4 py-1.5 text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-full">
+                <span class="accent-chip px-4 py-1.5 text-sm font-medium rounded-full">
                   {tag}
                 </span>
               ))}
