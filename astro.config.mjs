@@ -1,4 +1,4 @@
-// astro.config.mjs
+﻿// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
@@ -6,30 +6,23 @@ import tailwindcss from '@tailwindcss/vite';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
-// 自动检测开发环境
-// 开发环境使用 '/', 生产环境使用 '/my-astro-blog'
-const isDev = import.meta.env.DEV;
+// Netlify provides URL in build environment. Fall back to current public site.
+const siteUrl = process.env.URL || 'https://Percival3.github.io';
 
 export default defineConfig({
-  // 1. 替换为你的 GitHub Page 完整网址
-  site: 'https://Percival3.github.io',
+  // Netlify static deployment
+  site: siteUrl,
+  base: '/',
 
-  // 2. 自动适配开发/生产环境
-  // 开发环境: base = '/' (方便本地访问)
-  // 生产环境: base = '/my-astro-blog' (部署到 GitHub Pages)
-  base: isDev ? '/' : '/my-astro-blog',
-
-  // 3. 多语言配置
   i18n: {
     defaultLocale: 'zh',
     locales: ['zh', 'en', 'ja'],
     routing: {
       prefixDefaultLocale: true,
-      redirectToDefaultLocale: false
-    }
+      redirectToDefaultLocale: false,
+    },
   },
 
-  // 4. Markdown 配置
   markdown: {
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],
@@ -39,10 +32,8 @@ export default defineConfig({
     },
   },
 
-  // 集成 MDX + React
   integrations: [mdx(), react()],
 
-  // Vite 配置中加入 Tailwind v4
   vite: {
     plugins: [tailwindcss()],
   },

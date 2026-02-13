@@ -1,63 +1,63 @@
-# Zhong Pengchen's Personal Website
+﻿# Zhong Pengchen's Personal Website
 
 A modern, high-performance personal website built with Astro v5 and Tailwind CSS v4.
 
-## 👤 About
+## 馃懁 About
 
-**Name:** Zhong Pengchen (钟朋辰)
+**Name:** Zhong Pengchen (閽熸湅杈?
 **Status:** Student
 **Affiliation:** Peking University
 
-## ✨ Features
+## 鉁?Features
 
-- 🎨 Modern gradient design with glassmorphism effects
-- 🌓 Dark/Light theme support with smooth transitions
-- 🌍 Multi-language support (中文/English/日本語)
-- 📝 Full-featured blog system with Markdown support
-- 🧮 Math formula rendering (KaTeX)
-- 💻 Code syntax highlighting (Shiki)
-- 📱 Fully responsive design
-- ⚡ Lightning-fast performance (Astro Islands Architecture)
-- 🎭 Animated background effects (Sakura/Rain particles)
+- 馃帹 Modern gradient design with glassmorphism effects
+- 馃寭 Dark/Light theme support with smooth transitions
+- 馃實 Multi-language support (涓枃/English/鏃ユ湰瑾?
+- 馃摑 Full-featured blog system with Markdown support
+- 馃М Math formula rendering (KaTeX)
+- 馃捇 Code syntax highlighting (Shiki)
+- 馃摫 Fully responsive design
+- 鈿?Lightning-fast performance (Astro Islands Architecture)
+- 馃幁 Animated background effects (Sakura/Rain particles)
 
-## 🚀 Project Structure
+## 馃殌 Project Structure
 
 ```text
 /
-├── public/               # Static assets
-├── src/
-│   ├── components/       # Reusable UI components
-│   │   ├── Background.astro
-│   │   ├── BackgroundEffect.tsx
-│   │   ├── Navigation.astro
-│   │   ├── ThemeToggle.tsx
-│   │   ├── LanguageSelector.tsx
-│   │   ├── MobileMenu.tsx
-│   │   ├── QuoteCarousel.tsx
-│   │   ├── PostMeta.astro
-│   │   └── Footer.astro
-│   ├── layouts/          # Page layouts
-│   │   └── Layout.astro
-│   ├── pages/            # Routes and pages
-│   │   ├── index.astro
-│   │   └── [lang]/
-│   │       ├── index.astro
-│   │       └── posts/
-│   │           ├── index.astro
-│   │           └── [...slug].astro
-│   ├── content/          # Blog posts (Markdown)
-│   │   ├── config.ts
-│   │   └── posts/
-│   ├── utils/            # Utility functions
-│   │   └── reading-time.ts
-│   └── styles/           # Global styles
-│       └── global.css
-├── astro.config.mjs      # Astro configuration
-├── package.json
-└── tailwind.config.mjs   # Tailwind CSS configuration
+鈹溾攢鈹€ public/               # Static assets
+鈹溾攢鈹€ src/
+鈹?  鈹溾攢鈹€ components/       # Reusable UI components
+鈹?  鈹?  鈹溾攢鈹€ Background.astro
+鈹?  鈹?  鈹溾攢鈹€ BackgroundEffect.tsx
+鈹?  鈹?  鈹溾攢鈹€ Navigation.astro
+鈹?  鈹?  鈹溾攢鈹€ ThemeToggle.tsx
+鈹?  鈹?  鈹溾攢鈹€ LanguageSelector.tsx
+鈹?  鈹?  鈹溾攢鈹€ MobileMenu.tsx
+鈹?  鈹?  鈹溾攢鈹€ QuoteCarousel.tsx
+鈹?  鈹?  鈹溾攢鈹€ PostMeta.astro
+鈹?  鈹?  鈹斺攢鈹€ Footer.astro
+鈹?  鈹溾攢鈹€ layouts/          # Page layouts
+鈹?  鈹?  鈹斺攢鈹€ Layout.astro
+鈹?  鈹溾攢鈹€ pages/            # Routes and pages
+鈹?  鈹?  鈹溾攢鈹€ index.astro
+鈹?  鈹?  鈹斺攢鈹€ [lang]/
+鈹?  鈹?      鈹溾攢鈹€ index.astro
+鈹?  鈹?      鈹斺攢鈹€ posts/
+鈹?  鈹?          鈹溾攢鈹€ index.astro
+鈹?  鈹?          鈹斺攢鈹€ [...slug].astro
+鈹?  鈹溾攢鈹€ content/          # Blog posts (Markdown)
+鈹?  鈹?  鈹溾攢鈹€ config.ts
+鈹?  鈹?  鈹斺攢鈹€ posts/
+鈹?  鈹溾攢鈹€ utils/            # Utility functions
+鈹?  鈹?  鈹斺攢鈹€ reading-time.ts
+鈹?  鈹斺攢鈹€ styles/           # Global styles
+鈹?      鈹斺攢鈹€ global.css
+鈹溾攢鈹€ astro.config.mjs      # Astro configuration
+鈹溾攢鈹€ package.json
+鈹斺攢鈹€ tailwind.config.mjs   # Tailwind CSS configuration
 ```
 
-## 🧞 Commands
+## 馃 Commands
 
 All commands are run from the root of the project:
 
@@ -70,7 +70,7 @@ All commands are run from the root of the project:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
-## 📝 Creating Blog Posts
+## 馃摑 Creating Blog Posts
 
 1. Create a new `.md` file in `src/content/posts/`
 2. Add frontmatter:
@@ -93,7 +93,7 @@ draft: false
 
 See [HOW_TO_POST.md](./HOW_TO_POST.md) for detailed instructions.
 
-## 🛠️ Tech Stack
+## 馃洜锔?Tech Stack
 
 - **Framework:** Astro v5.16.2
 - **UI Library:** React 19.2.0
@@ -103,7 +103,7 @@ See [HOW_TO_POST.md](./HOW_TO_POST.md) for detailed instructions.
 - **Math Rendering:** KaTeX (rehype-katex, remark-math)
 - **Code Highlighting:** Shiki
 
-## 🎨 Design Features
+## 馃帹 Design Features
 
 - **Background System:** Multi-layered with dual day/night images
 - **Particle Effects:** Theme-aware canvas animations (Sakura/Rain)
@@ -111,32 +111,41 @@ See [HOW_TO_POST.md](./HOW_TO_POST.md) for detailed instructions.
 - **Typography:** Responsive fluid type with Tailwind Prose
 - **Animations:** Smooth transitions (300-1000ms durations)
 
-## 🌐 Multi-language URLs
+## 馃寪 Multi-language URLs
 
 - Chinese: `/zh/`
 - English: `/en/`
 - Japanese: `/ja/`
 
-## 📚 Documentation
+## 馃摎 Documentation
 
 - [HOW_TO_POST.md](./HOW_TO_POST.md) - Blog posting guide
 - [BLOG_SYSTEM_SUMMARY.md](./BLOG_SYSTEM_SUMMARY.md) - Technical overview
 - [DESIGN_STYLE_GUIDE.md](./DESIGN_STYLE_GUIDE.md) - Design system documentation
 
-## 🚀 Deployment
+## Deployment (Netlify)
 
-The site is configured for GitHub Pages deployment. Before building for production:
+This project is now configured for Netlify static hosting.
 
-1. Update `site` and `base` in `astro.config.mjs` if needed
-2. Run `npm run build`
-3. Deploy the `dist/` folder
+1. Push your repository to GitHub.
+2. In Netlify, import the GitHub repo.
+3. Build settings:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+   - Node version: `20`
+4. Ensure `astro.config.mjs` uses `base: '/'`.
+5. (Optional) Set a custom domain in Netlify Domain Management.
 
-The configuration automatically adjusts base path for dev/prod environments.
+Notes:
 
-## 📄 License
+- `netlify.toml` is included to lock build and publish settings.
+- If you no longer use GitHub Pages, disable `.github/workflows/astro.yml` to avoid duplicate deployments.
 
-© 2024 Zhong Pengchen. All rights reserved.
+## License
+
+漏 2024 Zhong Pengchen. All rights reserved.
 
 ---
 
-Built with ❤️ using Astro v5 & Tailwind v4
+Built with 鉂わ笍 using Astro v5 & Tailwind v4
+
