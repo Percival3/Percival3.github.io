@@ -1,151 +1,134 @@
-﻿# Zhong Pengchen's Personal Website
+# Zhong Pengchen Personal Site
 
-A modern, high-performance personal website built with Astro v5 and Tailwind CSS v4.
+A multilingual personal website built with Astro v5, React 19, and Tailwind CSS v4.
 
-## 馃懁 About
+## Overview
 
-**Name:** Zhong Pengchen (閽熸湅杈?
-**Status:** Student
-**Affiliation:** Peking University
+This repository contains a static site with:
 
-## 鉁?Features
+- Three content collections: `posts`, `research`, `creatives`
+- Localized routes: `zh`, `en`, `ja`
+- Day/Night visual themes with adaptive text color tokens
+- Markdown/MDX content pipeline (Shiki + KaTeX)
 
-- 馃帹 Modern gradient design with glassmorphism effects
-- 馃寭 Dark/Light theme support with smooth transitions
-- 馃實 Multi-language support (涓枃/English/鏃ユ湰瑾?
-- 馃摑 Full-featured blog system with Markdown support
-- 馃М Math formula rendering (KaTeX)
-- 馃捇 Code syntax highlighting (Shiki)
-- 馃摫 Fully responsive design
-- 鈿?Lightning-fast performance (Astro Islands Architecture)
-- 馃幁 Animated background effects (Sakura/Rain particles)
+## Tech Stack
 
-## 馃殌 Project Structure
+- Astro v5
+- React 19
+- Tailwind CSS v4 (`@tailwindcss/vite`)
+- `lucide-react`
+- `remark-math` + `rehype-katex`
+
+## Project Structure
 
 ```text
-/
-鈹溾攢鈹€ public/               # Static assets
-鈹溾攢鈹€ src/
-鈹?  鈹溾攢鈹€ components/       # Reusable UI components
-鈹?  鈹?  鈹溾攢鈹€ Background.astro
-鈹?  鈹?  鈹溾攢鈹€ BackgroundEffect.tsx
-鈹?  鈹?  鈹溾攢鈹€ Navigation.astro
-鈹?  鈹?  鈹溾攢鈹€ ThemeToggle.tsx
-鈹?  鈹?  鈹溾攢鈹€ LanguageSelector.tsx
-鈹?  鈹?  鈹溾攢鈹€ MobileMenu.tsx
-鈹?  鈹?  鈹溾攢鈹€ QuoteCarousel.tsx
-鈹?  鈹?  鈹溾攢鈹€ PostMeta.astro
-鈹?  鈹?  鈹斺攢鈹€ Footer.astro
-鈹?  鈹溾攢鈹€ layouts/          # Page layouts
-鈹?  鈹?  鈹斺攢鈹€ Layout.astro
-鈹?  鈹溾攢鈹€ pages/            # Routes and pages
-鈹?  鈹?  鈹溾攢鈹€ index.astro
-鈹?  鈹?  鈹斺攢鈹€ [lang]/
-鈹?  鈹?      鈹溾攢鈹€ index.astro
-鈹?  鈹?      鈹斺攢鈹€ posts/
-鈹?  鈹?          鈹溾攢鈹€ index.astro
-鈹?  鈹?          鈹斺攢鈹€ [...slug].astro
-鈹?  鈹溾攢鈹€ content/          # Blog posts (Markdown)
-鈹?  鈹?  鈹溾攢鈹€ config.ts
-鈹?  鈹?  鈹斺攢鈹€ posts/
-鈹?  鈹溾攢鈹€ utils/            # Utility functions
-鈹?  鈹?  鈹斺攢鈹€ reading-time.ts
-鈹?  鈹斺攢鈹€ styles/           # Global styles
-鈹?      鈹斺攢鈹€ global.css
-鈹溾攢鈹€ astro.config.mjs      # Astro configuration
-鈹溾攢鈹€ package.json
-鈹斺攢鈹€ tailwind.config.mjs   # Tailwind CSS configuration
+.
+|-- public/
+|-- src/
+|   |-- components/
+|   |   |-- Background.astro
+|   |   |-- BackgroundEffect.tsx
+|   |   |-- Navigation.astro
+|   |   |-- LanguageSelector.tsx
+|   |   |-- ThemeToggle.tsx
+|   |   |-- MobileMenu.tsx
+|   |   |-- QuoteCarousel.tsx
+|   |   |-- PostMeta.astro
+|   |   `-- Footer.astro
+|   |-- content/
+|   |   |-- config.ts
+|   |   |-- posts/
+|   |   |-- research/
+|   |   `-- creatives/
+|   |-- layouts/
+|   |   `-- Layout.astro
+|   |-- pages/
+|   |   |-- index.astro
+|   |   `-- [lang]/
+|   |       |-- index.astro
+|   |       |-- about/index.astro
+|   |       |-- blog/index.astro
+|   |       |-- blog/[...slug].astro
+|   |       |-- research/index.astro
+|   |       |-- research/[...slug].astro
+|   |       |-- gallery/index.astro
+|   |       `-- gallery/[...slug].astro
+|   |-- styles/global.css
+|   `-- utils/reading-time.ts
+|-- astro.config.mjs
+|-- netlify.toml
+`-- package.json
 ```
 
-## 馃 Commands
+## Local Development
 
-All commands are run from the root of the project:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Install dependencies                             |
-| `npm run dev`             | Start local dev server at `localhost:4321`       |
-| `npm run build`           | Build production site to `./dist/`               |
-| `npm run preview`         | Preview your build locally before deploying      |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 馃摑 Creating Blog Posts
-
-1. Create a new `.md` file in `src/content/posts/`
-2. Add frontmatter:
-
-```yaml
----
-title: "Your Post Title"
-pubDate: 2024-03-22
-description: "Brief description"
-author: "Zhong Pengchen"
-tags: ["Tag1", "Tag2"]
-heroImage: "https://example.com/image.jpg" # Optional
-lang: "zh" # or "en", "ja"
-draft: false
----
+```bash
+npm install
+npm run dev
 ```
 
-3. Write your content in Markdown
-4. The post will automatically appear on your blog
+Default local URL: `http://localhost:4321`
 
-See [HOW_TO_POST.md](./HOW_TO_POST.md) for detailed instructions.
+## Build and Preview
 
-## 馃洜锔?Tech Stack
+```bash
+npm run build
+npm run preview
+```
 
-- **Framework:** Astro v5.16.2
-- **UI Library:** React 19.2.0
-- **Styling:** Tailwind CSS v4.1.17
-- **Icons:** Lucide React v0.555.0
-- **Typography:** @tailwindcss/typography
-- **Math Rendering:** KaTeX (rehype-katex, remark-math)
-- **Code Highlighting:** Shiki
+Build output: `dist/`
 
-## 馃帹 Design Features
+## Content Authoring
 
-- **Background System:** Multi-layered with dual day/night images
-- **Particle Effects:** Theme-aware canvas animations (Sakura/Rain)
-- **Color Palette:** Blue-purple gradient accent throughout
-- **Typography:** Responsive fluid type with Tailwind Prose
-- **Animations:** Smooth transitions (300-1000ms durations)
+Content directories:
 
-## 馃寪 Multi-language URLs
+- Blog: `src/content/posts/`
+- Research: `src/content/research/`
+- Gallery: `src/content/creatives/`
 
-- Chinese: `/zh/`
-- English: `/en/`
-- Japanese: `/ja/`
+For full publishing rules and frontmatter fields:
 
-## 馃摎 Documentation
+- `HOW_TO_POST.md`
+- `BLOG_SYSTEM_SUMMARY.md`
+- `DESIGN_STYLE_GUIDE.md`
 
-- [HOW_TO_POST.md](./HOW_TO_POST.md) - Blog posting guide
-- [BLOG_SYSTEM_SUMMARY.md](./BLOG_SYSTEM_SUMMARY.md) - Technical overview
-- [DESIGN_STYLE_GUIDE.md](./DESIGN_STYLE_GUIDE.md) - Design system documentation
+## Routing
+
+Root path redirects to Chinese home:
+
+- `/` -> `/zh/`
+
+Localized sections:
+
+- `/{lang}/`
+- `/{lang}/blog`
+- `/{lang}/research`
+- `/{lang}/gallery`
+- `/{lang}/about`
 
 ## Deployment (Netlify)
 
-This project is now configured for Netlify static hosting.
+This repo is configured for Netlify static hosting.
 
-1. Push your repository to GitHub.
-2. In Netlify, import the GitHub repo.
-3. Build settings:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-   - Node version: `20`
-4. Ensure `astro.config.mjs` uses `base: '/'`.
-5. (Optional) Set a custom domain in Netlify Domain Management.
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Node version: `20`
 
-Notes:
+These are defined in `netlify.toml`.
 
-- `netlify.toml` is included to lock build and publish settings.
-- If you no longer use GitHub Pages, disable `.github/workflows/astro.yml` to avoid duplicate deployments.
+### Deploy Steps
+
+1. Push this repository to GitHub.
+2. In Netlify: **Add new site** -> **Import an existing project** -> select this repo.
+3. Confirm build settings (Netlify usually reads `netlify.toml` automatically).
+4. Deploy.
+5. Optional: bind a custom domain in Netlify Domain Management.
+
+## Notes
+
+- If you only use Netlify, disable GitHub Pages workflow in `.github/workflows/astro.yml` to avoid duplicate deployments.
+- Do not store source assets in `dist/`; use `public/` for static files.
 
 ## License
 
-漏 2024 Zhong Pengchen. All rights reserved.
-
----
-
-Built with 鉂わ笍 using Astro v5 & Tailwind v4
-
+Copyright (c) Zhong Pengchen. All rights reserved.
