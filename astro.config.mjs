@@ -1,5 +1,6 @@
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import remarkMath from 'remark-math';
@@ -38,8 +39,8 @@ export default defineConfig({
     },
   },
 
-  // 集成 React
-  integrations: [react()],
+  // 集成 MDX + React
+  integrations: [mdx(), react()],
 
   // Vite 配置中加入 Tailwind v4
   vite: {

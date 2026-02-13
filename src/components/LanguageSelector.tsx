@@ -35,7 +35,7 @@ export default function LanguageSelector({ currentLang, languages }: Props) {
       {/* 触发按钮 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-inherit hover:bg-white/10 dark:hover:bg-white/10 transition-colors"
       >
         <Languages className="w-4 h-4" />
         <span className="hidden sm:inline">{currentLabel}</span>

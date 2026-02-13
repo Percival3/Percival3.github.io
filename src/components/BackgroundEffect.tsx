@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
+type Mode = 'rain' | 'petal';
+
 type Particle = {
   x: number;
   y: number;
@@ -7,9 +9,64 @@ type Particle = {
   speedY: number;
   size: number;
   opacity: number;
-  rotation?: number; // 樱花专用
-  rotationSpeed?: number; // 樱花专用
+  rotation: number;
+  rotationSpeed: number;
+  drift: number;
+  length: number;
+  color: string;
 };
+
+const PETAL_COLORS = ['#ffd9bf', '#f7c6a8', '#ffe0b8', '#f5d5bd'];
+const NEON_RAIN_COLORS = ['rgba(64,255,235,0.78)', 'rgba(82,214,255,0.72)', 'rgba(120,255,189,0.68)', 'rgba(199,88,255,0.5)'];
+
+const EFFECT_PRESET = {
+  performance: {
+    lowPowerCpuThreads: 6,
+    reducedMotionFrameInterval: 80,
+    rainFrameIntervalLowPower: 45,
+    rainFrameIntervalDefault: 34,
+    petalFrameIntervalLowPower: 40,
+    petalFrameIntervalDefault: 28,
+  },
+  petal: {
+    countLowPower: 24,
+    countDefault: 34,
+    speedXMin: -0.2,
+    speedXRange: 0.42,
+    speedYMin: 0.35,
+    speedYRange: 0.8,
+    sizeMin: 2.6,
+    sizeRange: 3.2,
+    opacityMin: 0.32,
+    opacityRange: 0.32,
+    rotationSpeedMin: -0.6,
+    rotationSpeedRange: 1.2,
+    swayStrength: 0.35,
+    boundary: 24,
+  },
+  rain: {
+    countLowPower: 50,
+    countDefault: 74,
+    speedXBase: 0.85,
+    speedXRange: 0.85,
+    speedYMin: 8.8,
+    speedYRange: 4.8,
+    sizeMin: 0.8,
+    sizeRange: 1.1,
+    opacityMin: 0.29,
+    opacityRange: 0.3,
+    lengthMin: 9,
+    lengthRange: 12,
+    lineMultiplier: 2.1,
+    lineWidthMultiplier: 1.2,
+    respawnYBoundary: 30,
+    respawnXBoundary: -110,
+  },
+} as const;
+
+function randomFrom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]!;
+}
 
 export default function BackgroundEffect() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -21,15 +78,75 @@ export default function BackgroundEffect() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const lowPowerDevice = (navigator.hardwareConcurrency ?? 8) <= EFFECT_PRESET.performance.lowPowerCpuThreads;
+
+    let animationFrameId = 0;
+    let lastFrameTime = 0;
     let particles: Particle[] = [];
     let width = window.innerWidth;
     let height = window.innerHeight;
-    
-    // 当前模式：'rain' | 'sakura'
-    let mode: 'rain' | 'sakura' = document.documentElement.classList.contains('dark') ? 'rain' : 'sakura';
 
-    // 初始化画布尺寸
+    let mode: Mode = document.documentElement.classList.contains('dark') ? 'rain' : 'petal';
+
+    const getFrameInterval = () => {
+      if (prefersReducedMotion) return EFFECT_PRESET.performance.reducedMotionFrameInterval;
+      if (mode === 'rain') {
+        return lowPowerDevice
+          ? EFFECT_PRESET.performance.rainFrameIntervalLowPower
+          : EFFECT_PRESET.performance.rainFrameIntervalDefault;
+      }
+      return lowPowerDevice
+        ? EFFECT_PRESET.performance.petalFrameIntervalLowPower
+        : EFFECT_PRESET.performance.petalFrameIntervalDefault;
+    };
+
+    const createParticle = (randomY: boolean): Particle => {
+      const x = Math.random() * (mode === 'rain' ? width + 200 : width) - (mode === 'rain' ? 100 : 0);
+      const y = randomY ? Math.random() * height : -18;
+
+      if (mode === 'petal') {
+        const p = EFFECT_PRESET.petal;
+        return {
+          x,
+          y,
+          speedX: Math.random() * p.speedXRange + p.speedXMin,
+          speedY: Math.random() * p.speedYRange + p.speedYMin,
+          size: Math.random() * p.sizeRange + p.sizeMin,
+          opacity: Math.random() * p.opacityRange + p.opacityMin,
+          rotation: Math.random() * 360,
+          rotationSpeed: Math.random() * p.rotationSpeedRange + p.rotationSpeedMin,
+          drift: Math.random() * Math.PI * 2,
+          length: 0,
+          color: randomFrom(PETAL_COLORS),
+        };
+      }
+
+      const r = EFFECT_PRESET.rain;
+      return {
+        x,
+        y,
+        speedX: -(Math.random() * r.speedXRange + r.speedXBase),
+        speedY: Math.random() * r.speedYRange + r.speedYMin,
+        size: Math.random() * r.sizeRange + r.sizeMin,
+        opacity: Math.random() * r.opacityRange + r.opacityMin,
+        rotation: 0,
+        rotationSpeed: 0,
+        drift: 0,
+        length: Math.random() * r.lengthRange + r.lengthMin,
+        color: randomFrom(NEON_RAIN_COLORS),
+      };
+    };
+
+    const initParticles = () => {
+      const p = EFFECT_PRESET.petal;
+      const r = EFFECT_PRESET.rain;
+      const count = mode === 'petal'
+        ? (lowPowerDevice ? p.countLowPower : p.countDefault)
+        : (lowPowerDevice ? r.countLowPower : r.countDefault);
+      particles = Array.from({ length: count }, () => createParticle(true));
+    };
+
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
@@ -38,128 +155,101 @@ export default function BackgroundEffect() {
       initParticles();
     };
 
-    // 初始化粒子
-    const initParticles = () => {
-      particles = [];
-      // 粒子数量：樱花少一点(50)，雨多一点(100)
-      const count = mode === 'sakura' ? 40 : 120;
-      
-      for (let i = 0; i < count; i++) {
-        resetParticle({}, true);
-      }
-    };
-
-    // 重置单个粒子（当它跑出屏幕时）
-    // randomY: 是否在屏幕中间随机生成（用于初始化），否则从顶部生成
-    const resetParticle = (p: Partial<Particle>, randomY = false) => {
-      p.x = Math.random() * width;
-      p.y = randomY ? Math.random() * height : -10;
-      
-      if (mode === 'sakura') {
-        // 樱花参数
-        p.size = Math.random() * 4 + 3; // 大小 3-7
-        p.speedY = Math.random() * 1 + 0.5; // 下落速度
-        p.speedX = Math.random() * 0.5 - 0.25; // 轻微左右漂移基础值
-        p.opacity = Math.random() * 0.5 + 0.3;
-        p.rotation = Math.random() * 360;
-        p.rotationSpeed = Math.random() * 2 - 1;
-      } else {
-        // 雨滴参数
-        p.size = Math.random() * 2 + 10; // 长度
-        p.speedY = Math.random() * 5 + 15; // 极快下落
-        p.speedX = -1; //稍微向左下的风
-        p.opacity = Math.random() * 0.4 + 0.3;
-      }
-      
-      // 如果不是初始化，且是新的粒子，推入数组
-      if (!particles.includes(p as Particle)) {
-        particles.push(p as Particle);
-      }
-    };
-
-    // 绘制樱花瓣 (使用贝塞尔曲线或简单的椭圆)
-    const drawSakura = (p: Particle) => {
-      if (!ctx) return;
+    const drawPetal = (p: Particle) => {
       ctx.save();
       ctx.translate(p.x, p.y);
-      ctx.rotate((p.rotation || 0) * Math.PI / 180);
+      ctx.rotate((p.rotation * Math.PI) / 180);
       ctx.globalAlpha = p.opacity;
-      
-      // 绘制一个花瓣形状 (椭圆)
+
       ctx.beginPath();
-      ctx.ellipse(0, 0, p.size, p.size / 2, 0, 0, 2 * Math.PI);
-      ctx.fillStyle = '#ffc0cb'; // 经典粉色
+      ctx.moveTo(0, -p.size * 0.8);
+      ctx.bezierCurveTo(p.size * 0.85, -p.size * 0.35, p.size * 0.62, p.size * 0.75, 0, p.size * 0.9);
+      ctx.bezierCurveTo(-p.size * 0.62, p.size * 0.75, -p.size * 0.85, -p.size * 0.35, 0, -p.size * 0.8);
+      ctx.fillStyle = p.color;
       ctx.fill();
-      
+
       ctx.restore();
     };
 
-    // 绘制雨滴
-    const drawRain = (p: Particle) => {
-      if (!ctx) return;
+    const drawNeonRain = (p: Particle) => {
+      const r = EFFECT_PRESET.rain;
+      const endX = p.x + p.speedX * r.lineMultiplier;
+      const endY = p.y + p.length;
+
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x + p.speedX, p.y + p.size);
-      ctx.strokeStyle = `rgba(174, 194, 224, ${p.opacity})`; // 蓝灰色
-      ctx.lineWidth = 1.5;
+      ctx.lineTo(endX, endY);
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = Math.max(0.7, p.size * r.lineWidthMultiplier);
       ctx.lineCap = 'round';
       ctx.stroke();
+      ctx.restore();
     };
 
-    // 动画循环
-    const render = () => {
+    const render = (timestamp: number) => {
+      const interval = getFrameInterval();
+      if (timestamp - lastFrameTime < interval) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
+      lastFrameTime = timestamp;
+
       ctx.clearRect(0, 0, width, height);
 
-      particles.forEach((p) => {
-        // 更新位置
-        p.y += p.speedY;
-        p.x += p.speedX;
+      for (let i = 0; i < particles.length; i += 1) {
+        const p = particles[i]!;
 
-        // 樱花特有的摇摆逻辑
-        if (mode === 'sakura') {
-          p.x += Math.sin(p.y * 0.01) * 0.5; // 正弦波摇摆
-          p.rotation = (p.rotation || 0) + (p.rotationSpeed || 0);
-        }
+        if (mode === 'petal') {
+          const pConfig = EFFECT_PRESET.petal;
+          p.y += p.speedY;
+          p.x += p.speedX + Math.sin(p.y * 0.014 + p.drift) * pConfig.swayStrength;
+          p.rotation += p.rotationSpeed;
 
-        // 边界检查：如果超出底部或侧边
-        if (p.y > height || p.x > width + 20 || p.x < -20) {
-          resetParticle(p);
-        }
+          if (p.y > height + pConfig.boundary || p.x > width + pConfig.boundary || p.x < -pConfig.boundary) {
+            particles[i] = createParticle(false);
+            continue;
+          }
 
-        // 绘制
-        if (mode === 'sakura') {
-          drawSakura(p);
+          drawPetal(p);
         } else {
-          drawRain(p);
+          const rConfig = EFFECT_PRESET.rain;
+          p.y += p.speedY;
+          p.x += p.speedX;
+
+          if (p.y > height + rConfig.respawnYBoundary || p.x < rConfig.respawnXBoundary) {
+            particles[i] = createParticle(false);
+            continue;
+          }
+
+          drawNeonRain(p);
         }
-      });
+      }
 
       animationFrameId = requestAnimationFrame(render);
     };
 
-    // 监听主题变化
     const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
+      for (const mutation of mutations) {
         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          const isDark = document.documentElement.classList.contains('dark');
-          const newMode = isDark ? 'rain' : 'sakura';
-          if (newMode !== mode) {
-            mode = newMode;
-            initParticles(); // 切换模式时重置粒子
+          const nextMode: Mode = document.documentElement.classList.contains('dark') ? 'rain' : 'petal';
+          if (nextMode !== mode) {
+            mode = nextMode;
+            initParticles();
           }
         }
-      });
+      }
     });
 
     observer.observe(document.documentElement, {
-      attributes: true, 
-      attributeFilter: ['class']
+      attributes: true,
+      attributeFilter: ['class'],
     });
 
-    // 启动
     window.addEventListener('resize', resize);
     resize();
-    render();
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
       window.removeEventListener('resize', resize);
@@ -168,11 +258,5 @@ export default function BackgroundEffect() {
     };
   }, []);
 
-  return (
-    <canvas 
-      ref={canvasRef} 
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 0 }} // 放在背景层之上，内容之下
-    />
-  );
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }} />;
 }

@@ -1,0 +1,254 @@
+---
+// src/pages/[lang]/research/[...slug].astro
+// 学术研究详情页
+import Layout from '../../../layouts/Layout.astro';
+import PostMeta from '../../../components/PostMeta.astro';
+import { getCollection, render } from 'astro:content';
+import { ArrowLeft, Tag, FileText, Database, ExternalLink, BookOpen } from 'lucide-react';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { calculateReadingStats } from '../../../utils/reading-time';
+
+export async function getStaticPaths() {
+  const allResearch = await getCollection('research');
+
+  const paths = [];
+  const langs = ['zh', 'en', 'ja'];
+
+  for (const item of allResearch) {
+    for (const lang of langs) {
+      paths.push({
+        params: {
+          lang,
+          slug: item.id.replace(/\.mdx?$/, ''),
+        },
+        props: { item },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { item } = Astro.props;
+const { lang } = Astro.params;
+
+const { Content } = await render(item);
+const stats = calculateReadingStats(item.body || '');
+
+const isPaper = item.data.type === 'paper';
+
+const backText = {
+  zh: '返回学术研究',
+  en: 'Back to Research',
+  ja: '研究一覧に戻る',
+};
+
+const tagsText = {
+  zh: '标签',
+  en: 'Tags',
+  ja: 'タグ',
+};
+---
+
+<Layout title={item.data.title} lang={lang}>
+  <article class="page-shell max-w-4xl md:py-16">
+
+    <a
+      href={getRelativeLocaleUrl(lang, 'research')}
+      class="glass-chip inline-flex items-center gap-2 px-4 py-2 rounded-full text-[#ecdcc8] dark:text-[#bfe6ff] hover:gap-3 transition-all mb-8 group"
+    >
+      <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+      <span>{backText[lang as keyof typeof backText] || backText.zh}</span>
+    </a>
+
+    <header class="page-hero md:mb-12">
+      <div class="page-hero-card text-left">
+
+      {item.data.heroImage && (
+        <img
+          src={item.data.heroImage}
+          alt={item.data.title}
+          class="w-full h-64 md:h-96 object-cover rounded-2xl mb-8 shadow-2xl"
+        />
+      )}
+
+      <!-- 类型徽章 -->
+      <div class="mb-4">
+        <span class={`glass-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${isPaper ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300' : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-300'}`}>
+          {isPaper ? <BookOpen className="w-4 h-4" /> : <Database className="w-4 h-4" />}
+          {isPaper ? 'Paper' : 'Dataset'}
+        </span>
+      </div>
+
+      <h1 class="page-title text-3xl md:text-5xl mb-6 leading-tight">
+        {item.data.title}
+      </h1>
+
+      {item.data.description && (
+        <p class="page-subtitle text-lg md:text-xl mb-6 leading-relaxed">
+          {item.data.description}
+        </p>
+      )}
+
+      <!-- 学术元信息 -->
+      <div class="flex flex-wrap items-center gap-4 mb-6">
+        {item.data.venue && (
+          <span class="glass-chip inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-medium text-[#ebdecb] dark:text-gray-300">
+            {item.data.venue}
+          </span>
+        )}
+        {item.data.doi && (
+          <a
+            href={`https://doi.org/${item.data.doi}`}
+            target="_blank"
+            class="inline-flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            DOI: {item.data.doi}
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        )}
+      </div>
+
+      <!-- 下载/链接按钮 -->
+      <div class="flex flex-wrap gap-3 mb-6">
+        {item.data.pdfUrl && (
+          <a
+            href={item.data.pdfUrl}
+            target="_blank"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            <FileText className="w-4 h-4" />
+            Download PDF
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        )}
+        {item.data.datasetUrl && (
+          <a
+            href={item.data.datasetUrl}
+            target="_blank"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+          >
+            <Database className="w-4 h-4" />
+            Dataset
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        )}
+      </div>
+
+      <PostMeta
+        author={item.data.author}
+        pubDate={item.data.pubDate}
+        readingTime={stats.readingTime}
+        wordCount={stats.wordCount}
+        lang={lang}
+      />
+
+      {item.data.tags && item.data.tags.length > 0 && (
+        <div class="mt-6">
+          <div class="flex items-center gap-2 mb-3 text-sm text-[#d8cab6] dark:text-gray-400">
+            <Tag className="w-4 h-4" />
+            <span>{tagsText[lang as keyof typeof tagsText] || tagsText.zh}</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {item.data.tags.map(tag => (
+              <span class="glass-chip px-4 py-1.5 text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-full">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <hr class="mt-8 border-white/25 dark:border-cyan-200/18" />
+      </div>
+    </header>
+
+    <div class="page-card rounded-3xl p-6 md:p-10">
+      <div class="prose prose-lg dark:prose-invert max-w-none article-prose
+                prose-headings:font-bold
+                prose-h1:text-4xl prose-h1:mb-4 prose-h1:mt-8
+                prose-h2:text-3xl prose-h2:mb-3 prose-h2:mt-6
+                prose-h3:text-2xl prose-h3:mb-2 prose-h3:mt-4
+                prose-p:leading-relaxed
+                prose-a:no-underline hover:prose-a:underline
+                prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:before:content-[''] prose-code:after:content-['']
+                prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:text-gray-100 prose-pre:shadow-xl prose-pre:rounded-xl
+                prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:italic
+                prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8
+                prose-ul:my-4 prose-ol:my-4
+                prose-table:border-collapse prose-table:w-full
+                prose-th:bg-gray-100 dark:prose-th:bg-gray-800 prose-th:p-3 prose-th:text-left
+                prose-td:border prose-td:border-gray-200 dark:prose-td:border-gray-700 prose-td:p-3
+                animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <Content />
+      </div>
+    </div>
+
+    <hr class="mt-12 border-white/20 dark:border-cyan-200/16" />
+
+    <div class="mt-8 text-center">
+      <a
+        href={getRelativeLocaleUrl(lang, 'research')}
+        class="glass-chip inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-[#ecdcc8] dark:text-[#c7ebff] hover:opacity-85 transition-opacity font-medium"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>{backText[lang as keyof typeof backText] || backText.zh}</span>
+      </a>
+    </div>
+
+  </article>
+</Layout>
+
+<style>
+  :global(.katex) {
+    font-size: 1.1em;
+  }
+
+  :global(.katex-display) {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  :global(pre) {
+    padding: 1.5rem !important;
+    overflow-x: auto;
+  }
+
+  :global(pre code) {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  :global(.prose img) {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  :global(.prose table) {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    :global(.prose) {
+      font-size: 1rem;
+    }
+
+    :global(.prose h1) {
+      font-size: 2rem;
+    }
+
+    :global(.prose h2) {
+      font-size: 1.5rem;
+    }
+
+    :global(.prose h3) {
+      font-size: 1.25rem;
+    }
+  }
+</style>

@@ -1,5 +1,4 @@
 ---
-// src/layouts/Layout.astro
 import '../styles/global.css';
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
@@ -21,10 +20,8 @@ const { title, lang } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
 
-    <!-- KaTeX CSS for math rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
 
-    <!-- 防闪烁脚本 -->
     <script is:inline>
       const theme = (() => {
         if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
@@ -42,22 +39,18 @@ const { title, lang } = Astro.props;
       }
     </script>
   </head>
-  
-  <body class="min-h-screen flex flex-col relative text-gray-900 dark:text-gray-100 transition-colors duration-300">
-    
-    <!-- 1. 背景组件 -->
+
+  <body class="min-h-screen flex flex-col relative bg-transparent text-gray-900 dark:text-gray-100 transition-colors duration-300">
     <Background />
 
-    <!-- 2. 导航组件 -->
-    <Navigation lang={lang} />
+    <div class="relative z-10 flex min-h-screen flex-col">
+      <Navigation lang={lang} />
 
-    <!-- 3. 主内容区域 -->
-    <main class="flex-grow w-full">
-      <slot />
-    </main>
+      <main class="content-shell flex-grow w-full">
+        <slot />
+      </main>
 
-    <!-- 4. 页脚组件 -->
-    <Footer lang={lang} />
-    
+      <Footer lang={lang} />
+    </div>
   </body>
 </html>

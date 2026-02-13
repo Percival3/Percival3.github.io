@@ -1,301 +1,166 @@
-# Blog System Implementation Summary
-
-## ✅ What Has Been Created
-
-I've successfully built a complete blog system for your Astro website that maintains your existing design style. Here's what was implemented:
-
----
-
-## 📁 New Files Created
-
-### 1. **Content Configuration**
-- **Updated**: `src/content/config.ts`
-  - Full schema with title, date, description, author, tags, heroImage, draft status
-  - Type-safe with Zod validation
-
-### 2. **Utilities**
-- **New**: `src/utils/reading-time.ts`
-  - Calculate word count (supports Chinese + English)
-  - Estimate reading time
-  - Multi-language formatting
-
-### 3. **Components**
-- **New**: `src/components/PostMeta.astro`
-  - Display author, date, reading time, word count
-  - Multi-language support
-  - Icons from lucide-react
-
-### 4. **Pages**
-- **New**: `src/pages/[lang]/posts/index.astro`
-  - Blog listing page for all posts
-  - Filtered by draft status
-  - Sorted by date (newest first)
-  - Card layout with hover effects
-  - Shows hero image, title, description, tags, metadata
-
-- **New**: `src/pages/[lang]/posts/[...slug].astro`
-  - Individual post detail page
-  - Full markdown rendering
-  - Prose styling with Tailwind Typography
-  - Hero image display
-  - Post metadata
-  - Back to blog button
-  - Optimized for reading experience
-
-### 5. **Configuration**
-- **Updated**: `astro.config.mjs`
-  - Added remark-math plugin
-  - Added rehype-katex plugin
-  - Configured Shiki for code highlighting
-
-- **Updated**: `src/layouts/Layout.astro`
-  - Added KaTeX CSS for math rendering
-
-- **Updated**: `src/components/Navigation.astro`
-  - Changed "博客" link from `/posts/demo` to `/posts`
-
-### 6. **Sample Posts**
-- **Updated**: `src/content/posts/demo.md`
-  - Added complete frontmatter
-  - Enhanced content
-
-- **Updated**: `src/content/posts/paper-1.md`
-  - Added hero image
-  - Extended content with tutorial
-
-- **Updated**: `src/content/posts/math-test.md`
-  - Already had frontmatter (kept as is)
-
-- **New**: `src/content/posts/modern-web-design.md`
-  - Complete example with multiple images
-  - Demonstrates all Markdown features
-  - Code blocks, tables, math formulas
-  - Hero image + inline images
-
-### 7. **Documentation**
-- **New**: `HOW_TO_POST.md`
-  - Complete guide for creating posts
-  - Frontmatter field explanations
-  - Markdown syntax examples
-  - Publishing workflow
-
-- **New**: `BLOG_SYSTEM_SUMMARY.md` (this file)
-
----
-
-## 🎨 Design Consistency
-
-The blog system maintains your existing design style:
-
-### Visual Elements
-- ✅ Gradient text headings (blue-purple)
-- ✅ Glassmorphism cards with backdrop blur
-- ✅ Dark mode support throughout
-- ✅ Smooth animations and transitions
-- ✅ Consistent color palette
-- ✅ Same spacing and typography
-
-### Layout
-- ✅ Sticky navigation header
-- ✅ Layered background system
-- ✅ Responsive design (mobile/desktop)
-- ✅ Footer with copyright
-
-### Typography
-- ✅ Tailwind Prose for article content
-- ✅ Custom prose styling for dark mode
-- ✅ Code syntax highlighting (github-dark theme)
-- ✅ Math formula rendering (KaTeX)
-
----
-
-## 🚀 Features Implemented
-
-### 1. **Post Creation**
-- ✅ Upload new `.md` files to `src/content/posts/`
-- ✅ Automatic processing and routing
-- ✅ Type-safe frontmatter validation
-
-### 2. **Rich Content Support**
-- ✅ Images (hero images + inline images)
-- ✅ Code blocks with syntax highlighting
-- ✅ Mathematical formulas (LaTeX)
-- ✅ Tables
-- ✅ Blockquotes
-- ✅ Lists (ordered/unordered)
-- ✅ Links
-- ✅ Text formatting (bold, italic, strikethrough, code)
-
-### 3. **Post Metadata**
-- ✅ Author name display
-- ✅ Publication date (localized)
-- ✅ Reading time estimation
-- ✅ Word count (Chinese + English)
-- ✅ Tags display
-- ✅ Description preview
-
-### 4. **Multi-language**
-- ✅ Works with existing i18n (zh/en/ja)
-- ✅ Localized date formats
-- ✅ Localized UI text
-- ✅ Language-specific routing
-
-### 5. **User Experience**
-- ✅ Hover effects on post cards
-- ✅ Smooth page transitions
-- ✅ Back to blog navigation
-- ✅ Responsive images
-- ✅ Mobile-friendly layout
-- ✅ Fast page loads (static generation)
-
----
-
-## 📊 How It Works
-
-### Content Flow
-```
-1. Create .md file in src/content/posts/
-2. Add frontmatter (title, date, description, etc.)
-3. Write content in Markdown
-4. Astro builds static pages automatically
-5. Posts appear on /[lang]/posts/ listing
-6. Individual posts at /[lang]/posts/[slug]
-```
-
-### URL Structure
-```
-/zh/posts/           → Blog listing (Chinese)
-/zh/posts/demo       → Individual post (Chinese)
-/en/posts/           → Blog listing (English)
-/en/posts/demo       → Individual post (English)
-```
-
-### Reading Stats Calculation
-- Removes frontmatter, code blocks, markdown syntax
-- Counts Chinese characters separately
-- Counts English words separately
-- Estimates reading time (400 chars/min Chinese, 225 words/min English)
-
----
-
-## 🎯 How to Use
-
-### Creating a New Post
-
-1. Create file: `src/content/posts/my-post.md`
-
-2. Add frontmatter:
-```yaml
----
-title: "My Post Title"
-pubDate: 2024-03-22
-description: "Brief description"
-author: "Alex Dev"
-tags: ["Tag1", "Tag2"]
-heroImage: "https://example.com/image.jpg"
-lang: "zh"
----
-```
+﻿# Blog and Content System Summary
 
-3. Write content in Markdown
+## Purpose
+This document describes the current content system implemented in this repository.
+It replaces older notes that referenced outdated routes and file names.
 
-4. Run `npm run dev` to preview
+## Current Scope
+The site has three first-class content collections:
 
-5. Deploy with `npm run build`
+- `posts` for blog articles
+- `research` for papers and datasets
+- `creatives` for gallery/project entries
 
-### Viewing Posts
+All three collections are rendered through localized routes under `src/pages/[lang]/`.
 
-- **List page**: Navigate to "博客" in the navigation menu
-- **Individual post**: Click any post card
-- **Direct URL**: Access via `/[lang]/posts/[filename]`
+## Stack Used by the Content System
 
----
+- Astro v5 content collections (`astro:content`)
+- Markdown and MDX content files (`.md`, `.mdx`)
+- Zod schema validation in `src/content/config.ts`
+- Markdown plugins from `astro.config.mjs`:
+  - `remark-math`
+  - `rehype-katex`
+  - Shiki syntax highlighting (`github-dark`, line wrap enabled)
 
-## 🔧 Configuration
+## Route Model
 
-### Markdown Plugins
-Located in `astro.config.mjs`:
-- `remark-math`: Parse LaTeX math syntax
-- `rehype-katex`: Render math formulas
-- Shiki: Code syntax highlighting
+Localized routes are generated for all supported locales: `zh`, `en`, `ja`.
 
-### Content Schema
-Located in `src/content/config.ts`:
-- Modify to add/remove frontmatter fields
-- Change default values
-- Adjust validation rules
+### Home
 
-### Styling
-Located in `src/pages/[lang]/posts/[...slug].astro`:
-- Prose classes control article styling
-- Modify color schemes, spacing, typography
-- Adjust responsive breakpoints
+- `/{lang}/`
 
----
+### Blog (`posts` collection)
 
-## 📦 Dependencies
+- Listing: `/{lang}/blog`
+- Detail: `/{lang}/blog/{slug}`
 
-Already installed (from package.json):
-- ✅ `remark-math`
-- ✅ `rehype-katex`
-- ✅ `@tailwindcss/typography`
+### Research (`research` collection)
 
-No additional packages needed!
+- Listing: `/{lang}/research`
+- Detail: `/{lang}/research/{slug}`
 
----
+### Gallery (`creatives` collection)
 
-## 🎨 Customization Points
+- Listing: `/{lang}/gallery`
+- Detail: `/{lang}/gallery/{slug}`
 
-### Change Default Author
-Edit `src/content/config.ts`:
-```typescript
-author: z.string().default('Your Name'),
-```
+`src/pages/index.astro` redirects root traffic to `/zh/`.
 
-### Adjust Reading Speed
-Edit `src/utils/reading-time.ts`:
-```typescript
-const chineseReadingTime = chineseCount / 400; // Adjust 400
-const englishReadingTime = englishCount / 225; // Adjust 225
-```
+## Collection Schemas
 
-### Modify Post Card Design
-Edit `src/pages/[lang]/posts/index.astro` (lines 70-120)
+Defined in `src/content/config.ts`.
 
-### Change Article Styling
-Edit prose classes in `src/pages/[lang]/posts/[...slug].astro` (lines 85-104)
+### Shared base fields (all collections)
 
----
+- `title: string` (required)
+- `pubDate: date` (required, coerced)
+- `description: string` (required)
+- `author: string` (default: `Zhong Pengchen`)
+- `tags: string[]` (optional)
+- `heroImage: string` (optional)
+- `draft: boolean` (default: `false`)
+- `lang: 'zh' | 'en' | 'ja'` (default: `zh`)
+- `featured: boolean` (default: `false`)
 
-## 🌐 Live URLs
+### `research` extra fields
 
-After deployment, posts will be accessible at:
-- **Chinese**: `https://yourdomain.com/zh/posts/`
-- **English**: `https://yourdomain.com/en/posts/`
-- **Japanese**: `https://yourdomain.com/ja/posts/`
+- `type: 'paper' | 'dataset'` (default: `paper`)
+- `doi: string` (optional)
+- `venue: string` (optional)
+- `datasetUrl: string` (optional)
+- `pdfUrl: string` (optional)
 
----
+### `creatives` extra fields
 
-## 📝 Sample Posts Included
+- `techStack: string[]` (optional)
+- `previewImage: string` (optional)
+- `demoUrl: string` (optional)
+- `category: 'social-observation' | 'anime' | 'other'` (default: `other`)
 
-1. **demo.md** - Basic Markdown demonstration
-2. **math-test.md** - Math formulas and code highlighting
-3. **paper-1.md** - Tutorial with hero image
-4. **modern-web-design.md** - Complete example with all features
+## Content Loading
 
----
+Each collection uses `glob` loaders and supports both `.md` and `.mdx`:
 
-## ✨ Next Steps
+- `src/content/posts/**/*.{md,mdx}`
+- `src/content/research/**/*.{md,mdx}`
+- `src/content/creatives/**/*.{md,mdx}`
 
-You can now:
+## Rendering Pattern
 
-1. ✅ Start writing new posts in `src/content/posts/`
-2. ✅ Customize the design to your preference
-3. ✅ Add more features (comments, search, categories, etc.)
-4. ✅ Deploy to production
+### Listing pages
 
-Refer to [HOW_TO_POST.md](./HOW_TO_POST.md) for detailed posting instructions!
+Listing pages call `getCollection(...)`, then:
 
----
+1. filter out drafts (`!item.data.draft`)
+2. sort by `pubDate` descending
+3. render cards/lists with metadata and optional images
 
-**Everything is ready to use! Happy blogging! 🚀**
+### Detail pages
+
+Detail pages use catch-all routes (`[...slug].astro`) and:
+
+1. generate static paths from every content item
+2. duplicate paths across `zh`, `en`, `ja`
+3. render markdown/MDX with `render(item)`
+
+## Reading Stats and Meta
+
+`src/utils/reading-time.ts` computes:
+
+- mixed Chinese/English word count
+- estimated reading time
+
+Used in:
+
+- `src/pages/[lang]/blog/index.astro`
+- `src/pages/[lang]/blog/[...slug].astro`
+- `src/pages/[lang]/research/[...slug].astro`
+
+`src/components/PostMeta.astro` displays:
+
+- author
+- publication date
+- reading time
+- word count
+
+## Homepage Aggregation
+
+`src/pages/[lang]/index.astro` shows the latest three published entries from each collection:
+
+- latest blog posts
+- latest research
+- latest creative works
+
+## i18n Behavior Notes
+
+- UI strings are localized by route locale (`zh`, `en`, `ja`).
+- Content itself is not currently filtered by `data.lang` on list/detail pages.
+- Result: the same content items are reachable from all locale paths.
+
+If strict locale-content mapping is required, add `item.data.lang === lang` filters in collection queries.
+
+## Build and Deployment Notes
+
+From `astro.config.mjs`:
+
+- `site: https://Percival3.github.io`
+- `base: '/'` in dev
+- `base: '/my-astro-blog'` in production
+
+This base behavior affects generated URLs when deploying to GitHub Pages.
+
+## Operational Checklist
+
+1. Add content file to the correct collection folder.
+2. Fill valid frontmatter for that collection.
+3. Run `npm run dev` and verify list/detail pages.
+4. Run `npm run build` before deployment.
+
+## Known Gaps
+
+- No pagination for large collections.
+- No full-text search.
+- `featured` exists in schema but is not used as a dedicated filter/section.
+- Locale-specific content filtering is not enforced.

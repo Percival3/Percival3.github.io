@@ -28,7 +28,7 @@ export default function MobileMenu({ items }: Props) {
       {/* 1. 触发按钮 (汉堡图标) */}
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+        className="p-2 text-inherit hover:bg-white/10 dark:hover:bg-white/10 rounded-lg transition-colors"
         aria-label="Open Menu"
       >
         <Menu className="w-6 h-6" />

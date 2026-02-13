@@ -1,9 +1,7 @@
 ---
-// src/components/Navigation.astro
 import ThemeToggle from './ThemeToggle';
 import LanguageSelector from './LanguageSelector';
-// 引入新创建的移动端菜单
-import MobileMenu from './MobileMenu'; 
+import MobileMenu from './MobileMenu';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
 interface Props {
@@ -12,38 +10,35 @@ interface Props {
 
 const { lang } = Astro.props;
 
-// 1. 定义导航数据
 const navItems = {
   zh: [
     { name: '首页', href: '' },
-    { name: '博客', href: 'posts' },
-    { name: '论文', href: '#' },
-    { name: '归档', href: '#' },
-    { name: '关于', href: '#' },
+    { name: '博客', href: 'blog' },
+    { name: '学术', href: 'research' },
+    { name: '作品', href: 'gallery' },
+    { name: '关于', href: 'about' },
   ],
   en: [
     { name: 'Home', href: '' },
-    { name: 'Blog', href: 'posts' },
-    { name: 'Papers', href: '#' },
-    { name: 'Archive', href: '#' },
-    { name: 'About', href: '#' },
+    { name: 'Blog', href: 'blog' },
+    { name: 'Research', href: 'research' },
+    { name: 'Gallery', href: 'gallery' },
+    { name: 'About', href: 'about' },
   ],
   ja: [
     { name: 'ホーム', href: '' },
-    { name: 'ブログ', href: 'posts' },
-    { name: '論文', href: '#' },
-    { name: 'アーカイブ', href: '#' },
-    { name: '私について', href: '#' },
-  ]
+    { name: 'ブログ', href: 'blog' },
+    { name: '研究', href: 'research' },
+    { name: 'ギャラリー', href: 'gallery' },
+    { name: '私について', href: 'about' },
+  ],
 };
 
 const rawItems = navItems[lang as keyof typeof navItems];
 
-// 2. 预处理数据：为 React 组件生成完整的 URL
-// 因为 React 组件是在客户端运行的，最好直接传处理好的字符串
-const menuItems = rawItems.map(item => ({
+const menuItems = rawItems.map((item) => ({
   name: item.name,
-  url: item.href === '' ? getRelativeLocaleUrl(lang, '') : getRelativeLocaleUrl(lang, item.href)
+  url: item.href === '' ? getRelativeLocaleUrl(lang, '') : getRelativeLocaleUrl(lang, item.href),
 }));
 
 const languages = [
@@ -53,48 +48,36 @@ const languages = [
 ];
 ---
 
-<header class="sticky top-0 z-50 w-full bg-white/30 dark:bg-slate-950/30 backdrop-blur-md transition-all duration-300">
-  <div class="container mx-auto px-4 h-16 flex items-center justify-between">
-    
-    <!-- Logo -->
-    <a href={getRelativeLocaleUrl(lang, '')} class="font-bold text-xl tracking-tight flex items-center gap-2 hover:opacity-80 transition-opacity z-50">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-sm shadow-lg shadow-blue-500/30">
+<header class="fixed top-0 z-50 w-full transition-all duration-300">
+  <div class="container mx-auto flex items-center justify-between px-4 py-3 md:py-4">
+    <a
+      href={getRelativeLocaleUrl(lang, '')}
+      class="hidden font-bold text-lg tracking-tight items-center gap-2 hover:opacity-85 transition-opacity z-50 rounded-full border border-white/45 dark:border-cyan-200/25 bg-white/55 dark:bg-slate-900/45 px-3.5 h-11 backdrop-blur-xl text-slate-800 dark:text-cyan-100 shadow-[0_10px_28px_rgba(15,23,42,0.2)]"
+    >
+      <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-sm shadow-lg shadow-blue-500/30">
         Z
       </div>
-      <span class="hidden sm:inline drop-shadow-sm">Zhong<span class="text-blue-600 dark:text-blue-400">PC</span></span>
+      <span class="hidden sm:inline">Zhong<span class="text-blue-500 dark:text-cyan-300">PC</span></span>
     </a>
 
-    <!-- 
-      桌面端导航 
-      hidden md:flex: 在手机上隐藏(hidden)，中等屏幕以上显示 flex 布局
-    -->
-    <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-200 absolute left-1/2 transform -translate-x-1/2">
-      {menuItems.map(item => (
-        <a 
-          href={item.url} 
-          class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors relative group"
+    <nav class="hidden md:flex items-center gap-6 text-sm font-medium absolute left-1/2 transform -translate-x-1/2 h-11 rounded-full px-7 border border-white/55 dark:border-cyan-200/25 bg-white/72 dark:bg-slate-900/58 backdrop-blur-xl text-slate-700 dark:text-[#d8f3ff] shadow-[0_14px_34px_rgba(15,23,42,0.24)]">
+      {menuItems.map((item) => (
+        <a
+          href={item.url}
+          class="transition-colors relative group hover:text-slate-900 dark:hover:text-white"
         >
           {item.name}
-          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 transition-all group-hover:w-full bg-slate-700/70 dark:bg-cyan-200/80"></span>
         </a>
       ))}
     </nav>
-    
-    <!-- 右侧功能区 -->
-    <div class="flex items-center gap-2 sm:gap-4 z-50">
-      <!-- 语言切换 -->
-      <LanguageSelector client:load currentLang={lang} languages={languages} />
-      
-      <div class="w-px h-4 bg-gray-400/30 hidden sm:block"></div>
-      
-      <!-- 主题切换 -->
-      <ThemeToggle client:load />
 
-      <!-- 
-        移动端菜单按钮
-        md:hidden: 在中等屏幕及以上隐藏，只在手机显示
-        client:load: 必须加，因为需要交互
-      -->
+    <div class="flex items-center gap-2 sm:gap-4 z-50 h-11 rounded-full border border-white/52 dark:border-cyan-200/26 bg-white/74 dark:bg-slate-900/58 backdrop-blur-xl px-3 text-slate-700 dark:text-[#d8f3ff] shadow-[0_12px_32px_rgba(15,23,42,0.22)]">
+      <LanguageSelector client:load currentLang={lang} languages={languages} />
+
+      <div class="w-px h-4 hidden sm:block bg-slate-400/40 dark:bg-cyan-200/30"></div>
+
+      <ThemeToggle client:load />
       <MobileMenu client:load items={menuItems} />
     </div>
   </div>

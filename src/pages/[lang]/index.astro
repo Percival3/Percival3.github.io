@@ -1,7 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { Github, Mail, ChevronDown } from 'lucide-react';
 import QuoteCarousel from '../../components/QuoteCarousel';
-import { Mail, Download, Github, Twitter, Linkedin, Instagram } from 'lucide-react';
 
 export function getStaticPaths() {
   return [
@@ -13,102 +14,141 @@ export function getStaticPaths() {
 
 const { lang } = Astro.params;
 
+const fixedHeroQuotes = [
+  { text: '头顶的星空和心中的律令', sub: '理性作为存在' },
+  { text: 'Stand Alone Complex', sub: '个体分离，共鸣成网' },
+  { text: 'Cogito ergo sum', sub: '我思故我在' },
+];
+
 const translations = {
   zh: {
-    name: "钟朋辰",
-    role: "学生",
-    affiliation: "北京大学",
-    email: "发邮件给我",
-    cv: "下载简历",
-    cvLink: "/cv-zh.pdf",
+    scrollLabel: '向下查看',
   },
   en: {
-    name: "Zhong Pengchen",
-    role: "Student",
-    affiliation: "Peking University",
-    email: "Email Me",
-    cv: "Download CV",
-    cvLink: "/cv-en.pdf",
+    scrollLabel: 'Scroll Down',
   },
   ja: {
-    name: "鐘 朋辰",
-    role: "学生",
-    affiliation: "北京大学",
-    email: "メールを送る",
-    cv: "履歴書をダウンロード",
-    cvLink: "/cv-ja.pdf",
-  }
+    scrollLabel: '下へスクロール',
+  },
 };
 
-const t = translations[lang as keyof typeof translations];
+const t = translations[lang as keyof typeof translations] || translations.zh;
+const aboutUrl = getRelativeLocaleUrl(lang, 'about');
 ---
 
-<Layout title="Profile" lang={lang}>
-  <div class="flex flex-col items-center justify-center min-h-[calc(100vh-16rem)] py-20 max-w-2xl mx-auto text-center px-4 animate-in fade-in zoom-in duration-700">
+<Layout title="Home" lang={lang}>
+  <section
+    class="relative mx-auto max-w-6xl px-4 sm:px-6"
+    style="min-height: var(--hero-scene-height, calc(100vh - 8rem)); padding-top: calc(var(--nav-height, 56px) + 2rem); padding-bottom: clamp(5rem, 10vw, 7rem);"
+  >
+    <div class="relative mx-auto flex max-w-4xl flex-col items-center text-center animate-in fade-in zoom-in duration-700">
+      <div class="relative mb-6 md:mb-8">
+        <div class="absolute -inset-1 rounded-full bg-gradient-to-r from-blue-400/85 to-violet-400/85 blur-md"></div>
+        <img
+          src="/self_oc.png"
+          alt="Portrait"
+          class="relative h-28 w-28 rounded-full border-4 border-white/90 object-cover shadow-2xl md:h-32 md:w-32"
+        />
+      </div>
 
-    <!-- 1. 圆形头像 -->
-    <div class="relative group mb-8">
-      <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-      <img
-        src="/self_oc.png"
-        alt="Zhong Pengchen"
-        class="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-white dark:border-gray-950 shadow-2xl"
-      />
-    </div>
+      <div class="glass-card quote-panel w-full max-w-3xl rounded-[30px] px-7 py-5 md:px-12 md:py-6">
+        <QuoteCarousel client:load quotes={fixedHeroQuotes} />
+      </div>
 
-    <!-- 姓名 -->
-    <h1 class="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 mb-2">
-      {t.name}
-    </h1>
-
-    <!-- 身份/角色 -->
-    <p class="text-blue-600 dark:text-blue-400 font-medium mb-1">
-      {t.role}
-    </p>
-
-    <!-- 所属机构 -->
-    <p class="text-gray-600 dark:text-gray-400 text-sm mb-8">
-      {t.affiliation}
-    </p>
-
-    <!-- 2. 名人名言轮播 (独立组件) -->
-    <QuoteCarousel client:visible />
-
-    <!-- 3 & 4. 邮件与CV下载 -->
-    <div class="flex flex-col sm:flex-row gap-4 mb-12 w-full sm:w-auto">
-      <a
-        href="mailto:contact@example.com"
-        class="flex items-center justify-center gap-2 px-8 py-3.5 rounded-full !bg-black !text-white hover:opacity-80 dark:!bg-white dark:!text-black transition-all shadow-xl font-bold tracking-wide"
-      >
-        <Mail className="w-4 h-4" />
-        <span>{t.email}</span>
-      </a>
+      <div class="mt-7 flex items-center gap-3 md:mt-9">
+        <a
+          href="https://github.com"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="GitHub"
+          class="home-icon-btn"
+        >
+          <Github className="h-5 w-5" />
+        </a>
+        <a
+          href="mailto:contact@example.com"
+          aria-label="Mail"
+          class="home-icon-btn"
+        >
+          <Mail className="h-5 w-5" />
+        </a>
+      </div>
 
       <a
-        href={t.cvLink}
-        target="_blank"
-        class="flex items-center justify-center gap-2 px-8 py-3.5 rounded-full border-2 border-black dark:border-white bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all font-bold tracking-wide"
+        href={aboutUrl}
+        class="mt-8 inline-flex flex-col items-center gap-1 text-[#efe3d1] transition-opacity hover:opacity-75"
+        aria-label={t.scrollLabel}
       >
-        <Download className="w-4 h-4" />
-        <span>{t.cv}</span>
+        <span class="text-xs tracking-[0.24em] uppercase">{t.scrollLabel}</span>
+        <ChevronDown className="h-6 w-6 animate-bounce" />
       </a>
     </div>
 
-    <!-- 5. 社交媒体 -->
-    <div class="flex items-center gap-6 text-gray-400">
-      <a href="https://github.com" target="_blank" aria-label="GitHub" class="hover:text-gray-900 dark:hover:text-white transition-colors transform hover:scale-110">
-        <Github className="w-6 h-6" />
-      </a>
-      <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="hover:text-blue-400 transition-colors transform hover:scale-110">
-        <Twitter className="w-6 h-6" />
-      </a>
-      <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn" class="hover:text-blue-700 transition-colors transform hover:scale-110">
-        <Linkedin className="w-6 h-6" />
-      </a>
-      <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="hover:text-pink-500 transition-colors transform hover:scale-110">
-        <Instagram className="w-6 h-6" />
-      </a>
+    <div aria-hidden class="pointer-events-none absolute inset-x-0 bottom-0 translate-y-[98%]">
+      <svg viewBox="0 0 1440 180" class="h-[68px] w-full md:h-[92px]">
+        <path
+          class="fill-white/88 dark:fill-slate-950/80"
+          d="M0,96L60,85.3C120,75,240,53,360,53.3C480,53,600,75,720,90.7C840,107,960,117,1080,112C1200,107,1320,85,1380,74.7L1440,64L1440,181L1380,181C1320,181,1200,181,1080,181C960,181,840,181,720,181C600,181,480,181,360,181C240,181,120,181,60,181L0,181Z"
+        ></path>
+      </svg>
     </div>
-
-  </div>
+  </section>
 </Layout>
+
+<style>
+  .home-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.75rem;
+    width: 2.75rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.58),
+      rgba(255, 255, 255, 0.28)
+    );
+    color: #f8f2e8;
+    backdrop-filter: blur(10px) saturate(120%);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    transition: transform 220ms ease, opacity 220ms ease;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+  }
+
+  .home-icon-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    opacity: 0.92;
+  }
+
+  :global(html.dark) .home-icon-btn {
+    border-color: rgba(125, 221, 255, 0.34);
+    background: linear-gradient(
+      to bottom,
+      rgba(6, 20, 45, 0.58),
+      rgba(6, 20, 45, 0.3)
+    );
+    color: #d6f3ff;
+    box-shadow: 0 12px 28px rgba(1, 9, 26, 0.46);
+  }
+
+  .quote-panel {
+    animation: quote-float 6s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes quote-float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quote-panel {
+      animation: none;
+    }
+  }
+</style>

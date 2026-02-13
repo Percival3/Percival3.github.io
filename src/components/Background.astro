@@ -1,73 +1,379 @@
 ---
-// src/components/Background.astro
 import BackgroundEffect from './BackgroundEffect';
 
-// 1. 定义两张不同的背景图
-const dayImage = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"; // 雪山
-const nightImage = "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"; // 星空
+// Replace these with your own still frames later, e.g. /backgrounds/day-cowboy.webp
+// and /backgrounds/night-gits.webp in the public folder.
+const BACKGROUND_ASSETS = {
+  day: {
+    src: '/cowboy_bebop.jpg',
+    objectPosition: '50% 46%',
+  },
+  night: {
+    src: '/Ghost_in_Shell.jpg',
+    objectPosition: '50% 30%',
+  },
+};
+
+// Main tuning table: keep structure, tweak numbers only when swapping screenshots.
+const BACKGROUND_TUNING = {
+  day: {
+    baseColor: '#f6ead7',
+    imageOpacity: 0.95,
+    saturation: 1.08,
+    contrast: 1.03,
+    brightness: 1,
+    leftGlowOpacity: 0.54,
+    rightGlowOpacity: 0.44,
+  },
+  night: {
+    baseColor: '#040913',
+    imageOpacity: 0.93,
+    saturation: 1.2,
+    contrast: 1.12,
+    brightness: 0.74,
+    dimOverlayOpacity: 0.26,
+    macroGridOpacity: 0.17,
+    microGridOpacity: 0.12,
+    scanlineOpacity: 0.11,
+    noiseOpacity: 0.05,
+    perspectiveGridOpacity: 0.28,
+    cyanGlowOpacity: 0.3,
+    magentaGlowOpacity: 0.23,
+    violetGlowOpacity: 0.2,
+  },
+};
+
+const sceneVars = {
+  '--day-base-color': BACKGROUND_TUNING.day.baseColor,
+  '--night-base-color': BACKGROUND_TUNING.night.baseColor,
+  '--night-image-opacity': String(BACKGROUND_TUNING.night.imageOpacity),
+  '--day-left-glow-opacity': String(BACKGROUND_TUNING.day.leftGlowOpacity),
+  '--day-right-glow-opacity': String(BACKGROUND_TUNING.day.rightGlowOpacity),
+  '--night-dim-opacity': String(BACKGROUND_TUNING.night.dimOverlayOpacity),
+  '--night-macro-grid-opacity': String(BACKGROUND_TUNING.night.macroGridOpacity),
+  '--night-micro-grid-opacity': String(BACKGROUND_TUNING.night.microGridOpacity),
+  '--night-scanline-opacity': String(BACKGROUND_TUNING.night.scanlineOpacity),
+  '--night-noise-opacity': String(BACKGROUND_TUNING.night.noiseOpacity),
+  '--night-perspective-grid-opacity': String(BACKGROUND_TUNING.night.perspectiveGridOpacity),
+  '--night-cyan-glow-opacity': String(BACKGROUND_TUNING.night.cyanGlowOpacity),
+  '--night-magenta-glow-opacity': String(BACKGROUND_TUNING.night.magentaGlowOpacity),
+  '--night-violet-glow-opacity': String(BACKGROUND_TUNING.night.violetGlowOpacity),
+} as const;
 ---
 
-<!-- 1. 全局底色层 (保持深色底色，防止图片加载慢时闪白) -->
-<div class="fixed inset-0 -z-50 h-full w-full bg-white dark:bg-[#020617] transition-colors duration-700"></div>
+<div class="background-scene" style={sceneVars}>
+  <div class="fixed inset-0 -z-50 h-full w-full base-layer transition-colors duration-700"></div>
 
-<!-- 2. 双重背景图片层 -->
-<div class="absolute top-0 left-0 w-full h-[70vh] -z-40 pointer-events-none overflow-hidden select-none">
-  
-  <!-- === A. 白天背景图 === -->
-  <!-- 
-       opacity-90: 白天显示
-       dark:opacity-0: 黑夜隐藏
-       transition-opacity duration-1000: 1秒缓慢淡出
-  -->
-  <img 
-    src={dayImage} 
-    alt="Day Background" 
-    class="absolute inset-0 w-full h-full object-cover 
-           opacity-90 dark:opacity-0 
-           blur-[1px] transition-opacity duration-1000 ease-in-out"
-  />
+  <div
+    class="fixed inset-x-0 -z-40 pointer-events-none overflow-hidden select-none background-frame"
+    style="top: 0; height: calc(var(--hero-scene-height, calc(100vh - 56px)) + var(--nav-height, 56px));"
+  >
+    <img
+      src={BACKGROUND_ASSETS.day.src}
+      alt="Day Background"
+      class="absolute inset-0 w-full h-full object-cover scene-image day-image"
+      style={{
+        objectPosition: BACKGROUND_ASSETS.day.objectPosition,
+        filter: `saturate(${BACKGROUND_TUNING.day.saturation}) contrast(${BACKGROUND_TUNING.day.contrast}) brightness(${BACKGROUND_TUNING.day.brightness})`,
+      }}
+    />
 
-  <!-- === B. 黑夜背景图 === -->
-  <!-- 
-       opacity-0: 白天隐藏
-       dark:opacity-30: 黑夜显示 (注意这里设为 30% 透明度，与深蓝底色融合，避免太亮)
-       mix-blend-screen: 让星空更自然地叠加在深色背景上
-  -->
-  <img 
-    src={nightImage} 
-    alt="Night Background" 
-    class="absolute inset-0 w-full h-full object-cover 
-           opacity-0 dark:opacity-90 
-           blur-[1px] transition-opacity duration-500 ease-in-out"
-  />
-  
-  <!-- === 统一遮罩层 === -->
-  
-  <!-- 夜间压暗遮罩：虽然换了图，但为了保证文字清晰，夜间还是加一层淡淡的黑纱 -->
-  <div class="absolute inset-0 bg-transparent dark:bg-black/20 transition-colors duration-1000"></div>
+    <img
+      src={BACKGROUND_ASSETS.night.src}
+      alt="Night Background"
+      class="absolute inset-0 w-full h-full object-cover scene-image night-image"
+      style={{
+        objectPosition: BACKGROUND_ASSETS.night.objectPosition,
+        filter: `saturate(${BACKGROUND_TUNING.night.saturation}) contrast(${BACKGROUND_TUNING.night.contrast}) brightness(${BACKGROUND_TUNING.night.brightness})`,
+      }}
+    />
 
-  <!-- 底部渐变融合：负责让图片平滑过渡到页面底色 -->
-  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white dark:from-transparent dark:via-[#020617]/80 dark:to-[#020617] transition-colors duration-1000"></div>
-</div>
+    <div class="absolute inset-0 day-layer day-film-wash"></div>
+    <div class="absolute inset-0 night-layer night-cyber-wash"></div>
+    <div class="absolute inset-0 night-layer night-dim-overlay"></div>
+    <div class="absolute inset-0 blend-bottom"></div>
+  </div>
 
-<!-- 3. 纹理与光晕层 (保持不变) -->
-<div class="fixed inset-0 -z-30 pointer-events-none">
-  <!-- 网格 -->
-  <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-40 dark:opacity-5"></div>
-  
-  <!-- 光晕：夜间改为深紫色，增加星空氛围 -->
-  <div class="absolute left-0 right-0 top-0 m-auto h-[500px] w-[500px] rounded-full bg-blue-400/20 dark:bg-purple-900/20 opacity-30 blur-[120px] mix-blend-overlay"></div>
-</div>
+  <div
+    class="fixed inset-x-0 -z-30 pointer-events-none"
+    style="top: 0; height: calc(var(--hero-scene-height, calc(100vh - 56px)) + var(--nav-height, 56px));"
+  >
+    <div class="absolute inset-0 day-layer day-grid"></div>
 
-<!-- 4. 动态特效层 (樱花/雨滴) -->
-<div class="fixed inset-0 -z-20 pointer-events-none">
-  <BackgroundEffect client:only="react" />
+    <div class="absolute inset-0 night-layer night-macro-grid"></div>
+    <div class="absolute inset-0 night-layer night-micro-grid"></div>
+    <div class="absolute inset-0 night-layer night-scanlines"></div>
+    <div class="absolute inset-0 night-layer night-noise"></div>
+
+    <div class="absolute -top-32 left-[8%] h-[360px] w-[360px] rounded-full bg-[#ffb7a1]/45 blur-[120px] day-left-glow day-layer"></div>
+    <div class="absolute -top-28 right-[10%] h-[320px] w-[320px] rounded-full bg-[#ffe3aa]/40 blur-[110px] day-right-glow day-layer"></div>
+
+    <div class="absolute -top-24 left-0 right-0 m-auto h-[560px] w-[560px] rounded-full bg-[#6ef6ff]/22 blur-[146px] mix-blend-screen night-layer night-cyan-glow"></div>
+    <div class="absolute top-16 right-[12%] h-[420px] w-[420px] rounded-full bg-[#ff2ea6]/20 blur-[136px] mix-blend-screen night-layer night-magenta-glow"></div>
+    <div class="absolute top-14 left-[10%] h-[360px] w-[360px] rounded-full bg-[#6e4cff]/18 blur-[128px] mix-blend-screen night-layer night-violet-glow"></div>
+
+    <div class="absolute inset-x-0 bottom-[-8%] h-[42%] night-layer cyber-perspective-grid"></div>
+  </div>
+
+  <div
+    class="fixed inset-x-0 -z-20 pointer-events-none"
+    style="top: 0; height: calc(var(--hero-scene-height, calc(100vh - 56px)) + var(--nav-height, 56px));"
+  >
+    <BackgroundEffect client:only="react" />
+  </div>
 </div>
 
 <style>
-  /* 对两张图都应用蒙版，让底部柔和过渡 */
-  img {
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+  .background-scene .base-layer {
+    background: var(--day-base-color);
+  }
+
+  :global(html.dark) .background-scene .base-layer {
+    background: var(--night-base-color);
+  }
+
+  .background-scene .scene-image {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .background-scene .day-image {
+    opacity: 0.92;
+    transition: opacity 1s ease-in-out;
+  }
+
+  :global(html.dark) .background-scene .day-image {
+    opacity: 0;
+  }
+
+  .background-scene .night-image {
+    opacity: 0;
+    transition: opacity 0.7s ease-in-out;
+  }
+
+  :global(html.dark) .background-scene .night-image {
+    opacity: var(--night-image-opacity);
+  }
+
+  .background-scene .day-layer {
+    opacity: 1;
+    transition: opacity 0.7s ease;
+  }
+
+  :global(html.dark) .background-scene .day-layer {
+    opacity: 0;
+  }
+
+  .background-scene .night-layer {
+    opacity: 0;
+    transition: opacity 0.7s ease;
+  }
+
+  :global(html.dark) .background-scene .night-layer {
+    opacity: var(--night-layer-opacity, 1);
+  }
+
+  .background-scene .day-film-wash {
+    background:
+      radial-gradient(circle_at_18%_24%, rgba(255, 193, 162, 0.22), transparent 46%),
+      radial-gradient(circle_at_78%_14%, rgba(255, 233, 179, 0.2), transparent 42%),
+      linear-gradient(to bottom, rgba(255, 249, 241, 0.08), rgba(244, 229, 206, 0.28));
+  }
+
+  .background-scene .night-cyber-wash {
+    --night-layer-opacity: 1;
+    background:
+      radial-gradient(circle_at_16%_20%, rgba(0, 255, 232, 0.22), transparent 36%),
+      radial-gradient(circle_at_83%_16%, rgba(255, 46, 166, 0.16), transparent 34%),
+      radial-gradient(circle_at_54%_3%, rgba(116, 76, 255, 0.18), transparent 36%),
+      linear-gradient(to bottom, rgba(6, 16, 34, 0.2), rgba(2, 9, 19, 0.9));
+  }
+
+  .background-scene .night-dim-overlay {
+    --night-layer-opacity: var(--night-dim-opacity);
+    background: black;
+  }
+
+  .background-scene .blend-bottom {
+    opacity: 0;
+    transition:
+      opacity 0.5s ease,
+      background 0.8s ease;
+  }
+
+  .background-scene[data-needs-blend='true'] .blend-bottom {
+    opacity: 1;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 248, 241, 0) 82%,
+      rgba(247, 234, 215, 0.35) 92%,
+      var(--day-base-color) 100%
+    );
+  }
+
+  :global(html.dark) .background-scene[data-needs-blend='true'] .blend-bottom {
+    background: linear-gradient(
+      to bottom,
+      rgba(6, 15, 36, 0) 80%,
+      rgba(6, 15, 36, 0.46) 92%,
+      var(--night-base-color) 100%
+    );
+  }
+
+  .background-scene .day-grid {
+    background-image:
+      linear-gradient(to right, #8b8b8b14 1px, transparent 1px),
+      linear-gradient(to bottom, #8b8b8b14 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.35;
+  }
+
+  .background-scene .night-macro-grid {
+    --night-layer-opacity: var(--night-macro-grid-opacity);
+    background-image:
+      linear-gradient(90deg, rgba(0, 255, 232, 0.19) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(255, 46, 166, 0.14) 1px, transparent 1px);
+    background-size: 96px 96px;
+  }
+
+  .background-scene .night-micro-grid {
+    --night-layer-opacity: var(--night-micro-grid-opacity);
+    background-image:
+      linear-gradient(rgba(0, 255, 232, 0.09) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(134, 93, 255, 0.08) 1px, transparent 1px);
+    background-size: 26px 26px;
+    mix-blend-mode: screen;
+  }
+
+  .background-scene .night-scanlines {
+    --night-layer-opacity: var(--night-scanline-opacity);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 255, 232, 0.17) 0px,
+      rgba(0, 255, 232, 0.17) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: screen;
+  }
+
+  .background-scene .night-noise {
+    --night-layer-opacity: var(--night-noise-opacity);
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(0, 255, 232, 0.03) 0px,
+      rgba(0, 255, 232, 0.03) 1px,
+      transparent 1px,
+      transparent 5px
+    );
+    mix-blend-mode: overlay;
+  }
+
+  .background-scene .day-left-glow {
+    opacity: var(--day-left-glow-opacity);
+  }
+
+  .background-scene .day-right-glow {
+    opacity: var(--day-right-glow-opacity);
+  }
+
+  .background-scene .night-cyan-glow {
+    --night-layer-opacity: var(--night-cyan-glow-opacity);
+  }
+
+  .background-scene .night-magenta-glow {
+    --night-layer-opacity: var(--night-magenta-glow-opacity);
+  }
+
+  .background-scene .night-violet-glow {
+    --night-layer-opacity: var(--night-violet-glow-opacity);
+  }
+
+  .background-scene .cyber-perspective-grid {
+    --night-layer-opacity: var(--night-perspective-grid-opacity);
+    background-image:
+      linear-gradient(rgba(0, 255, 232, 0.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 232, 0.16) 1px, transparent 1px);
+    background-size: 44px 44px;
+    transform: perspective(780px) rotateX(67deg) scale(1.15);
+    transform-origin: bottom center;
+    mix-blend-mode: screen;
   }
 </style>
+
+<script is:inline>
+  (() => {
+    const scene = document.querySelector('.background-scene');
+    const frame = scene?.querySelector('.background-frame');
+    const dayImage = scene?.querySelector('.day-image');
+    const nightImage = scene?.querySelector('.night-image');
+    const html = document.documentElement;
+    if (!scene || !frame || !dayImage || !nightImage) return;
+
+    const getCurrentRatio = () => {
+      const activeImage = html.classList.contains('dark') ? nightImage : dayImage;
+      const width = activeImage.naturalWidth || 16;
+      const height = activeImage.naturalHeight || 9;
+      return width / height;
+    };
+
+    const updateSceneSize = () => {
+      const nav = document.querySelector('header');
+      const navHeight = nav ? Math.round(nav.getBoundingClientRect().height) : 56;
+      const visibleHeight = Math.max(window.innerHeight - navHeight, 320);
+      const ratio = getCurrentRatio();
+      const imageFitHeight = window.innerWidth / ratio;
+
+      // Let the cover follow image ratio while keeping a readable hero on narrow screens.
+      const heroHeight = Math.round(Math.max(visibleHeight * 0.68, Math.min(visibleHeight, imageFitHeight)));
+
+      scene.style.setProperty('--nav-height', `${navHeight}px`);
+      scene.style.setProperty('--hero-scene-height', `${heroHeight}px`);
+    };
+
+    const updateBlendFallback = () => {
+      const docHeight = Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight
+      );
+      const frameHeight = frame.getBoundingClientRect().height;
+      const topOffset = parseFloat(getComputedStyle(frame).top || '0') || 0;
+      const imageReach = topOffset + frameHeight;
+      const needsBlend = docHeight > imageReach + 80;
+      scene.setAttribute('data-needs-blend', needsBlend ? 'true' : 'false');
+    };
+
+    const updateAll = () => {
+      updateSceneSize();
+      updateBlendFallback();
+    };
+
+    const onImageReady = () => {
+      updateAll();
+    };
+
+    if (!dayImage.complete) {
+      dayImage.addEventListener('load', onImageReady, { once: true });
+    }
+
+    if (!nightImage.complete) {
+      nightImage.addEventListener('load', onImageReady, { once: true });
+    }
+
+    const themeObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          updateAll();
+        }
+      }
+    });
+
+    themeObserver.observe(html, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    updateAll();
+    window.addEventListener('resize', updateAll, { passive: true });
+  })();
+</script>
