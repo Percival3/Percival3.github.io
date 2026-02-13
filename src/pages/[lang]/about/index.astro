@@ -148,16 +148,7 @@ function formatDate(date: Date, locale: string): string {
 
         <div class="text-center md:text-left flex-1">
           <p class="text-xs uppercase tracking-[0.26em] text-[var(--adaptive-text-muted)] dark:text-[#8fc6e8] mb-2">{t.greeting}</p>
-          <h1
-            class:list={[
-              'text-4xl md:text-5xl mb-3 font-bold',
-              lang === 'en'
-                ? 'text-[var(--adaptive-text-strong)] dark:text-[#edf8ff] tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.24)]'
-                : 'page-title',
-            ]}
-          >
-            {t.name}
-          </h1>
+          <h1 class="page-title text-4xl md:text-5xl mb-3">{t.name}</h1>
           <p class="text-[var(--adaptive-text-strong)] dark:text-[#9ecfe9] font-semibold text-lg mb-2">{t.role}</p>
           <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-[var(--adaptive-text-muted)] dark:text-[#a1cde6] mb-6">
             <span class="inline-flex items-center gap-1.5">
