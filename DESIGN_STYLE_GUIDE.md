@@ -1,255 +1,182 @@
-﻿# Website Design Style Guide
+﻿# 视觉与交互设计规范（中文主文档）
 
-## Scope
-This guide documents the current visual system implemented in this repository.
-It is based on actual code in `src/components`, `src/layouts`, `src/pages`, and `src/styles`.
+## 1. 设计方向
+当前站点风格基于“动漫语境 + 可读性优先”的策略：
 
-## 1. Design Direction
+- 白天：浪漫、胶片感、暖色氛围
+- 夜晚：赛博感更强、冷色主导
+- 组件：分散式玻璃化（每个部件轻玻璃），避免整屏大玻璃
+- 核心原则：背景可强烈，正文必须稳定可读
 
-The site style combines:
+## 2. 技术基座
 
-- minimal layout structure
-- atmospheric layered backgrounds
-- glass-like card surfaces
-- blue-focused accent color system
-- soft motion and hover feedback
+- 框架：Astro v5
+- 交互岛：React 19（`client:load` / `client:only`）
+- 样式：Tailwind CSS v4 + `src/styles/global.css`
+- 主题切换：`html.dark` + `localStorage`
 
-Primary surfaces are semi-transparent white/slate cards over a rich background scene.
+## 3. 全局层级结构
+`src/layouts/Layout.astro` 的总体顺序：
 
-## 2. Technical Foundation
+1. `Background.astro`（固定背景层）
+2. `Navigation.astro`（固定顶部导航）
+3. 页面主内容 `<main>`
+4. `Footer.astro`
 
-- Framework: Astro v5
-- Interactive islands: React 19 components with `client:*` hydration
-- Styling: Tailwind CSS v4 (`@tailwindcss/vite`)
-- Base styles: `src/styles/global.css`
-- Dark mode variant: custom `@variant dark (&:where(.dark, .dark *))`
+行为目标：
 
-## 3. Theme System
+- 背景固定，内容滚动
+- 导航与人物区域不重叠
+- 长页面时自动处理底部衔接
 
-Theme behavior is class-based:
+## 4. 导航规范
+`src/components/Navigation.astro` 当前标准：
 
-- active mode is controlled by `dark` class on `<html>`
-- persisted to `localStorage` key `theme`
-- pre-hydration anti-flash script in `src/layouts/Layout.astro`
-- toggle UI in `src/components/ThemeToggle.tsx`
+- 中间胶囊：主导航链接
+- 右侧胶囊：语言 + 主题 + 移动端菜单
+- 左侧 logo 区：当前版本隐藏（保留结构位）
 
-Core transition pattern:
+移动端由 `MobileMenu.tsx` 提供全屏菜单。
 
-- color transitions around `duration-300`
-- background image crossfade up to `duration-1000`
+视觉要求：
 
-## 4. Color and Surface Language
+- 导航胶囊在白天/夜晚保持相同结构
+- 同行的非关键背景区域尽量透明，避免突兀块状遮挡
 
-### Base page colors
+## 5. 背景系统规范
+`src/components/Background.astro`。
 
-- Light: white and gray text hierarchy
-- Dark: slate/near-black background (`dark:bg-slate-950` / `#020617`) with light text
+### 5.1 背景资产
 
-### Accent usage
+- 白天：`/cowboy_bebop.jpg`
+- 夜晚：`/Ghost_in_Shell.jpg`
 
-- Primary accent: blue (`text-blue-600`, `dark:text-blue-400`)
-- Gradients: blue to purple for logo rings and key headings
-- Supporting tags/chips: blue and green tints depending on content type
+### 5.2 分层结构
 
-### Surface style
+- 基色层（base color）
+- 日/夜图层交叉淡入淡出
+- 氛围层（film wash / cyber wash / dim）
+- 网格和光晕层
+- 粒子/雨丝动态层（`BackgroundEffect.tsx`）
 
-Most cards use:
+### 5.3 高度与位置自适应
+背景帧高度由以下共同决定：
 
-- `bg-white/50` in light mode
-- `dark:bg-slate-900/50` in dark mode
-- `backdrop-blur-sm`
-- soft borders with blue hover emphasis
+- 导航高度
+- 视口高度
+- 当前背景图宽高比
 
-This creates a consistent glassmorphism-like UI language.
+目标：人物主体始终在导航栏下方，不发生视觉重叠。
 
-## 5. Layered Background Architecture
+### 5.4 底部过渡策略
 
-Implemented in `src/components/Background.astro`.
+- 默认不强行加底部白色渐变
+- 仅当页面内容超出背景可覆盖范围时，启用 fallback 渐变
 
-Layer stack:
+## 6. 自动取色与可读性
+系统已实现“背景采样 -> 文本变量”的自动适配：
 
-- `-z-50`: solid base color
-- `-z-40`: dual day/night hero images with crossfade
-- `-z-30`: grid texture + glow orb
-- `-z-20`: animated canvas effect (`BackgroundEffect.tsx`)
-- `z-0+`: page content
-- `z-50`: sticky navigation
+1. Canvas 采样白天/夜晚背景平均色
+2. 计算相对亮度
+3. 选择对应 palette bucket
+4. 写入 `html` 级 CSS 变量
 
-Background details:
+关键变量：
 
-- day and night Unsplash images
-- top 70vh visual field
-- mask gradient to blend into page body
-- night overlay for text readability
+- `--adaptive-text-strong`
+- `--adaptive-text-body`
+- `--adaptive-text-muted`
+- `--adaptive-text-soft`
+- `--adaptive-link`
+- `--adaptive-inline-code*`
+- `--adaptive-blockquote*`
+- `--adaptive-hr`
 
-## 6. Motion System
+规范：正文、标题、元信息优先使用这些变量，不再逐页硬编码颜色。
 
-### Typical durations in use
+## 7. 组件样式 Token
+`src/styles/global.css` 统一提供：
 
-- 200-300ms: control hover and icon state changes
-- 500ms: quote transitions, dark image fade
-- 700ms: section entrance animation
-- 1000ms: long background/theme crossfade
+- `.glass-card`
+- `.glass-chip`
+- `.page-shell`
+- `.page-hero`
+- `.page-hero-card`
+- `.page-card`
+- `.page-empty`
+- `.article-prose`
 
-### Common effects
+新增页面或组件时，优先复用以上 token。
 
-- fade + zoom on section entry (`animate-in fade-in zoom-in`)
-- subtle scale on image/card hover
-- directional icon movement for action links
-- staggered transition delays in mobile menu items
+## 8. 字体与排版规范
 
-## 7. Typography
+- 页面主标题：`.page-title`（自适应渐变字）
+- 副标题/正文：`--adaptive-text-body` 系列
+- 分区标题：`--adaptive-text-strong`
+- 文章正文：由 `.article-prose` 统一覆盖链接、代码、引用、分隔线
 
-- default font stack: Tailwind/system default
-- quote area uses `font-serif`
-- headings often use gradient text clipping
-- body text follows gray scale hierarchy for contrast
+要求：
 
-Article/detail pages use Tailwind Prose with customized tokens for:
+- 白天模式与夜晚模式均保证可读性，不依赖单一背景假设
+- 字号与字重优先稳健，不追求过大视觉冲击
 
-- headings
-- links
-- inline code and code blocks
-- blockquotes
-- tables
-- images
+## 9. 动效规范
 
-## 8. Layout Patterns
+- 名言栏：轻微悬浮 + 打字机轮播
+- 卡片 hover：轻量位移/阴影/颜色变化
+- 主题切换：平滑过渡
+- 性能优先：避免多层全屏 blur 与高频昂贵动画叠加
 
-### Global layout
+## 10. 页面编排规范
 
-From `src/layouts/Layout.astro`:
+### 10.1 首页
 
-- sticky navigation at top
-- full-page background component
-- main content slot with flex-grow
-- footer at bottom
+- 仅保留个性化封面表达
+- 头像、名言、社交入口、下滑引导
+- 不承担“最近内容列表”功能
 
-### Container rules
+### 10.2 关于页
 
-Common container classes:
+- 个人介绍 + 最新内容聚合 + 联系方式 + 友情链接
+- 友情链接采用可扩展方块卡片布局
 
-- `container mx-auto px-4`
-- content max widths vary by context (`max-w-4xl`, `max-w-6xl`)
+### 10.3 博客/学术/作品列表页
 
-### Responsive behavior
+- 共享 `.page-shell/.page-card` 体系
+- 风格与首页一致，色彩走自适应变量
+- 作品页按专题分组（social-observation / anime / other）
 
-- desktop nav appears at `md` and up
-- mobile menu appears below `md`
-- hero and card grids collapse cleanly to one column on small screens
+### 10.4 详情页
 
-## 9. Core Component Patterns
+- 返回入口
+- 主卡片 + 元信息
+- 大正文卡片
+- 底部返回按钮
 
-### Navigation (`src/components/Navigation.astro`)
+## 11. 背景更换流程（建议）
+当未来替换白天/夜晚截图时：
 
-- sticky translucent header (`bg-white/30`, `dark:bg-slate-950/30`)
-- centered desktop nav links with underline hover animation
-- logo badge uses blue-purple gradient
-- right controls: language selector, theme toggle, mobile menu
+1. 更新 `public/` 下背景文件
+2. 修改 `BACKGROUND_ASSETS`
+3. 先调 `objectPosition` 再调滤镜/透明度
+4. 检查桌面端与移动端人物位置
+5. 检查白天/夜晚正文对比度
+6. 检查长页面底部过渡是否触发正确
 
-### Mobile Menu (`src/components/MobileMenu.tsx`)
+---
 
-- full-screen overlay panel
-- slide/fade opening animation
-- body scroll lock when open
-- staggered item transitions
+## Appendix A (English)
 
-### Language Selector (`src/components/LanguageSelector.tsx`)
+### A.1 Visual direction
+Day mode is warm/romantic; night mode is cyberpunk-oriented. UI uses component-level glass surfaces rather than one giant overlay.
 
-- compact dropdown trigger
-- click-outside close behavior
-- active locale highlighted with check icon
+### A.2 Core mechanics
+- Fixed background with scrolling content
+- Capsule navigation (center nav + right controls)
+- Adaptive color tokens sampled from background images
 
-### Theme Toggle (`src/components/ThemeToggle.tsx`)
+### A.3 Background adaptation
+Background frame height is computed from nav height, viewport, and image aspect ratio. Bottom gradient is fallback-only when content exceeds background reach.
 
-- icon switch between sun/moon
-- hydration-safe initial state (`null` before mount)
-
-### Background Effect (`src/components/BackgroundEffect.tsx`)
-
-Canvas animation mode follows theme:
-
-- light mode: sakura-like petals
-- dark mode: rain streaks
-
-Theme changes are observed with `MutationObserver` on `<html>` class.
-
-### Quote Carousel (`src/components/QuoteCarousel.tsx`)
-
-- auto-rotates every 4 seconds
-- transition uses fade + vertical shift + scale
-
-### Post Meta (`src/components/PostMeta.astro`)
-
-Reusable metadata row for content detail pages:
-
-- author
-- date
-- reading time
-- word count
-
-## 10. Page-Level Composition
-
-### Home (`src/pages/[lang]/index.astro`)
-
-Structure:
-
-1. hero identity block (avatar, role, quote carousel, CTA)
-2. featured creative works
-3. latest blog posts
-4. research highlights
-
-Cards on home use the same glass-card design as collection listings.
-
-### Collection listings
-
-- Blog: `src/pages/[lang]/blog/index.astro`
-- Research: `src/pages/[lang]/research/index.astro`
-- Gallery: `src/pages/[lang]/gallery/index.astro`
-
-All three listings share:
-
-- section title/subtitle pattern
-- sorted cards by date
-- hover state with blue accent border/shadow
-- tag chips and metadata labels
-
-### Detail templates
-
-- Blog detail: `src/pages/[lang]/blog/[...slug].astro`
-- Research detail: `src/pages/[lang]/research/[...slug].astro`
-- Gallery detail: `src/pages/[lang]/gallery/[...slug].astro`
-
-Each template has:
-
-- back link to list page
-- optional hero/preview image
-- metadata block and tags
-- styled markdown content area
-- bottom return CTA
-
-## 11. Design Consistency Rules for Future Changes
-
-When adding or updating UI, keep these rules:
-
-1. Provide both light and dark variants.
-2. Keep card surfaces semi-transparent with subtle borders.
-3. Use blue as primary interaction accent.
-4. Keep motion soft and short; avoid abrupt transforms.
-5. Match existing container widths and spacing rhythm.
-6. Preserve readable contrast on top of atmospheric backgrounds.
-7. Reuse existing component patterns before creating new ones.
-
-## 12. Quick Reference Map
-
-- Global wrapper: `src/layouts/Layout.astro`
-- Background system: `src/components/Background.astro`
-- Theme toggle: `src/components/ThemeToggle.tsx`
-- Navigation: `src/components/Navigation.astro`
-- Mobile nav: `src/components/MobileMenu.tsx`
-- Locale switcher: `src/components/LanguageSelector.tsx`
-- Animation canvas: `src/components/BackgroundEffect.tsx`
-- Article metadata: `src/components/PostMeta.astro`
-- Base CSS: `src/styles/global.css`
-
-Use this file as the style baseline when introducing new routes or components.
+### A.4 Token-first styling
+Use shared tokens in `global.css` (`.glass-card`, `.page-card`, `.article-prose`, etc.) before creating page-specific one-off styles.

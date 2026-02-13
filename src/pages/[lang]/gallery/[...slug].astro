@@ -83,7 +83,7 @@ const categoryTone: Record<CreativeCategory, string> = {
   <article class="page-shell max-w-4xl md:py-16">
     <a
       href={getRelativeLocaleUrl(lang, 'gallery')}
-      class="glass-chip inline-flex items-center gap-2 px-4 py-2 rounded-full text-[#ecdcc8] dark:text-[#bfe6ff] hover:gap-3 transition-all mb-8 group"
+      class="glass-chip inline-flex items-center gap-2 px-4 py-2 rounded-full text-[var(--adaptive-text-muted)] dark:text-[#bfe6ff] hover:gap-3 transition-all mb-8 group"
     >
       <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
       <span>{t.back}</span>
@@ -123,9 +123,9 @@ const categoryTone: Record<CreativeCategory, string> = {
 
         {item.data.techStack && item.data.techStack.length > 0 && (
           <div class="flex items-center gap-2 flex-wrap">
-            <Code className="w-4 h-4 text-[#d7c8b4] dark:text-gray-400" />
+            <Code className="w-4 h-4 text-[var(--adaptive-text-muted)] dark:text-gray-400" />
             {item.data.techStack.map((tech) => (
-              <span class="glass-chip px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-[#ebdecb] dark:text-gray-300 rounded-lg">
+              <span class="glass-chip px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-[var(--adaptive-text-body)] dark:text-gray-300 rounded-lg">
                 {tech}
               </span>
             ))}
@@ -146,7 +146,7 @@ const categoryTone: Record<CreativeCategory, string> = {
 
         {item.data.tags && item.data.tags.length > 0 && (
           <div>
-            <div class="flex items-center gap-2 mb-3 text-sm text-[#d8cab6] dark:text-gray-400">
+            <div class="flex items-center gap-2 mb-3 text-sm text-[var(--adaptive-text-muted)] dark:text-gray-400">
             <Tag className="w-4 h-4" />
             <span>{t.tags}</span>
           </div>
@@ -187,7 +187,7 @@ const categoryTone: Record<CreativeCategory, string> = {
     <div class="mt-8 text-center">
       <a
         href={getRelativeLocaleUrl(lang, 'gallery')}
-        class="glass-chip inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-[#ecdcc8] dark:text-[#c7ebff] hover:opacity-85 transition-opacity font-medium"
+        class="glass-chip inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-[var(--adaptive-text-muted)] dark:text-[#c7ebff] hover:opacity-85 transition-opacity font-medium"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>{t.back}</span>

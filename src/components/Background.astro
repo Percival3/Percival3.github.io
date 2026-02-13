@@ -317,6 +317,187 @@ const sceneVars = {
       return width / height;
     };
 
+    const DAY_PALETTES = {
+      darkSurface: {
+        strong: '#f2e6d4',
+        body: '#ebdecb',
+        muted: '#d8cab6',
+        soft: '#cdbda9',
+        link: '#7eb5ff',
+        inlineCode: '#ffd5ee',
+        inlineCodeBg: 'rgba(20, 24, 38, 0.5)',
+        blockquoteBg: 'rgba(28, 44, 72, 0.32)',
+        blockquoteBorder: 'rgba(123, 175, 255, 0.95)',
+        hr: 'rgba(255, 255, 255, 0.28)',
+      },
+      midSurface: {
+        strong: '#f7ead8',
+        body: '#f0e1cf',
+        muted: '#dccbb8',
+        soft: '#cfbfac',
+        link: '#6fa8ff',
+        inlineCode: '#ffd4ec',
+        inlineCodeBg: 'rgba(24, 28, 42, 0.52)',
+        blockquoteBg: 'rgba(30, 48, 78, 0.34)',
+        blockquoteBorder: 'rgba(110, 168, 255, 0.95)',
+        hr: 'rgba(255, 255, 255, 0.3)',
+      },
+      lightSurface: {
+        strong: '#2f2620',
+        body: '#3d332b',
+        muted: '#5a4a3e',
+        soft: '#766658',
+        link: '#1f64d1',
+        inlineCode: '#892d56',
+        inlineCodeBg: 'rgba(255, 248, 239, 0.72)',
+        blockquoteBg: 'rgba(232, 218, 199, 0.62)',
+        blockquoteBorder: 'rgba(38, 94, 188, 0.82)',
+        hr: 'rgba(92, 72, 54, 0.24)',
+      },
+    };
+
+    const NIGHT_PALETTES = {
+      darkSurface: {
+        strong: '#ebf7ff',
+        body: '#d3e8f8',
+        muted: '#b8d4e8',
+        soft: '#98b7cd',
+        link: '#8ed0ff',
+        inlineCode: '#f8bcff',
+        inlineCodeBg: 'rgba(24, 31, 52, 0.64)',
+        blockquoteBg: 'rgba(14, 26, 52, 0.46)',
+        blockquoteBorder: 'rgba(110, 198, 255, 0.96)',
+        hr: 'rgba(123, 221, 255, 0.34)',
+      },
+      brightSurface: {
+        strong: '#e4f2ff',
+        body: '#cbdef0',
+        muted: '#acc7db',
+        soft: '#8ea8c0',
+        link: '#79c3ff',
+        inlineCode: '#f7b2ff',
+        inlineCodeBg: 'rgba(20, 28, 50, 0.68)',
+        blockquoteBg: 'rgba(11, 22, 46, 0.5)',
+        blockquoteBorder: 'rgba(92, 182, 255, 0.96)',
+        hr: 'rgba(108, 205, 255, 0.36)',
+      },
+    };
+
+    let dayPalette = DAY_PALETTES.darkSurface;
+    let nightPalette = NIGHT_PALETTES.darkSurface;
+
+    const setAdaptiveVars = (palette) => {
+      html.style.setProperty('--adaptive-text-strong', palette.strong);
+      html.style.setProperty('--adaptive-text-body', palette.body);
+      html.style.setProperty('--adaptive-text-muted', palette.muted);
+      html.style.setProperty('--adaptive-text-soft', palette.soft);
+      html.style.setProperty('--adaptive-link', palette.link);
+      html.style.setProperty('--adaptive-inline-code', palette.inlineCode);
+      html.style.setProperty('--adaptive-inline-code-bg', palette.inlineCodeBg);
+      html.style.setProperty('--adaptive-blockquote-bg', palette.blockquoteBg);
+      html.style.setProperty('--adaptive-blockquote-border', palette.blockquoteBorder);
+      html.style.setProperty('--adaptive-hr', palette.hr);
+    };
+
+    const applyThemePalette = () => {
+      setAdaptiveVars(html.classList.contains('dark') ? nightPalette : dayPalette);
+    };
+
+    const srgbToLinear = (channel) => {
+      const value = channel / 255;
+      return value <= 0.04045
+        ? value / 12.92
+        : Math.pow((value + 0.055) / 1.055, 2.4);
+    };
+
+    const getRelativeLuminance = (color) => {
+      return (
+        0.2126 * srgbToLinear(color.r) +
+        0.7152 * srgbToLinear(color.g) +
+        0.0722 * srgbToLinear(color.b)
+      );
+    };
+
+    const waitForImageReady = (image) => {
+      return new Promise((resolve) => {
+        if (image.complete && image.naturalWidth > 0 && image.naturalHeight > 0) {
+          resolve();
+          return;
+        }
+
+        image.addEventListener('load', () => resolve(), { once: true });
+        image.addEventListener('error', () => resolve(), { once: true });
+      });
+    };
+
+    const getAverageColor = (image) => {
+      const sourceWidth = image.naturalWidth || 0;
+      const sourceHeight = image.naturalHeight || 0;
+      if (sourceWidth === 0 || sourceHeight === 0) return null;
+
+      const sampleWidth = Math.max(28, Math.min(76, Math.round(sourceWidth / 26)));
+      const sampleHeight = Math.max(28, Math.min(76, Math.round(sourceHeight / 26)));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = sampleWidth;
+      canvas.height = sampleHeight;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return null;
+
+      ctx.drawImage(image, 0, 0, sampleWidth, sampleHeight);
+      const { data } = ctx.getImageData(0, 0, sampleWidth, sampleHeight);
+
+      let rTotal = 0;
+      let gTotal = 0;
+      let bTotal = 0;
+      let count = 0;
+
+      for (let i = 0; i < data.length; i += 16) {
+        const alpha = data[i + 3];
+        if (alpha < 16) continue;
+        rTotal += data[i];
+        gTotal += data[i + 1];
+        bTotal += data[i + 2];
+        count += 1;
+      }
+
+      if (count === 0) return null;
+
+      return {
+        r: rTotal / count,
+        g: gTotal / count,
+        b: bTotal / count,
+      };
+    };
+
+    const pickDayPalette = (luminance) => {
+      if (luminance >= 0.58) return DAY_PALETTES.lightSurface;
+      if (luminance >= 0.45) return DAY_PALETTES.midSurface;
+      return DAY_PALETTES.darkSurface;
+    };
+
+    const pickNightPalette = (luminance) => {
+      if (luminance >= 0.38) return NIGHT_PALETTES.brightSurface;
+      return NIGHT_PALETTES.darkSurface;
+    };
+
+    const refreshAdaptivePalette = async () => {
+      await Promise.all([waitForImageReady(dayImage), waitForImageReady(nightImage)]);
+
+      const dayColor = getAverageColor(dayImage);
+      const nightColor = getAverageColor(nightImage);
+
+      if (dayColor) {
+        dayPalette = pickDayPalette(getRelativeLuminance(dayColor));
+      }
+
+      if (nightColor) {
+        nightPalette = pickNightPalette(getRelativeLuminance(nightColor));
+      }
+
+      applyThemePalette();
+    };
+
     const updateSceneSize = () => {
       const nav = document.querySelector('header');
       const navHeight = nav ? Math.round(nav.getBoundingClientRect().height) : 56;
@@ -346,6 +527,7 @@ const sceneVars = {
     const updateAll = () => {
       updateSceneSize();
       updateBlendFallback();
+      applyThemePalette();
     };
 
     const onImageReady = () => {
@@ -373,6 +555,7 @@ const sceneVars = {
       attributeFilter: ['class'],
     });
 
+    refreshAdaptivePalette();
     updateAll();
     window.addEventListener('resize', updateAll, { passive: true });
   })();

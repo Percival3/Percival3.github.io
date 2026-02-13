@@ -110,13 +110,13 @@ function formatDate(date: Date, locale: string): string {
                 </div>
                 <div class="flex-1 min-w-0">
                   <a href={itemUrl}>
-                    <h2 class="text-xl md:text-2xl font-bold mb-2 text-[#f2e6d4] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <h2 class="text-xl md:text-2xl font-bold mb-2 text-[var(--adaptive-text-strong)] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {item.data.title}
                     </h2>
                   </a>
 
                   <!-- 元信息 -->
-                  <div class="flex flex-wrap items-center gap-3 text-sm text-[#d8cab6] dark:text-gray-400 mb-3">
+                  <div class="flex flex-wrap items-center gap-3 text-sm text-[var(--adaptive-text-muted)] dark:text-gray-400 mb-3">
                     <div class="flex items-center gap-1.5">
                       <Calendar className="w-4 h-4" />
                       <time datetime={item.data.pubDate.toISOString()}>
@@ -125,13 +125,13 @@ function formatDate(date: Date, locale: string): string {
                     </div>
                     {item.data.venue && (
                       <>
-                        <div class="w-px h-4 bg-[#d8cab6]/45 dark:bg-gray-700"></div>
+                        <div class="w-px h-4 dark:bg-gray-700" style="background-color: var(--adaptive-text-muted); opacity: 0.45;"></div>
                         <span class="text-blue-600 dark:text-blue-400 font-medium">{item.data.venue}</span>
                       </>
                     )}
                   </div>
 
-                  <p class="text-[#ebdecb] dark:text-gray-300 mb-4 line-clamp-2">
+                  <p class="text-[var(--adaptive-text-body)] dark:text-gray-300 mb-4 line-clamp-2">
                     {item.data.description}
                   </p>
 
@@ -160,7 +160,7 @@ function formatDate(date: Date, locale: string): string {
                       <a
                         href={item.data.pdfUrl}
                         target="_blank"
-                        class="inline-flex items-center gap-1.5 text-sm text-[#cdbfa9] dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        class="inline-flex items-center gap-1.5 text-sm text-[var(--adaptive-text-soft)] dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       >
                         <FileText className="w-4 h-4" />
                         <span>PDF</span>
@@ -172,7 +172,7 @@ function formatDate(date: Date, locale: string): string {
                       <a
                         href={item.data.datasetUrl}
                         target="_blank"
-                        class="inline-flex items-center gap-1.5 text-sm text-[#cdbfa9] dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+                        class="inline-flex items-center gap-1.5 text-sm text-[var(--adaptive-text-soft)] dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors"
                       >
                         <Database className="w-4 h-4" />
                         <span>Dataset</span>
@@ -184,7 +184,7 @@ function formatDate(date: Date, locale: string): string {
                       <a
                         href={`https://doi.org/${item.data.doi}`}
                         target="_blank"
-                        class="inline-flex items-center gap-1.5 text-sm text-[#cdbfa9] dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        class="inline-flex items-center gap-1.5 text-sm text-[var(--adaptive-text-soft)] dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       >
                         <span>DOI</span>
                         <ExternalLink className="w-3 h-3" />

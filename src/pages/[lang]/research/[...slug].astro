@@ -55,7 +55,7 @@ const tagsText = {
 
     <a
       href={getRelativeLocaleUrl(lang, 'research')}
-      class="glass-chip inline-flex items-center gap-2 px-4 py-2 rounded-full text-[#ecdcc8] dark:text-[#bfe6ff] hover:gap-3 transition-all mb-8 group"
+      class="glass-chip inline-flex items-center gap-2 px-4 py-2 rounded-full text-[var(--adaptive-text-muted)] dark:text-[#bfe6ff] hover:gap-3 transition-all mb-8 group"
     >
       <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
       <span>{backText[lang as keyof typeof backText] || backText.zh}</span>
@@ -93,7 +93,7 @@ const tagsText = {
       <!-- 学术元信息 -->
       <div class="flex flex-wrap items-center gap-4 mb-6">
         {item.data.venue && (
-          <span class="glass-chip inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-medium text-[#ebdecb] dark:text-gray-300">
+          <span class="glass-chip inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-medium text-[var(--adaptive-text-body)] dark:text-gray-300">
             {item.data.venue}
           </span>
         )}
@@ -145,7 +145,7 @@ const tagsText = {
 
       {item.data.tags && item.data.tags.length > 0 && (
         <div class="mt-6">
-          <div class="flex items-center gap-2 mb-3 text-sm text-[#d8cab6] dark:text-gray-400">
+          <div class="flex items-center gap-2 mb-3 text-sm text-[var(--adaptive-text-muted)] dark:text-gray-400">
             <Tag className="w-4 h-4" />
             <span>{tagsText[lang as keyof typeof tagsText] || tagsText.zh}</span>
           </div>
@@ -189,7 +189,7 @@ const tagsText = {
     <div class="mt-8 text-center">
       <a
         href={getRelativeLocaleUrl(lang, 'research')}
-        class="glass-chip inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-[#ecdcc8] dark:text-[#c7ebff] hover:opacity-85 transition-opacity font-medium"
+        class="glass-chip inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-[var(--adaptive-text-muted)] dark:text-[#c7ebff] hover:opacity-85 transition-opacity font-medium"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>{backText[lang as keyof typeof backText] || backText.zh}</span>

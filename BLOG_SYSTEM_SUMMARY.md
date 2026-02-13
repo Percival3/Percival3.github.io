@@ -1,166 +1,161 @@
-﻿# Blog and Content System Summary
+﻿# 博客与内容系统总览（中文主文档）
 
-## Purpose
-This document describes the current content system implemented in this repository.
-It replaces older notes that referenced outdated routes and file names.
+## 1. 文档目的
+本文档用于描述当前仓库内已实现的内容系统。
+重点是“现在真实在运行的行为”，不是历史设计稿。
 
-## Current Scope
-The site has three first-class content collections:
+## 2. 内容集合与目录
+当前有三个 Astro Content Collection：
 
-- `posts` for blog articles
-- `research` for papers and datasets
-- `creatives` for gallery/project entries
+- `posts`：博客文章
+- `research`：论文与数据集
+- `creatives`：创作/作品
 
-All three collections are rendered through localized routes under `src/pages/[lang]/`.
+对应目录：
 
-## Stack Used by the Content System
+- `src/content/posts/`
+- `src/content/research/`
+- `src/content/creatives/`
 
-- Astro v5 content collections (`astro:content`)
-- Markdown and MDX content files (`.md`, `.mdx`)
-- Zod schema validation in `src/content/config.ts`
-- Markdown plugins from `astro.config.mjs`:
-  - `remark-math`
-  - `rehype-katex`
-  - Shiki syntax highlighting (`github-dark`, line wrap enabled)
+支持文件类型：`.md`、`.mdx`。
 
-## Route Model
+## 3. 路由结构（多语言）
+支持语言：`zh`、`en`、`ja`。
 
-Localized routes are generated for all supported locales: `zh`, `en`, `ja`.
+- 根路径 `/`：由 `src/pages/index.astro` 重定向到 `/zh/`
+- 首页：`/{lang}/`
+- 博客列表：`/{lang}/blog`
+- 博客详情：`/{lang}/blog/{slug}`
+- 学术列表：`/{lang}/research`
+- 学术详情：`/{lang}/research/{slug}`
+- 作品列表：`/{lang}/gallery`
+- 作品详情：`/{lang}/gallery/{slug}`
+- 关于页面：`/{lang}/about`
 
-### Home
+## 4. Schema（`src/content/config.ts`）
 
-- `/{lang}/`
+### 4.1 通用字段（全部集合）
 
-### Blog (`posts` collection)
+- `title: string`（必填）
+- `pubDate: date`（必填，`z.coerce.date()`）
+- `description: string`（必填）
+- `author: string`（默认 `Zhong Pengchen`）
+- `tags: string[]`（可选）
+- `heroImage: string`（可选）
+- `draft: boolean`（默认 `false`）
+- `lang: 'zh' | 'en' | 'ja'`（默认 `zh`）
+- `featured: boolean`（默认 `false`）
 
-- Listing: `/{lang}/blog`
-- Detail: `/{lang}/blog/{slug}`
+### 4.2 `research` 扩展字段
 
-### Research (`research` collection)
+- `type: 'paper' | 'dataset'`（默认 `paper`）
+- `doi: string`（可选）
+- `venue: string`（可选）
+- `datasetUrl: string`（可选）
+- `pdfUrl: string`（可选）
 
-- Listing: `/{lang}/research`
-- Detail: `/{lang}/research/{slug}`
+### 4.3 `creatives` 扩展字段
 
-### Gallery (`creatives` collection)
+- `techStack: string[]`（可选）
+- `previewImage: string`（可选）
+- `demoUrl: string`（可选）
+- `category: 'social-observation' | 'anime' | 'other'`（默认 `other`）
 
-- Listing: `/{lang}/gallery`
-- Detail: `/{lang}/gallery/{slug}`
+## 5. 内容渲染流程
 
-`src/pages/index.astro` redirects root traffic to `/zh/`.
+### 5.1 列表页
+列表页通用流程：
 
-## Collection Schemas
+1. `getCollection(...)`
+2. 过滤草稿：`!item.data.draft`
+3. 按 `pubDate` 倒序
+4. 输出卡片/列表
 
-Defined in `src/content/config.ts`.
+### 5.2 详情页
+详情页使用 `[...slug].astro`：
 
-### Shared base fields (all collections)
+1. 从全集合构建静态路径
+2. 为 `zh/en/ja` 三种语言各生成一份
+3. 使用 `render(item)` 渲染内容
 
-- `title: string` (required)
-- `pubDate: date` (required, coerced)
-- `description: string` (required)
-- `author: string` (default: `Zhong Pengchen`)
-- `tags: string[]` (optional)
-- `heroImage: string` (optional)
-- `draft: boolean` (default: `false`)
-- `lang: 'zh' | 'en' | 'ja'` (default: `zh`)
-- `featured: boolean` (default: `false`)
+注意：当前详情页构建未统一过滤 `draft`，所以草稿可能“列表不可见，但详情可访问（若知道 slug）”。
 
-### `research` extra fields
+## 6. 页面职责（当前实现）
 
-- `type: 'paper' | 'dataset'` (default: `paper`)
-- `doi: string` (optional)
-- `venue: string` (optional)
-- `datasetUrl: string` (optional)
-- `pdfUrl: string` (optional)
+### 6.1 首页 `src/pages/[lang]/index.astro`
 
-### `creatives` extra fields
+- 英雄区极简展示：头像 + 名言轮播 + 图标按钮 + 向下引导
+- 不再展示 latest posts/research/creatives
 
-- `techStack: string[]` (optional)
-- `previewImage: string` (optional)
-- `demoUrl: string` (optional)
-- `category: 'social-observation' | 'anime' | 'other'` (default: `other`)
+### 6.2 关于页 `src/pages/[lang]/about/index.astro`
 
-## Content Loading
+- 个人信息主卡片
+- 三个集合的最新 3 条内容聚合
+- 联系方式（邮箱 + CV）
+- 友情链接（方块卡片网格）
 
-Each collection uses `glob` loaders and supports both `.md` and `.mdx`:
+### 6.3 作品页 `src/pages/[lang]/gallery/index.astro`
 
-- `src/content/posts/**/*.{md,mdx}`
-- `src/content/research/**/*.{md,mdx}`
-- `src/content/creatives/**/*.{md,mdx}`
+- 按 `category` 分专题展示：
+  - `social-observation`
+  - `anime`
+  - `other`
 
-## Rendering Pattern
+## 7. 阅读统计与元信息
+`src/utils/reading-time.ts` 负责：
 
-### Listing pages
+- 中英混合字数统计
+- 预估阅读时间
 
-Listing pages call `getCollection(...)`, then:
+使用位置：
 
-1. filter out drafts (`!item.data.draft`)
-2. sort by `pubDate` descending
-3. render cards/lists with metadata and optional images
+- 博客列表
+- 博客详情
+- 学术详情
 
-### Detail pages
+元信息组件：`src/components/PostMeta.astro`。
 
-Detail pages use catch-all routes (`[...slug].astro`) and:
+## 8. 多语言行为说明
 
-1. generate static paths from every content item
-2. duplicate paths across `zh`, `en`, `ja`
-3. render markdown/MDX with `render(item)`
+- UI 文案会随路由语言切换（`zh/en/ja`）。
+- 内容条目当前不按 frontmatter 的 `lang` 做强约束过滤。
+- 同一内容通常可在三个语言前缀下访问。
 
-## Reading Stats and Meta
+如果后续要做“语言严格隔离”，需要在各页面查询处增加 `item.data.lang === lang`。
 
-`src/utils/reading-time.ts` computes:
-
-- mixed Chinese/English word count
-- estimated reading time
-
-Used in:
-
-- `src/pages/[lang]/blog/index.astro`
-- `src/pages/[lang]/blog/[...slug].astro`
-- `src/pages/[lang]/research/[...slug].astro`
-
-`src/components/PostMeta.astro` displays:
-
-- author
-- publication date
-- reading time
-- word count
-
-## Homepage Aggregation
-
-`src/pages/[lang]/index.astro` shows the latest three published entries from each collection:
-
-- latest blog posts
-- latest research
-- latest creative works
-
-## i18n Behavior Notes
-
-- UI strings are localized by route locale (`zh`, `en`, `ja`).
-- Content itself is not currently filtered by `data.lang` on list/detail pages.
-- Result: the same content items are reachable from all locale paths.
-
-If strict locale-content mapping is required, add `item.data.lang === lang` filters in collection queries.
-
-## Build and Deployment Notes
-
-From `astro.config.mjs`:
+## 9. 构建与部署要点
+`astro.config.mjs` 当前配置：
 
 - `site: https://Percival3.github.io`
-- `base: '/'` in dev
-- `base: '/my-astro-blog'` in production
+- 开发环境 `base: '/'`
+- 生产环境 `base: '/my-astro-blog'`
 
-This base behavior affects generated URLs when deploying to GitHub Pages.
+GitHub Pages 部署时请特别关注 `base` 对链接生成的影响。
 
-## Operational Checklist
+## 10. 当前已知缺口
 
-1. Add content file to the correct collection folder.
-2. Fill valid frontmatter for that collection.
-3. Run `npm run dev` and verify list/detail pages.
-4. Run `npm run build` before deployment.
+- 暂无分页
+- 暂无全文搜索
+- `featured` 字段已定义，但未形成统一主流程
+- 内容语言严格隔离未启用
 
-## Known Gaps
+---
 
-- No pagination for large collections.
-- No full-text search.
-- `featured` exists in schema but is not used as a dedicated filter/section.
-- Locale-specific content filtering is not enforced.
+## Appendix A (English)
+
+### A.1 Scope
+The project currently uses three Astro collections: `posts`, `research`, and `creatives`, all routed under `/{lang}/...` (`zh`, `en`, `ja`).
+
+### A.2 Key behavior
+- Root `/` redirects to `/zh/`
+- Home page is now hero-only (no latest-content blocks)
+- About page aggregates latest 3 entries from all collections
+- Gallery is grouped by creative category (`social-observation`, `anime`, `other`)
+
+### A.3 Important caveats
+- List pages filter out drafts
+- Detail static paths are generated from all entries; drafts may still be reachable if slug is known
+- Content is not strictly filtered by frontmatter `lang`
+
+### A.4 Deployment
+`site` is `https://Percival3.github.io`, with dev `base: '/'` and production `base: '/my-astro-blog'`.

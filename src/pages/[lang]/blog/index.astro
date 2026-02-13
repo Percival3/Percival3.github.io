@@ -103,26 +103,26 @@ function formatDate(date: Date, locale: string): string {
               )}
 
               <a href={postUrl}>
-                <h2 class="text-2xl md:text-3xl font-bold mb-3 text-[#f2e6d4] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <h2 class="text-2xl md:text-3xl font-bold mb-3 text-[var(--adaptive-text-strong)] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {post.data.title}
                 </h2>
               </a>
 
-              <div class="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-[#d8cab6] dark:text-gray-400 mb-4">
+              <div class="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-[var(--adaptive-text-muted)] dark:text-gray-400 mb-4">
                 <div class="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4" />
                   <time datetime={post.data.pubDate.toISOString()}>
                     {formatDate(post.data.pubDate, lang)}
                   </time>
                 </div>
-                <div class="w-px h-4 bg-[#d8cab6]/45 dark:bg-gray-700"></div>
+                <div class="w-px h-4 dark:bg-gray-700" style="background-color: var(--adaptive-text-muted); opacity: 0.45;"></div>
                 <div class="flex items-center gap-1.5">
                   <Clock className="w-4 h-4" />
                   <span>{stats.readingTime} {t.minRead}</span>
                 </div>
               </div>
 
-              <p class="text-[#ebdecb] dark:text-gray-300 mb-4 line-clamp-2">
+              <p class="text-[var(--adaptive-text-body)] dark:text-gray-300 mb-4 line-clamp-2">
                 {post.data.description}
               </p>
 

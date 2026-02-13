@@ -1,5 +1,5 @@
 ---
-title: "粒子流场动画实验"
+title: "粒子流场动画实验-AI生成用于占位测试"
 pubDate: 2024-03-28
 description: "使用 Canvas 和 Perlin Noise 创建的交互式粒子流场动画，支持鼠标交互与主题切换。"
 author: "Zhong Pengchen"

@@ -15,20 +15,21 @@ export function getStaticPaths() {
 const { lang } = Astro.params;
 
 const fixedHeroQuotes = [
-  { text: '头顶的星空和心中的律令', sub: '理性作为存在' },
-  { text: 'Stand Alone Complex', sub: '个体分离，共鸣成网' },
-  { text: 'Cogito ergo sum', sub: '我思故我在' },
+  { text: '头顶的星空和心中的律令', sub: '' },
+  { text: '理性作为存在', sub: '' },
+  { text: 'Stand Alone Complex', sub: '' },
+  { text: 'Cogito ergo sum', sub: 'René Descartes' },
 ];
 
 const translations = {
   zh: {
-    scrollLabel: '向下查看',
+    scrollLabel: '查看详情',
   },
   en: {
-    scrollLabel: 'Scroll Down',
+    scrollLabel: 'Details',
   },
   ja: {
-    scrollLabel: '下へスクロール',
+    scrollLabel: '詳細を見る',
   },
 };
 

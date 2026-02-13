@@ -11,6 +11,32 @@
   html {
     scroll-behavior: smooth;
   }
+
+  :root {
+    --adaptive-text-strong: #f2e6d4;
+    --adaptive-text-body: #ebdecb;
+    --adaptive-text-muted: #d8cab6;
+    --adaptive-text-soft: #cdbda9;
+    --adaptive-link: #7eb5ff;
+    --adaptive-inline-code: #ffd5ee;
+    --adaptive-inline-code-bg: rgba(20, 24, 38, 0.5);
+    --adaptive-blockquote-bg: rgba(28, 44, 72, 0.32);
+    --adaptive-blockquote-border: rgba(123, 175, 255, 0.95);
+    --adaptive-hr: rgba(255, 255, 255, 0.28);
+  }
+
+  :where(html.dark) {
+    --adaptive-text-strong: #ebf7ff;
+    --adaptive-text-body: #d3e8f8;
+    --adaptive-text-muted: #b8d4e8;
+    --adaptive-text-soft: #98b7cd;
+    --adaptive-link: #8ed0ff;
+    --adaptive-inline-code: #f8bcff;
+    --adaptive-inline-code-bg: rgba(24, 31, 52, 0.64);
+    --adaptive-blockquote-bg: rgba(14, 26, 52, 0.46);
+    --adaptive-blockquote-border: rgba(110, 198, 255, 0.96);
+    --adaptive-hr: rgba(123, 221, 255, 0.34);
+  }
   
   /* 
     使用 CSS 变量来控制核心颜色，这样切换时更流畅 
@@ -96,40 +122,31 @@
     color: transparent;
     background-image: linear-gradient(
       90deg,
-      #fff2df 0%,
-      #edd6b4 48%,
-      #d0ad86 100%
+      var(--adaptive-text-strong) 0%,
+      var(--adaptive-text-body) 52%,
+      var(--adaptive-text-muted) 100%
     );
     text-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
   }
 
-  :where(.dark) .page-title {
-    background-image: linear-gradient(
-      90deg,
-      #f4fbff 0%,
-      #cdeeff 48%,
-      #8ecbf1 100%
-    );
-  }
-
   .page-subtitle {
     @apply text-base md:text-lg;
-    color: #e6d8c6;
+    color: var(--adaptive-text-body);
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
   }
 
   :where(.dark) .page-subtitle {
-    color: #c7e6fb;
+    color: var(--adaptive-text-body);
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
   }
 
   .page-section-title {
-    color: #efe1cf;
+    color: var(--adaptive-text-strong);
     text-shadow: 0 1px 8px rgba(0, 0, 0, 0.32);
   }
 
   :where(.dark) .page-section-title {
-    color: #d9f1ff;
+    color: var(--adaptive-text-strong);
   }
 
   .page-card {
@@ -185,44 +202,44 @@
   }
 
   .article-prose :where(h1, h2, h3, h4, h5, h6) {
-    color: #fff2df !important;
+    color: var(--adaptive-text-strong) !important;
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.32);
   }
 
   .article-prose :where(p, li, td, th, em, del, blockquote) {
-    color: #f1e3d1 !important;
+    color: var(--adaptive-text-body) !important;
     text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
   }
 
   .article-prose :where(a) {
-    color: #7eb5ff !important;
+    color: var(--adaptive-link) !important;
   }
 
   .article-prose :where(a:hover) {
-    color: #a2c9ff !important;
+    filter: brightness(1.1);
   }
 
   .article-prose :where(code):not(pre code) {
-    color: #ffd5ee !important;
-    background: rgba(20, 24, 38, 0.5) !important;
+    color: var(--adaptive-inline-code) !important;
+    background: var(--adaptive-inline-code-bg) !important;
   }
 
   .article-prose :where(blockquote) {
-    border-left-color: rgba(123, 175, 255, 0.95) !important;
-    background: rgba(28, 44, 72, 0.32) !important;
+    border-left-color: var(--adaptive-blockquote-border) !important;
+    background: var(--adaptive-blockquote-bg) !important;
   }
 
   .article-prose :where(hr) {
-    border-color: rgba(255, 255, 255, 0.28) !important;
+    border-color: var(--adaptive-hr) !important;
   }
 
   :where(.dark) .article-prose :where(h1, h2, h3, h4, h5, h6) {
-    color: #ebf7ff !important;
+    color: var(--adaptive-text-strong) !important;
     text-shadow: none;
   }
 
   :where(.dark) .article-prose :where(p, li, td, th, em, del, blockquote) {
-    color: #d3e8f8 !important;
+    color: var(--adaptive-text-body) !important;
     text-shadow: none;
   }
 

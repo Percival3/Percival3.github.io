@@ -10,7 +10,6 @@ import {
   Instagram,
   MapPin,
   GraduationCap,
-  Sparkles,
   ArrowRight,
   Calendar,
   BookOpen,
@@ -116,6 +115,12 @@ const translations = {
 };
 
 const t = translations[lang as keyof typeof translations] || translations.zh;
+const friendLinks = [
+  {
+    name: 'YM Blog',
+    url: 'https://ymblog.vercel.app/',
+  },
+];
 
 function formatDate(date: Date, locale: string): string {
   const localeMap = { zh: 'zh-CN', en: 'en-US', ja: 'ja-JP' };
@@ -142,10 +147,10 @@ function formatDate(date: Date, locale: string): string {
         </div>
 
         <div class="text-center md:text-left flex-1">
-          <p class="text-xs uppercase tracking-[0.26em] text-[#e6d7c5] dark:text-[#8fc6e8] mb-2">{t.greeting}</p>
+          <p class="text-xs uppercase tracking-[0.26em] text-[var(--adaptive-text-muted)] dark:text-[#8fc6e8] mb-2">{t.greeting}</p>
           <h1 class="page-title text-4xl md:text-5xl mb-3">{t.name}</h1>
-          <p class="text-[#efe1d0] dark:text-[#9ecfe9] font-semibold text-lg mb-2">{t.role}</p>
-          <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-[#ddcfbd] dark:text-[#a1cde6] mb-6">
+          <p class="text-[var(--adaptive-text-strong)] dark:text-[#9ecfe9] font-semibold text-lg mb-2">{t.role}</p>
+          <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-[var(--adaptive-text-muted)] dark:text-[#a1cde6] mb-6">
             <span class="inline-flex items-center gap-1.5">
               <GraduationCap className="w-4 h-4" />
               {t.affiliation}
@@ -160,25 +165,6 @@ function formatDate(date: Date, locale: string): string {
         </div>
       </div>
     </div>
-
-    <section class="mb-16 max-w-4xl mx-auto">
-      <div class="flex items-center gap-3 mb-8">
-        <Sparkles className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-        <h2 class="text-2xl md:text-3xl font-bold page-section-title">{t.sections.interests}</h2>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {t.sections.interestsList.map((interest, i) => (
-          <div class="group page-card rounded-xl p-5 border border-gray-200/50 dark:border-gray-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-blue-500/30">
-                {i + 1}
-              </div>
-              <span class="font-medium text-[#efe1cf] dark:text-gray-200">{interest}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
 
     <section class="mb-14">
       <div class="flex items-center justify-between mb-6">
@@ -217,10 +203,10 @@ function formatDate(date: Date, locale: string): string {
                     )}
                   </div>
                   <div class="p-4">
-                    <h3 class="text-base font-bold mb-1 text-[#f2e6d4] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
+                    <h3 class="text-base font-bold mb-1 text-[var(--adaptive-text-strong)] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
                       {item.data.title}
                     </h3>
-                    <p class="text-sm text-[#e4d5c3] dark:text-gray-400 line-clamp-2">{item.data.description}</p>
+                    <p class="text-sm text-[var(--adaptive-text-body)] dark:text-gray-400 line-clamp-2">{item.data.description}</p>
                   </div>
                 </article>
               </a>
@@ -255,11 +241,11 @@ function formatDate(date: Date, locale: string): string {
                 <article class="page-card rounded-xl p-5 border border-gray-200/50 dark:border-gray-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
                   <div class="flex items-start justify-between gap-4">
                     <div class="flex-1 min-w-0">
-                      <h3 class="text-lg font-bold mb-1 text-[#f2e6d4] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                      <h3 class="text-lg font-bold mb-1 text-[var(--adaptive-text-strong)] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
                         {post.data.title}
                       </h3>
-                      <p class="text-sm text-[#e4d5c3] dark:text-gray-400 line-clamp-1 mb-2">{post.data.description}</p>
-                      <div class="flex items-center gap-3 text-xs text-[#cdbda9] dark:text-gray-500">
+                      <p class="text-sm text-[var(--adaptive-text-body)] dark:text-gray-400 line-clamp-1 mb-2">{post.data.description}</p>
+                      <div class="flex items-center gap-3 text-xs text-[var(--adaptive-text-soft)] dark:text-gray-500">
                         <div class="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5" />
                           <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate, lang)}</time>
@@ -275,7 +261,7 @@ function formatDate(date: Date, locale: string): string {
                         )}
                       </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-[#cdbda9] group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+                    <ArrowRight className="w-5 h-5 text-[var(--adaptive-text-soft)] group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
                   </div>
                 </article>
               </a>
@@ -315,11 +301,11 @@ function formatDate(date: Date, locale: string): string {
                       {isPaper ? <BookOpen className="w-4 h-4" /> : <Database className="w-4 h-4" />}
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h3 class="text-lg font-bold mb-1 text-[#f2e6d4] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      <h3 class="text-lg font-bold mb-1 text-[var(--adaptive-text-strong)] dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {item.data.title}
                       </h3>
-                      <p class="text-sm text-[#e4d5c3] dark:text-gray-400 line-clamp-1 mb-2">{item.data.description}</p>
-                      <div class="flex items-center gap-3 text-xs text-[#cdbda9] dark:text-gray-500">
+                      <p class="text-sm text-[var(--adaptive-text-body)] dark:text-gray-400 line-clamp-1 mb-2">{item.data.description}</p>
+                      <div class="flex items-center gap-3 text-xs text-[var(--adaptive-text-soft)] dark:text-gray-500">
                         {item.data.venue && <span class="font-medium text-blue-600 dark:text-blue-400">{item.data.venue}</span>}
                         <div class="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5" />
@@ -327,7 +313,7 @@ function formatDate(date: Date, locale: string): string {
                         </div>
                       </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-[#cdbda9] group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+                    <ArrowRight className="w-5 h-5 text-[var(--adaptive-text-soft)] group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
                   </div>
                 </article>
               </a>
@@ -346,7 +332,7 @@ function formatDate(date: Date, locale: string): string {
         <Mail className="w-6 h-6 text-blue-600 dark:text-blue-400" />
         <h2 class="text-2xl md:text-3xl font-bold page-section-title">{t.sections.connect}</h2>
       </div>
-      <p class="text-[#e4d5c3] dark:text-gray-400 mb-8">{t.sections.connectDesc}</p>
+      <p class="text-[var(--adaptive-text-body)] dark:text-gray-400 mb-8">{t.sections.connectDesc}</p>
 
       <div class="flex flex-col sm:flex-row items-center gap-4 mb-8">
         <a
@@ -358,15 +344,15 @@ function formatDate(date: Date, locale: string): string {
         </a>
         <a
           href={t.cvLink}
-          class="flex items-center justify-center gap-2 px-8 py-3.5 rounded-full border border-current text-[#efe1cf] dark:text-gray-100 hover:bg-black/5 dark:hover:bg-white/10 transition-all font-bold tracking-wide"
+          class="flex items-center justify-center gap-2 px-8 py-3.5 rounded-full border border-current text-[var(--adaptive-text-strong)] dark:text-gray-100 hover:bg-black/5 dark:hover:bg-white/10 transition-all font-bold tracking-wide"
         >
           <Download className="w-4 h-4" />
           <span>{t.cv}</span>
         </a>
       </div>
 
-      <div class="flex items-center gap-6 text-[#cdbda9] justify-center sm:justify-start">
-        <a href="https://github.com" target="_blank" aria-label="GitHub" class="hover:text-[#fff2df] dark:hover:text-white transition-colors transform hover:scale-110">
+      <div class="flex items-center gap-6 text-[var(--adaptive-text-soft)] justify-center sm:justify-start">
+        <a href="https://github.com" target="_blank" aria-label="GitHub" class="hover:text-[var(--adaptive-text-strong)] dark:hover:text-white transition-colors transform hover:scale-110">
           <Github className="w-6 h-6" />
         </a>
         <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="hover:text-blue-400 transition-colors transform hover:scale-110">
@@ -378,6 +364,31 @@ function formatDate(date: Date, locale: string): string {
         <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="hover:text-pink-500 transition-colors transform hover:scale-110">
           <Instagram className="w-6 h-6" />
         </a>
+      </div>
+    </section>
+
+    <section class="mt-14 max-w-4xl mx-auto">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-2xl md:text-3xl font-bold page-section-title">友情链接</h2>
+      </div>
+      <p class="text-[var(--adaptive-text-body)] dark:text-gray-400 mb-5">推荐站点</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {friendLinks.map((link) => (
+          <a
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group page-card rounded-2xl border border-gray-200/50 dark:border-gray-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 aspect-square px-4 py-5 flex flex-col items-center justify-center text-center"
+          >
+            <span class="text-[var(--adaptive-text-strong)] dark:text-gray-100 font-semibold text-base leading-tight">
+              {link.name}
+            </span>
+            <span class="mt-3 inline-flex items-center gap-1.5 text-sm text-[var(--adaptive-text-soft)] dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              访问
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </span>
+          </a>
+        ))}
       </div>
     </section>
   </div>

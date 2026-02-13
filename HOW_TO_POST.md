@@ -1,62 +1,52 @@
-﻿# How to Publish Content
+﻿# 内容发布手册（中文主文档）
 
-This project supports three content types:
+本文档面向日常发文与作品更新，按“能直接操作”的方式编写。
 
-- Blog posts (`posts`)
-- Research entries (`research`)
-- Creative works (`creatives`)
+## 1. 先选对集合目录
 
-All content is written as Markdown/MDX and stored in `src/content/...`.
+- 博客：`src/content/posts/`
+- 学术：`src/content/research/`
+- 创作：`src/content/creatives/`
 
-## 1. Choose the Right Collection
+文件类型：`.md` 或 `.mdx`。
 
-- Blog article: `src/content/posts/`
-- Research paper or dataset: `src/content/research/`
-- Gallery/project item: `src/content/creatives/`
-
-Accepted file types: `.md` or `.mdx`.
-
-## 2. Create a New File
-
-Use lowercase kebab-case file names:
+命名建议：使用小写 kebab-case，例如：
 
 - `my-first-post.md`
 - `nlp-survey-2026.mdx`
-- `particle-lab.md`
+- `gits-scene-study.md`
 
-Avoid spaces and uppercase characters in slugs.
-
-## 3. Add Frontmatter
-
-Frontmatter is required and must be valid against `src/content/config.ts`.
-
-### 3.1 Base fields (all collections)
+## 2. 通用 Frontmatter（全部集合）
 
 ```yaml
 ---
-title: "Your Title"
-pubDate: 2026-02-12
-description: "One-line summary"
+title: "标题"
+pubDate: 2026-02-13
+description: "一句话摘要"
 author: "Zhong Pengchen"
 tags: ["Tag1", "Tag2"]
-heroImage: "https://example.com/image.jpg"
+heroImage: "/images/example-cover.jpg"
 draft: false
 lang: "zh"
 featured: false
 ---
 ```
 
-Field notes:
+说明：
 
-- `title`, `pubDate`, `description` are required.
-- `draft` defaults to `false`; set to `true` to hide from listing pages.
-- `lang` supports `zh`, `en`, `ja`.
+- 必填：`title`、`pubDate`、`description`
+- `author` 默认值是 `Zhong Pengchen`
+- `draft` 默认 `false`
+- `lang` 可选 `zh/en/ja`（当前不会严格过滤内容）
+- `heroImage` 可填本地 `public` 资源路径或外链
 
-### 3.2 Research-only fields
+## 3. 集合专属字段
+
+### 3.1 学术（`research`）
 
 ```yaml
 ---
-type: "paper" # or "dataset"
+type: "paper" # paper | dataset
 doi: "10.1234/example.doi"
 venue: "Conference Name"
 datasetUrl: "https://example.com/dataset"
@@ -64,117 +54,104 @@ pdfUrl: "https://example.com/paper.pdf"
 ---
 ```
 
-### 3.3 Creative-only fields
+### 3.2 创作（`creatives`）
 
 ```yaml
 ---
 techStack: ["TypeScript", "Canvas"]
-previewImage: "https://example.com/preview.jpg"
+previewImage: "/images/creative-preview.jpg"
 demoUrl: "https://example.com/live-demo"
-category: "social-observation" # "social-observation" | "anime" | "other"
+category: "social-observation" # social-observation | anime | other
 ---
 ```
 
-## 4. Write the Body Content
+`category` 会决定 Gallery 页面的专题分组位置。
 
-You can use standard Markdown, plus:
+## 4. 正文写作支持
+支持标准 Markdown + 扩展能力：
 
-- fenced code blocks (Shiki highlighting)
-- inline and block math (`remark-math` + `rehype-katex`)
-- images, tables, blockquotes, lists
+- 代码高亮（Shiki）
+- 数学公式（`remark-math` + `rehype-katex`）
+- 表格、图片、引用、列表
 
-Math examples:
+数学示例：
 
 ```markdown
-Inline: $E = mc^2$
+行内公式：$E = mc^2$
 
-Block:
+块级公式：
 $$
 \int_0^1 x^2 dx = 1/3
 $$
 ```
 
-## 5. Preview Locally
+## 5. 本地预览与发布前检查
 
-From project root:
+开发预览：
 
 ```bash
 npm run dev
 ```
 
-Then open:
+常看页面：
 
 - `http://localhost:4321/zh/blog`
 - `http://localhost:4321/zh/research`
 - `http://localhost:4321/zh/gallery`
+- `http://localhost:4321/zh/about`
 
-Use locale switches (`zh`, `en`, `ja`) to check localized UI labels.
-
-## 6. URL Rules
-
-For file `src/content/posts/my-post.md`, generated detail URLs are:
-
-- `/zh/blog/my-post`
-- `/en/blog/my-post`
-- `/ja/blog/my-post`
-
-Same pattern applies to `research` and `gallery`.
-
-Important current behavior:
-
-- route locale affects UI language
-- content is not filtered by frontmatter `lang` yet
-- one item is currently reachable from all locale routes
-
-## 7. Draft and Publish Workflow
-
-### Keep as draft
-
-```yaml
----
-draft: true
----
-```
-
-Draft entries are excluded from list pages and homepage sections.
-
-### Publish
-
-Set draft off:
-
-```yaml
----
-draft: false
----
-```
-
-Then run:
+发布前：
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## 8. Content Quality Checklist
+## 6. 内容会出现在哪里
 
-Before publishing:
+- 博客文章：
+  - 列表 `/{lang}/blog`
+  - 详情 `/{lang}/blog/{slug}`
+- 学术内容：
+  - 列表 `/{lang}/research`
+  - 详情 `/{lang}/research/{slug}`
+- 创作内容：
+  - 列表 `/{lang}/gallery`（按 category 分组）
+  - 详情 `/{lang}/gallery/{slug}`
 
-1. Required fields are present and correctly typed.
-2. `pubDate` is valid and intended.
-3. Slug/file name is clean and stable.
-4. Hero or preview image URLs load correctly.
-5. Links and external resources work.
-6. Page renders correctly in both light and dark themes.
-7. Mobile layout remains readable.
+另外：
 
-## 9. Minimal Templates
+- `/{lang}/about` 会聚合三个集合各最新 3 条
+- `/{lang}/` 首页当前只做封面表达，不展示 latest 列表
 
-### Blog template
+## 7. 重要行为说明
+
+### 7.1 语言行为
+界面文案会随路由语言切换，但内容本身当前不按 frontmatter `lang` 严格筛选。
+同一条内容通常可在 `zh/en/ja` 三个前缀下访问。
+
+### 7.2 草稿行为
+列表页会过滤 `draft: true`，但详情静态路径当前仍可能生成。
+因此 `draft` 不是强私密机制，不应当作为敏感内容隔离手段。
+
+## 8. 发布检查清单
+
+1. 目录是否正确
+2. Frontmatter 是否通过 schema
+3. creatives 的 `category` 是否填写正确
+4. `draft` 是否为 `false`
+5. 图片和外链是否可访问
+6. 白天/夜晚模式可读性是否正常
+7. `npm run build` 是否通过
+
+## 9. 最小模板
+
+### 9.1 博客模板
 
 ```markdown
 ---
 title: "Post Title"
-pubDate: 2026-02-12
+pubDate: 2026-02-13
 description: "Post summary"
 author: "Zhong Pengchen"
 tags: ["Blog"]
@@ -187,12 +164,12 @@ draft: false
 Write your post here.
 ```
 
-### Research template
+### 9.2 学术模板
 
 ```markdown
 ---
 title: "Research Title"
-pubDate: 2026-02-12
+pubDate: 2026-02-13
 description: "Research summary"
 author: "Zhong Pengchen"
 type: "paper"
@@ -208,16 +185,16 @@ draft: false
 Write abstract and details.
 ```
 
-### Creative template
+### 9.3 创作模板
 
 ```markdown
 ---
 title: "Project Title"
-pubDate: 2026-02-12
+pubDate: 2026-02-13
 description: "Project summary"
 author: "Zhong Pengchen"
 techStack: ["Astro", "React"]
-previewImage: "https://example.com/preview.jpg"
+previewImage: "/images/project-preview.jpg"
 demoUrl: "https://example.com/demo"
 category: "anime"
 lang: "en"
@@ -229,10 +206,30 @@ draft: false
 Describe the project.
 ```
 
-## 10. Related Docs
+## 10. 关联文档
 
 - `BLOG_SYSTEM_SUMMARY.md`
 - `DESIGN_STYLE_GUIDE.md`
 - `src/content/config.ts`
 
-If schema fields change in `src/content/config.ts`, update this guide immediately.
+当 schema 或路由行为变化时，请在同一次提交同步更新本文档。
+
+---
+
+## Appendix A (English)
+
+### A.1 Quick workflow
+1. Put the file in the right collection folder.
+2. Fill required frontmatter fields.
+3. For creatives, set `category` (`social-observation` / `anime` / `other`).
+4. Run `npm run dev`, then `npm run build`.
+
+### A.2 Current behavior notes
+- UI language follows route locale.
+- Content is not strictly filtered by frontmatter `lang`.
+- Drafts are hidden from list pages, but detail routes may still be generated.
+
+### A.3 Where content appears
+- Blog/Research/Gallery list and detail routes under `/{lang}/...`
+- About page shows latest 3 items from each collection
+- Home page is currently hero-only
