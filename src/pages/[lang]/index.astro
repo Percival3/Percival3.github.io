@@ -40,7 +40,7 @@ const aboutUrl = getRelativeLocaleUrl(lang, 'about');
 <Layout title="Home" lang={lang}>
   <section
     class="relative mx-auto max-w-6xl px-4 sm:px-6"
-    style="min-height: var(--hero-scene-height, calc(100vh - 8rem)); padding-top: calc(var(--nav-height, 56px) + 2rem); padding-bottom: clamp(5rem, 10vw, 7rem);"
+    style="min-height: var(--hero-scene-height, calc(100vh - 8rem)); padding-top: calc(var(--nav-height, 56px) + clamp(1.1rem, 3.6vw, 2rem)); padding-bottom: clamp(4rem, 10vw, 7rem);"
   >
     <div class="relative mx-auto flex max-w-4xl flex-col items-center text-center animate-in fade-in zoom-in duration-700">
       <div class="relative mb-6 md:mb-8">
@@ -52,7 +52,7 @@ const aboutUrl = getRelativeLocaleUrl(lang, 'about');
         />
       </div>
 
-      <div class="glass-card quote-panel w-full max-w-3xl rounded-[30px] px-7 py-5 md:px-12 md:py-6">
+      <div class="glass-card quote-panel w-full max-w-3xl rounded-[26px] sm:rounded-[30px] px-4 py-4 sm:px-6 sm:py-5 md:px-12 md:py-6">
         <QuoteCarousel client:load quotes={fixedHeroQuotes} />
       </div>
 
@@ -101,8 +101,8 @@ const aboutUrl = getRelativeLocaleUrl(lang, 'about');
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 2.75rem;
-    width: 2.75rem;
+    height: 2.5rem;
+    width: 2.5rem;
     border-radius: 9999px;
     border: 1px solid rgba(255, 255, 255, 0.42);
     background: linear-gradient(
@@ -115,6 +115,13 @@ const aboutUrl = getRelativeLocaleUrl(lang, 'about');
     -webkit-backdrop-filter: blur(10px) saturate(120%);
     transition: transform 220ms ease, opacity 220ms ease;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+  }
+
+  @media (min-width: 768px) {
+    .home-icon-btn {
+      height: 2.75rem;
+      width: 2.75rem;
+    }
   }
 
   .home-icon-btn:hover {

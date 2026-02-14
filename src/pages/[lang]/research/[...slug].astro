@@ -68,7 +68,7 @@ const tagsText = {
         <img
           src={item.data.heroImage}
           alt={item.data.title}
-          class="w-full h-64 md:h-96 object-cover rounded-2xl mb-8 shadow-2xl"
+          class="w-full h-52 sm:h-64 md:h-96 object-cover rounded-2xl mb-8 shadow-2xl"
         />
       )}
 
@@ -116,7 +116,7 @@ const tagsText = {
           <a
             href={item.data.pdfUrl}
             target="_blank"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            class="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
           >
             <FileText className="w-4 h-4" />
             Download PDF
@@ -127,7 +127,7 @@ const tagsText = {
           <a
             href={item.data.datasetUrl}
             target="_blank"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+            class="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
           >
             <Database className="w-4 h-4" />
             Dataset

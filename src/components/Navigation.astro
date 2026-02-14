@@ -49,7 +49,7 @@ const languages = [
 ---
 
 <header class="fixed top-0 z-50 w-full transition-all duration-300">
-  <div class="container mx-auto flex items-center justify-between px-4 py-3 md:py-4">
+  <div class="container mx-auto flex items-center justify-end md:justify-between px-3 sm:px-4 py-2.5 md:py-4">
     <a
       href={getRelativeLocaleUrl(lang, '')}
       class="hidden font-bold text-lg tracking-tight items-center gap-2 hover:opacity-85 transition-opacity z-50 rounded-full border border-white/45 dark:border-cyan-200/25 bg-white/55 dark:bg-slate-900/45 px-3.5 h-11 backdrop-blur-xl text-slate-800 dark:text-cyan-100 shadow-[0_10px_28px_rgba(15,23,42,0.2)]"
@@ -72,7 +72,7 @@ const languages = [
       ))}
     </nav>
 
-    <div class="flex items-center gap-2 sm:gap-4 z-50 h-11 rounded-full border border-white/52 dark:border-cyan-200/26 bg-white/74 dark:bg-slate-900/58 backdrop-blur-xl px-3 text-slate-700 dark:text-[#d8f3ff] shadow-[0_12px_32px_rgba(15,23,42,0.22)]">
+    <div class="flex items-center gap-1.5 sm:gap-4 z-50 h-10 md:h-11 rounded-full border border-white/52 dark:border-cyan-200/26 bg-white/74 dark:bg-slate-900/58 backdrop-blur-xl px-2.5 md:px-3 text-slate-700 dark:text-[#d8f3ff] shadow-[0_12px_32px_rgba(15,23,42,0.22)]">
       <LanguageSelector client:load currentLang={lang} languages={languages} />
 
       <div class="w-px h-4 hidden sm:block bg-slate-400/40 dark:bg-cyan-200/30"></div>

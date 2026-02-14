@@ -35,7 +35,7 @@ export default function LanguageSelector({ currentLang, languages }: Props) {
       {/* 触发按钮 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-inherit hover:bg-white/10 dark:hover:bg-white/10 transition-colors"
+        className="flex items-center gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-sm font-medium text-inherit hover:bg-white/10 dark:hover:bg-white/10 transition-colors"
       >
         <Languages className="w-4 h-4" />
         <span className="hidden sm:inline">{currentLabel}</span>
@@ -44,7 +44,7 @@ export default function LanguageSelector({ currentLang, languages }: Props) {
 
       {/* 下拉菜单 */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-32 origin-top-right bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+        <div className="absolute right-0 mt-2 w-36 sm:w-40 max-w-[calc(100vw-1rem)] origin-top-right bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in slide-in-from-top-2 duration-200 z-[120]">
           <div className="py-1">
             {languages.map((lang) => (
               <a

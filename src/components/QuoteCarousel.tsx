@@ -81,13 +81,13 @@ export default function QuoteCarousel({ quotes }: QuoteCarouselProps) {
   }, [index, resolvedQuotes]);
 
   return (
-    <div className="mx-auto flex min-h-[9.6rem] max-w-2xl items-center justify-center md:min-h-[10.4rem]">
+    <div className="mx-auto flex min-h-[7.8rem] max-w-2xl items-center justify-center sm:min-h-[8.8rem] md:min-h-[10.4rem]">
       <div className="w-full">
-        <blockquote className="text-center text-[1.35rem] md:text-[2rem] font-serif italic leading-[1.35] text-[#f6ead9] dark:text-[#d8efff] drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+        <blockquote className="text-center text-[1.05rem] sm:text-[1.25rem] md:text-[2rem] font-serif italic leading-[1.4] text-[#f6ead9] dark:text-[#d8efff] drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
           {typedText}
           <span className="inline-block w-[1px] h-[0.95em] ml-1 align-[-0.04em] bg-current animate-pulse"></span>
         </blockquote>
-        <p className="mt-3 text-center text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-[#d5bd9d] dark:text-[#9fd6ff] drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)] min-h-[1.2em]">
+        <p className="mt-2.5 text-center text-[10px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.16em] sm:tracking-[0.2em] text-[#d5bd9d] dark:text-[#9fd6ff] drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)] min-h-[1.2em]">
           {typedSub}
         </p>
       </div>
