@@ -44,7 +44,7 @@ export default function LanguageSelector({ currentLang, languages }: Props) {
 
       {/* 下拉菜单 */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-36 sm:w-40 max-w-[calc(100vw-1rem)] origin-top-right bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in slide-in-from-top-2 duration-200 z-[120]">
+        <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-36 sm:w-40 max-w-[calc(100vw-1rem)] origin-top-left sm:origin-top-right bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in slide-in-from-top-2 duration-200 z-[120]">
           <div className="py-1">
             {languages.map((lang) => (
               <a

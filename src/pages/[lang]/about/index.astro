@@ -1,13 +1,10 @@
----
+﻿---
 import Layout from '../../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import {
   Mail,
-  Github,
-  Twitter,
-  Linkedin,
-  Instagram,
+  Link2,
   MapPin,
   GraduationCap,
   ArrowRight,
@@ -46,14 +43,12 @@ const translations = {
   zh: {
     pageTitle: '关于我',
     greeting: '你好，我是',
-    name: '钟鹏辰',
+    name: '钟朋辰',
     role: '学生 / 创作者',
     affiliation: '北京大学',
     location: '中国，北京',
-    bio: '我关注技术与创意的交叉点，尤其是算法艺术、交互设计和新媒体叙事。代码对我来说不仅是工具，也是表达观点与情绪的语言。',
+    bio: '无聊之人的碎碎念。',
     sections: {
-      interests: '兴趣方向',
-      interestsList: ['创意编程与算法艺术', '自然语言处理', '交互设计与动画', '前沿 Web 技术'],
       recentCreatives: '最近创作',
       recentPosts: '最新博客',
       recentResearch: '最新研究',
@@ -70,13 +65,11 @@ const translations = {
     pageTitle: 'About Me',
     greeting: "Hi, I'm",
     name: 'Zhong Pengchen',
-    role: 'Student / Creator',
+    role: 'Student',
     affiliation: 'Peking University',
     location: 'Beijing, China',
-    bio: 'I work at the intersection of technology and creative expression, with a focus on algorithmic art, interaction design, and new media storytelling.',
+    bio: 'Just the little ramblings of a boring person.',
     sections: {
-      interests: 'Interests',
-      interestsList: ['Creative Coding & Algorithmic Art', 'Natural Language Processing', 'Interaction Design & Animation', 'Cutting-edge Web Technologies'],
       recentCreatives: 'Recent Creatives',
       recentPosts: 'Latest Posts',
       recentResearch: 'Latest Research',
@@ -93,13 +86,11 @@ const translations = {
     pageTitle: '私について',
     greeting: 'こんにちは、',
     name: '钟鹏辰',
-    role: '学生 / クリエイター',
+    role: '学生',
     affiliation: '北京大学',
     location: '中国・北京',
-    bio: 'テクノロジーと創造表現の交差点で活動しています。アルゴリズムアート、インタラクションデザイン、新しいメディア表現に関心があります。',
+    bio: '退屈な人間の、ちょっとした独り言。',
     sections: {
-      interests: '関心分野',
-      interestsList: ['クリエイティブコーディング', '自然言語処理', 'インタラクションデザインとアニメーション', '先端 Web 技術'],
       recentCreatives: '最近の作品',
       recentPosts: '最新ブログ',
       recentResearch: '最新研究',
@@ -121,6 +112,32 @@ const friendLinks = [
     url: 'https://ymblog.vercel.app/',
   },
 ];
+const contactPlatforms = [
+  {
+    key: 'github',
+    url: 'https://github.com/Percival3',
+    iconSlug: 'github',
+    labels: { zh: 'GitHub', en: 'GitHub', ja: 'GitHub' },
+  },
+  {
+    key: 'bilibili',
+    url: 'https://space.bilibili.com/',
+    iconSlug: 'bilibili',
+    labels: { zh: 'B站', en: 'Bilibili', ja: 'Bilibili' },
+  },
+  {
+    key: 'youtube',
+    url: 'https://www.youtube.com/',
+    iconSlug: 'youtube',
+    labels: { zh: 'YouTube', en: 'YouTube', ja: 'YouTube' },
+  },
+  {
+    key: 'wechat',
+    url: 'https://mp.weixin.qq.com/',
+    iconSlug: 'wechat',
+    labels: { zh: '微信公众号', en: 'WeChat OA', ja: 'WeChat公式' },
+  },
+] as const;
 
 function formatDate(date: Date, locale: string): string {
   const localeMap = { zh: 'zh-CN', en: 'en-US', ja: 'ja-JP' };
@@ -336,14 +353,14 @@ function formatDate(date: Date, locale: string): string {
 
     <section class="max-w-4xl mx-auto">
       <div class="flex items-center gap-3 mb-4">
-        <Mail className="w-6 h-6 accent-link" />
+        <Link2 className="w-6 h-6 accent-link" />
         <h2 class="text-2xl md:text-3xl font-bold page-section-title">{t.sections.connect}</h2>
       </div>
       <p class="text-[var(--adaptive-text-body)] dark:text-gray-400 mb-8">{t.sections.connectDesc}</p>
 
-      <div class="flex flex-col sm:flex-row items-center gap-4 mb-8">
+      <div class="flex flex-col sm:flex-row items-center gap-4 mb-6 sm:mb-8">
         <a
-          href="mailto:contact@example.com"
+          href="mailto:19574459596@163.com"
           class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-full !bg-black !text-white hover:opacity-80 dark:!bg-white dark:!text-black transition-all shadow-xl font-bold tracking-wide"
         >
           <Mail className="w-4 h-4" />
@@ -358,19 +375,25 @@ function formatDate(date: Date, locale: string): string {
         </a>
       </div>
 
-      <div class="flex items-center gap-6 text-[var(--adaptive-text-soft)] justify-center sm:justify-start">
-        <a href="https://github.com" target="_blank" aria-label="GitHub" class="hover:text-[var(--adaptive-text-strong)] dark:hover:text-white transition-colors transform hover:scale-110">
-          <Github className="w-6 h-6" />
-        </a>
-        <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="hover:text-[var(--adaptive-accent-text-hover)] transition-colors transform hover:scale-110">
-          <Twitter className="w-6 h-6" />
-        </a>
-        <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn" class="hover:text-[var(--adaptive-accent-text-hover)] transition-colors transform hover:scale-110">
-          <Linkedin className="w-6 h-6" />
-        </a>
-        <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="hover:text-pink-500 transition-colors transform hover:scale-110">
-          <Instagram className="w-6 h-6" />
-        </a>
+      <div class="flex items-center justify-start gap-5 text-[var(--adaptive-text-soft)] dark:text-gray-400 overflow-x-auto pb-1">
+        {contactPlatforms.map((item) => (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={item.labels[lang as keyof typeof item.labels] || item.labels.zh}
+            class="group inline-flex h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0 rounded-full items-center justify-center border border-white/30 bg-black/35 dark:bg-black/35 hover:border-white/60 transition-all duration-300"
+          >
+            <img
+              src={`https://cdn.simpleicons.org/${item.iconSlug}/F8F2E8`}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
+              class="h-4 w-4 sm:h-[18px] sm:w-[18px] opacity-95 group-hover:opacity-100"
+            />
+          </a>
+        ))}
       </div>
     </section>
 
@@ -400,3 +423,4 @@ function formatDate(date: Date, locale: string): string {
     </section>
   </div>
 </Layout>
+
