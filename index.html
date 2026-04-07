@@ -783,7 +783,8 @@ async function getTodayData() {
   const today = todayStr();
   const prog = await getDailyProgress(today);
   const streak = await calculateStreak();
-  const recentAchs = (await db.achievements.where('is_unlocked').equals(1).toArray())
+  const recentAchs = (await db.achievements.toArray())
+    .filter(a => a.is_unlocked === 1)
     .sort((a, b) => (b.unlocked_date || '').localeCompare(a.unlocked_date || ''))
     .slice(0, 3);
   const startDate = await getSetting('start_date') || today;
