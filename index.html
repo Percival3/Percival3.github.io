@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>英语学习</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/dexie@3/dist/dexie.min.js"></script>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --primary-light: #6366f1;
+    --accent: #f59e0b;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+  }
+  * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, 'PingFang SC', sans-serif; }
+
+  /* Bottom nav */
+  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+    background: white; border-top: 1px solid #e2e8f0;
+    display: flex; justify-content: space-around; padding: 8px 0 max(8px, env(safe-area-inset-bottom)); }
+  .nav-btn { display: flex; flex-direction: column; align-items: center;
+    gap: 2px; font-size: 10px; color: var(--muted); cursor: pointer;
+    padding: 4px 12px; border-radius: 8px; transition: color 0.2s; border: none; background: none; }
+  .nav-btn.active { color: var(--primary); }
+  .nav-btn .icon { font-size: 22px; }
+
+  /* Pages */
+  .page { display: none; padding: 16px 16px 80px; max-width: 640px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* Cards */
+  .card { background: var(--card); border-radius: 16px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 16px; }
+
+  /* Streak badge */
+  .streak-badge { background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white; border-radius: 24px; padding: 8px 20px;
+    font-size: 28px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
+
+  /* Progress ring */
+  .ring-container { position: relative; display: inline-block; }
+  .ring-text { position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; }
+
+  /* Root card */
+  .root-card { perspective: 1000px; height: 280px; cursor: pointer; }
+  .root-card-inner { position: relative; width: 100%; height: 100%;
+    transition: transform 0.6s; transform-style: preserve-3d; }
+  .root-card.flipped .root-card-inner { transform: rotateY(180deg); }
+  .root-face, .root-back { position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; border-radius: 16px; padding: 24px;
+    display: flex; flex-direction: column; justify-content: center; }
+  .root-face { background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white; align-items: center; text-align: center; }
+  .root-back { background: white; border: 2px solid #e2e8f0;
+    transform: rotateY(180deg); overflow-y: auto; }
+
+  /* Tag pill */
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 99px;
+    font-size: 12px; font-weight: 500; }
+  .pill-casual { background: #fef3c7; color: #92400e; }
+  .pill-neutral { background: #dbeafe; color: #1e40af; }
+  .pill-formal  { background: #f3e8ff; color: #6d28d9; }
+
+  /* Achievement card */
+  .ach-card { display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; }
+  .ach-card.locked { opacity: 0.4; filter: grayscale(1); }
+  .ach-icon { font-size: 32px; flex-shrink: 0; }
+
+  /* Dialogue */
+  .dialogue-line { padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 14px; }
+  .dialogue-a { background: #eff6ff; border-left: 3px solid #3b82f6; }
+  .dialogue-b { background: #f0fdf4; border-left: 3px solid #22c55e; }
+
+  /* Difficulty buttons */
+  .diff-btn { flex: 1; padding: 10px 4px; border-radius: 10px; font-size: 13px;
+    font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+
+  /* Toast */
+  #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+    background: #1e293b; color: white; padding: 12px 24px; border-radius: 12px;
+    font-size: 14px; z-index: 999; transition: transform 0.3s; white-space: nowrap; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Achievement popup */
+  #ach-popup { position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center; z-index: 998;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  #ach-popup.show { opacity: 1; pointer-events: all; }
+  #ach-popup .inner { background: white; border-radius: 24px; padding: 32px 40px;
+    text-align: center; transform: scale(0.8); transition: transform 0.3s; }
+  #ach-popup.show .inner { transform: scale(1); }
+
+  /* Loader */
+  .loader { display: inline-block; width: 20px; height: 20px;
+    border: 3px solid #e2e8f0; border-top-color: var(--primary);
+    border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Word chip */
+  .word-chip { display: inline-block; background: #f1f5f9; border-radius: 8px;
+    padding: 6px 12px; margin: 4px; font-size: 13px; cursor: pointer;
+    transition: background 0.15s; }
+  .word-chip:hover { background: #e2e8f0; }
+
+  /* Phrase chip */
+  .phrase-chip { display: inline-block; background: #ede9fe; color: #5b21b6;
+    border-radius: 8px; padding: 4px 10px; margin: 3px; font-size: 13px; }
+
+  /* Input */
+  .input-field { width: 100%; border: 2px solid #e2e8f0; border-radius: 12px;
+    padding: 12px 16px; font-size: 16px; outline: none; transition: border-color 0.2s; }
+  .input-field:focus { border-color: var(--primary); }
+
+  /* Primary button */
+  .btn-primary { background: var(--primary); color: white; border: none;
+    border-radius: 12px; padding: 12px 24px; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s; width: 100%; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Section header */
+  .section-title { font-size: 12px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+  /* Root navigator dots */
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #e2e8f0; cursor: pointer; }
+  .dot.active { background: var(--primary); }
+
+  /* Tabs */
+  .tab-btn { flex: 1; padding: 8px; font-size: 13px; font-weight: 500;
+    color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* Scenario dialogue */
+  .sc-line { padding: 10px 14px; border-radius: 10px; margin-bottom: 8px; }
+  .sc-a { background: #eff6ff; }
+  .sc-b { background: #f0fdf4; text-align: right; }
+
+  @media (min-width: 640px) {
+    #bottom-nav { max-width: 640px; left: 50%; transform: translateX(-50%); border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Achievement popup -->
+<div id="ach-popup">
+  <div class="inner">
+    <div id="ach-popup-icon" style="font-size:64px;margin-bottom:12px"></div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:6px">成就解锁！</div>
+    <div id="ach-popup-name" style="font-size:18px;color:#4f46e5;font-weight:600;margin-bottom:4px"></div>
+    <div id="ach-popup-desc" style="color:#64748b;font-size:14px;margin-bottom:20px"></div>
+    <button onclick="closeAchPopup()" class="btn-primary" style="width:auto;padding:10px 32px">太棒了！</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE: HOME ═══ -->
+<div id="page-home" class="page active">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-top:8px">
+    <div>
+      <div style="font-size:22px;font-weight:700">今天也要学英语 👋</div>
+      <div id="home-date" style="color:var(--muted);font-size:14px"></div>
+    </div>
+    <div class="streak-badge">
+      <span>🔥</span>
+      <span id="home-streak">0</span>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="card" style="text-align:center">
+    <div class="section-title" style="margin-bottom:16px">今日进度</div>
+    <div style="display:flex;justify-content:space-around;align-items:center">
+      <div style="text-align:center">
+        <div style="font-size:32px;font-weight:700;color:var(--primary)" id="home-roots-count">0</div>
+        <div style="font-size:12px;color:var(--muted)">词根 / 5</div>
+      </div>
+      <div style="width:1px;height:40px;background:#e2e8f0"></div>
+      <div style="text-align:center">
+        <div style="font-size:32px;font-weight:700;color:#10b981" id="home-expr-count">0</div>
+        <div style="font-size:12px;color:var(--muted)">表达查询</div>
+      </div>
+      <div style="width:1px;height:40px;background:#e2e8f0"></div>
+      <div style="text-align:center">
+        <div style="font-size:32px;font-weight:700;color:#f59e0b" id="home-scenario-count">0</div>
+        <div style="font-size:12px;color:var(--muted)">情景练习</div>
+      </div>
+    </div>
+    <div style="margin-top:20px">
+      <div style="background:#f1f5f9;border-radius:99px;height:10px;overflow:hidden">
+        <div id="home-progress-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#4f46e5,#7c3aed);transition:width 0.5s;width:0%"></div>
+      </div>
+      <div id="home-progress-label" style="font-size:12px;color:var(--muted);margin-top:6px;text-align:right">0%</div>
+    </div>
+  </div>
+
+  <!-- Daily tasks -->
+  <div class="card">
+    <div class="section-title">今日任务</div>
+    <div id="task-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <!-- Checkin button -->
+  <button id="checkin-btn" class="btn-primary" onclick="doCheckin()">📅 打卡</button>
+
+  <!-- Recent achievements -->
+  <div id="recent-ach-section" class="card" style="display:none">
+    <div class="section-title">最近解锁</div>
+    <div id="recent-ach-list"></div>
+  </div>
+
+  <!-- API Key warning (shown only when key is missing) -->
+  <div id="no-key-banner" style="display:none;background:#fef3c7;border:1px solid #f59e0b;border-radius:12px;padding:14px 16px;margin-bottom:16px;cursor:pointer" onclick="goPage('profile')">
+    <div style="font-size:14px;font-weight:600;color:#92400e">⚠️ 尚未设置 API Key</div>
+    <div style="font-size:13px;color:#78350f;margin-top:4px">点此前往设置 → 输入 MiniMax API Key 后即可使用 AI 功能</div>
+  </div>
+
+  <!-- Phase info -->
+  <div class="card" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white">
+    <div style="font-size:12px;opacity:0.8;margin-bottom:4px">当前学习阶段</div>
+    <div id="phase-text" style="font-size:16px;font-weight:600">加载中...</div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: ROOTS ═══ -->
+<div id="page-roots" class="page">
+  <div style="padding-top:8px;margin-bottom:20px">
+    <div style="font-size:22px;font-weight:700;margin-bottom:4px">词根学习 🌿</div>
+    <div id="roots-day-info" style="color:var(--muted);font-size:14px"></div>
+  </div>
+
+  <!-- Tabs: Learn / Review -->
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px">
+    <div style="display:flex;border-bottom:1px solid #e2e8f0">
+      <button class="tab-btn active" id="tab-learn" onclick="switchRootsTab('learn')">今日学习</button>
+      <button class="tab-btn" id="tab-review" onclick="switchRootsTab('review')">待复习</button>
+    </div>
+  </div>
+
+  <!-- Learn section -->
+  <div id="roots-learn-section">
+    <div id="root-card-area" style="margin-bottom:16px">
+      <div id="roots-loading" style="text-align:center;padding:40px">
+        <div class="loader"></div>
+        <div style="margin-top:12px;color:var(--muted);font-size:14px">AI 正在生成今日词根内容...</div>
+      </div>
+    </div>
+    <div id="root-dots" style="display:flex;justify-content:center;gap:8px;margin-bottom:16px"></div>
+  </div>
+
+  <!-- Review section -->
+  <div id="roots-review-section" style="display:none">
+    <div id="review-loading" style="text-align:center;padding:40px;display:none">
+      <div class="loader"></div>
+    </div>
+    <div id="review-list"></div>
+    <div id="review-empty" style="text-align:center;padding:40px;color:var(--muted);display:none">
+      <div style="font-size:48px;margin-bottom:12px">🎉</div>
+      <div style="font-weight:600">暂无待复习词根</div>
+      <div style="font-size:14px;margin-top:6px">继续学习新词根，之后这里会出现复习提醒</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: EXPRESSION ═══ -->
+<div id="page-expr" class="page">
+  <div style="padding-top:8px;margin-bottom:20px">
+    <div style="font-size:22px;font-weight:700;margin-bottom:4px">中文→英文 💬</div>
+    <div style="color:var(--muted);font-size:14px">输入中文习惯表达，获取地道英文说法</div>
+  </div>
+
+  <!-- Input -->
+  <div class="card">
+    <div style="display:flex;gap:10px">
+      <input id="expr-input" class="input-field" placeholder="输入中文表达，如：随便" style="flex:1"
+        onkeydown="if(event.key==='Enter')lookupExpression()">
+      <button onclick="lookupExpression()" style="background:var(--primary);color:white;border:none;border-radius:12px;padding:12px 18px;font-size:20px;cursor:pointer">→</button>
+    </div>
+    <div id="preset-chips" style="margin-top:14px">
+      <div class="section-title">常用词条</div>
+      <div id="preset-list" style="line-height:2"></div>
+    </div>
+  </div>
+
+  <!-- Result area -->
+  <div id="expr-loading" style="text-align:center;padding:30px;display:none">
+    <div class="loader"></div>
+    <div style="margin-top:10px;color:var(--muted);font-size:14px">AI 生成中...</div>
+  </div>
+  <div id="expr-result" style="display:none"></div>
+
+  <!-- Saved expressions tabs -->
+  <div class="card">
+    <div style="display:flex;border-bottom:1px solid #e2e8f0;margin:-20px -20px 16px">
+      <button class="tab-btn active" id="tab-all" onclick="switchExprTab('all')">全部记录</button>
+      <button class="tab-btn" id="tab-fav" onclick="switchExprTab('fav')">收藏</button>
+    </div>
+    <div id="saved-expr-list">
+      <div style="text-align:center;padding:20px;color:var(--muted);font-size:14px">暂无记录，查询后会保存在这里</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: SCENARIO ═══ -->
+<div id="page-scenario" class="page">
+  <div style="padding-top:8px;margin-bottom:20px">
+    <div style="font-size:22px;font-weight:700;margin-bottom:4px">口语情景 🎭</div>
+    <div id="scenario-phase-text" style="color:var(--muted);font-size:14px">加载中...</div>
+  </div>
+
+  <div id="scenario-loading" style="text-align:center;padding:40px">
+    <div class="loader"></div>
+    <div style="margin-top:12px;color:var(--muted);font-size:14px">AI 生成今日情景...</div>
+  </div>
+  <div id="scenario-content" style="display:none"></div>
+</div>
+
+<!-- ═══ PAGE: PROFILE ═══ -->
+<div id="page-profile" class="page">
+  <div style="padding-top:8px;margin-bottom:20px">
+    <div style="font-size:22px;font-weight:700">我的进度 📊</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="text-align:center;background:#f8fafc;border-radius:12px;padding:16px">
+        <div style="font-size:32px;font-weight:700;color:var(--primary)" id="stat-streak">0</div>
+        <div style="font-size:12px;color:var(--muted)">连续天数</div>
+      </div>
+      <div style="text-align:center;background:#f8fafc;border-radius:12px;padding:16px">
+        <div style="font-size:32px;font-weight:700;color:#10b981" id="stat-days">0</div>
+        <div style="font-size:12px;color:var(--muted)">累计打卡</div>
+      </div>
+      <div style="text-align:center;background:#f8fafc;border-radius:12px;padding:16px">
+        <div style="font-size:32px;font-weight:700;color:#7c3aed" id="stat-roots">0</div>
+        <div style="font-size:12px;color:var(--muted)">词根已学</div>
+      </div>
+      <div style="text-align:center;background:#f8fafc;border-radius:12px;padding:16px">
+        <div style="font-size:32px;font-weight:700;color:#f59e0b" id="stat-expr">0</div>
+        <div style="font-size:12px;color:var(--muted)">表达已查</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Token Usage -->
+  <div class="card" id="usage-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="section-title" style="margin-bottom:0">Token 用量 & 费用</div>
+      <span style="font-size:11px;background:#f1f5f9;padding:2px 8px;border-radius:6px;color:var(--muted)">MiniMax-M2.5</span>
+    </div>
+    <div id="usage-content">
+      <div style="text-align:center;padding:20px"><div class="loader"></div></div>
+    </div>
+  </div>
+
+  <!-- Achievements -->
+  <div class="card">
+    <div class="section-title" style="margin-bottom:12px">成就徽章</div>
+    <div id="achievements-list"></div>
+  </div>
+
+  <!-- Settings -->
+  <div class="card">
+    <div class="section-title" style="margin-bottom:12px">设置</div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:14px;font-weight:500;display:block;margin-bottom:6px">MiniMax API Key</label>
+      <input id="api-key-input" class="input-field" type="password" placeholder="输入 API Key">
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:14px;font-weight:500;display:block;margin-bottom:6px">学习起始日期</label>
+      <input id="start-date-input" class="input-field" type="date">
+    </div>
+    <button onclick="saveSettings()" class="btn-primary">保存设置</button>
+    <div id="api-status" style="margin-top:10px;font-size:13px;text-align:center"></div>
+
+    <!-- Data backup -->
+    <!-- Proxy URL -->
+    <div style="margin-bottom:14px">
+      <label style="font-size:14px;font-weight:500;display:block;margin-bottom:6px">
+        代理地址 <span style="font-size:11px;color:var(--muted);font-weight:400">（可选，解决 CORS 问题）</span>
+      </label>
+      <input id="proxy-url-input" class="input-field" type="url" placeholder="https://your-worker.workers.dev">
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">留空则直接调用 MiniMax API（需 HTTPS 域名）</div>
+    </div>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f1f5f9">
+      <div class="section-title">数据备份</div>
+      <button onclick="exportData()" class="btn-primary" style="margin-bottom:8px">导出数据 JSON</button>
+      <label class="btn-primary" style="display:block;text-align:center;cursor:pointer;background:#64748b">
+        导入数据 JSON
+        <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOTTOM NAV ═══ -->
+<nav id="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="goPage('home')">
+    <span class="icon">🏠</span><span>主页</span>
+  </button>
+  <button class="nav-btn" id="nav-roots" onclick="goPage('roots')">
+    <span class="icon">🌿</span><span>词根</span>
+  </button>
+  <button class="nav-btn" id="nav-expr" onclick="goPage('expr')">
+    <span class="icon">💬</span><span>表达</span>
+  </button>
+  <button class="nav-btn" id="nav-scenario" onclick="goPage('scenario')">
+    <span class="icon">🎭</span><span>情景</span>
+  </button>
+  <button class="nav-btn" id="nav-profile" onclick="goPage('profile')">
+    <span class="icon">📊</span><span>我的</span>
+  </button>
+</nav>
+
+<script>
+// ══════════════════════════════════════════════════════
+// WORD ROOTS DATA (300 roots)
+// ══════════════════════════════════════════════════════
+const WORD_ROOTS = [{"root": "rupt", "meaning": "break", "origin": "Latin rumpere"}, {"root": "port", "meaning": "carry", "origin": "Latin portare"}, {"root": "duc/duct", "meaning": "lead", "origin": "Latin ducere"}, {"root": "tract", "meaning": "pull/draw", "origin": "Latin trahere"}, {"root": "ject", "meaning": "throw", "origin": "Latin jacere"}, {"root": "struct", "meaning": "build", "origin": "Latin struere"}, {"root": "scrib/script", "meaning": "write", "origin": "Latin scribere"}, {"root": "dict", "meaning": "say/tell", "origin": "Latin dicere"}, {"root": "fac/fact", "meaning": "make/do", "origin": "Latin facere"}, {"root": "pend/pens", "meaning": "hang/weigh", "origin": "Latin pendere"}, {"root": "spect/spec", "meaning": "look/see", "origin": "Latin spectare"}, {"root": "vid/vis", "meaning": "see", "origin": "Latin videre"}, {"root": "aud", "meaning": "hear", "origin": "Latin audire"}, {"root": "sens/sent", "meaning": "feel", "origin": "Latin sentire"}, {"root": "tang/tact", "meaning": "touch", "origin": "Latin tangere"}, {"root": "migr", "meaning": "move/wander", "origin": "Latin migrare"}, {"root": "mob/mot/mov", "meaning": "move", "origin": "Latin movere"}, {"root": "grad/gress", "meaning": "step/go", "origin": "Latin gradi"}, {"root": "ced/ceed/cess", "meaning": "go/yield", "origin": "Latin cedere"}, {"root": "curr/curs", "meaning": "run", "origin": "Latin currere"}, {"root": "pos/pon", "meaning": "place/put", "origin": "Latin ponere"}, {"root": "loc", "meaning": "place", "origin": "Latin locus"}, {"root": "tend/tens", "meaning": "stretch", "origin": "Latin tendere"}, {"root": "vert/vers", "meaning": "turn", "origin": "Latin vertere"}, {"root": "volv/volut", "meaning": "roll/turn", "origin": "Latin volvere"}, {"root": "cogn/gnos", "meaning": "know", "origin": "Latin cognoscere"}, {"root": "sci", "meaning": "know", "origin": "Latin scire"}, {"root": "mens/ment", "meaning": "mind", "origin": "Latin mens"}, {"root": "sens/sapient", "meaning": "wise/taste", "origin": "Latin sapere"}, {"root": "memor", "meaning": "memory", "origin": "Latin memoria"}, {"root": "log/logue", "meaning": "word/reason/study", "origin": "Greek logos"}, {"root": "graph/gram", "meaning": "write/draw", "origin": "Greek graphein"}, {"root": "phon", "meaning": "sound/voice", "origin": "Greek phone"}, {"root": "lingu", "meaning": "language/tongue", "origin": "Latin lingua"}, {"root": "voc/vok", "meaning": "voice/call", "origin": "Latin vox"}, {"root": "geo", "meaning": "earth", "origin": "Greek ge"}, {"root": "bio", "meaning": "life", "origin": "Greek bios"}, {"root": "aqua", "meaning": "water", "origin": "Latin aqua"}, {"root": "terra", "meaning": "earth/land", "origin": "Latin terra"}, {"root": "aer/aero", "meaning": "air", "origin": "Greek aer"}, {"root": "photo/phos", "meaning": "light", "origin": "Greek phos"}, {"root": "lum/luc", "meaning": "light", "origin": "Latin lumen"}, {"root": "therm", "meaning": "heat", "origin": "Greek therme"}, {"root": "electr", "meaning": "electric/amber", "origin": "Greek elektron"}, {"root": "magnet", "meaning": "magnet", "origin": "Greek Magnesia"}, {"root": "micro", "meaning": "small", "origin": "Greek mikros"}, {"root": "macro/mega", "meaning": "large/great", "origin": "Greek megas"}, {"root": "multi", "meaning": "many", "origin": "Latin multus"}, {"root": "omni", "meaning": "all", "origin": "Latin omnis"}, {"root": "semi", "meaning": "half", "origin": "Latin semi"}, {"root": "uni", "meaning": "one", "origin": "Latin unus"}, {"root": "bi/du", "meaning": "two", "origin": "Latin bis/duo"}, {"root": "tri", "meaning": "three", "origin": "Latin tres"}, {"root": "quad/quart", "meaning": "four", "origin": "Latin quattuor"}, {"root": "cent/centi", "meaning": "hundred", "origin": "Latin centum"}, {"root": "chron", "meaning": "time", "origin": "Greek khronos"}, {"root": "ann/enn", "meaning": "year", "origin": "Latin annus"}, {"root": "nov/neo", "meaning": "new", "origin": "Latin novus"}, {"root": "arch/arche", "meaning": "ancient/chief", "origin": "Greek arkhe"}, {"root": "tempor", "meaning": "time", "origin": "Latin tempus"}, {"root": "anthrop", "meaning": "human", "origin": "Greek anthropos"}, {"root": "dem/demo", "meaning": "people", "origin": "Greek demos"}, {"root": "soci", "meaning": "companion/society", "origin": "Latin socius"}, {"root": "civ", "meaning": "citizen/city", "origin": "Latin civis"}, {"root": "cult", "meaning": "cultivate/care for", "origin": "Latin cultura"}, {"root": "crat/cracy", "meaning": "rule/power", "origin": "Greek kratos"}, {"root": "arch", "meaning": "rule/chief", "origin": "Greek arkhein"}, {"root": "dom", "meaning": "master/house", "origin": "Latin dominus"}, {"root": "reg/rect", "meaning": "rule/straight", "origin": "Latin regere"}, {"root": "leg", "meaning": "law/read", "origin": "Latin lex"}, {"root": "bon/bene", "meaning": "good", "origin": "Latin bonus/bene"}, {"root": "mal/male", "meaning": "bad", "origin": "Latin malus"}, {"root": "fort", "meaning": "strong", "origin": "Latin fortis"}, {"root": "grav", "meaning": "heavy/serious", "origin": "Latin gravis"}, {"root": "lev", "meaning": "light/raise", "origin": "Latin levis"}, {"root": "pat/pass", "meaning": "feel/suffer", "origin": "Greek pathos"}, {"root": "am/amor", "meaning": "love", "origin": "Latin amor"}, {"root": "cord/corage", "meaning": "heart", "origin": "Latin cor"}, {"root": "ira/irrit", "meaning": "anger", "origin": "Latin ira"}, {"root": "tim", "meaning": "fear", "origin": "Latin timere"}, {"root": "corp", "meaning": "body", "origin": "Latin corpus"}, {"root": "man/manu", "meaning": "hand", "origin": "Latin manus"}, {"root": "ped/pod", "meaning": "foot", "origin": "Latin pes / Greek pous"}, {"root": "cap/capit", "meaning": "head", "origin": "Latin caput"}, {"root": "dent/dont", "meaning": "tooth", "origin": "Latin dens"}, {"root": "mort/mor", "meaning": "death", "origin": "Latin mors"}, {"root": "vit/viv", "meaning": "life/live", "origin": "Latin vita"}, {"root": "san", "meaning": "health", "origin": "Latin sanus"}, {"root": "path", "meaning": "disease/feeling", "origin": "Greek pathos"}, {"root": "gen", "meaning": "birth/origin/race", "origin": "Greek genos"}, {"root": "centr", "meaning": "center", "origin": "Greek kentron"}, {"root": "circum/circ", "meaning": "around/circle", "origin": "Latin circum"}, {"root": "extra", "meaning": "outside/beyond", "origin": "Latin extra"}, {"root": "intra", "meaning": "within/inside", "origin": "Latin intra"}, {"root": "trans", "meaning": "across/through", "origin": "Latin trans"}, {"root": "retro", "meaning": "backward", "origin": "Latin retro"}, {"root": "pro", "meaning": "forward/for", "origin": "Latin/Greek pro"}, {"root": "contra/counter", "meaning": "against", "origin": "Latin contra"}, {"root": "inter", "meaning": "between", "origin": "Latin inter"}, {"root": "super/supra", "meaning": "above/over", "origin": "Latin super"}, {"root": "chem", "meaning": "chemistry/matter", "origin": "Greek khymeia"}, {"root": "phys", "meaning": "nature", "origin": "Greek physis"}, {"root": "astro/aster", "meaning": "star", "origin": "Greek astron"}, {"root": "cosm", "meaning": "universe/order", "origin": "Greek kosmos"}, {"root": "numer", "meaning": "number", "origin": "Latin numerus"}, {"root": "techn", "meaning": "art/skill/craft", "origin": "Greek tekhne"}, {"root": "cyber", "meaning": "govern/steer", "origin": "Greek kybernetes"}, {"root": "digit", "meaning": "finger/number", "origin": "Latin digitus"}, {"root": "auto", "meaning": "self", "origin": "Greek autos"}, {"root": "mech", "meaning": "machine/contrivance", "origin": "Greek mekhane"}, {"root": "abs/abst", "meaning": "away/from", "origin": "Latin abs"}, {"root": "hypo", "meaning": "under/below", "origin": "Greek hypo"}, {"root": "hyper", "meaning": "over/beyond", "origin": "Greek hyper"}, {"root": "para", "meaning": "beside/beyond", "origin": "Greek para"}, {"root": "syn/sym", "meaning": "together/with", "origin": "Greek syn"}, {"root": "comm/commod", "meaning": "common/exchange", "origin": "Latin communis"}, {"root": "merc", "meaning": "trade/commerce", "origin": "Latin merx"}, {"root": "econ", "meaning": "household/management", "origin": "Greek oikos"}, {"root": "fin", "meaning": "end/limit", "origin": "Latin finis"}, {"root": "cap/capit (finance)", "meaning": "wealth/head", "origin": "Latin caput"}, {"root": "creat", "meaning": "make/produce", "origin": "Latin creare"}, {"root": "art", "meaning": "skill/craft", "origin": "Latin ars"}, {"root": "form", "meaning": "shape", "origin": "Latin forma"}, {"root": "imag", "meaning": "image/picture", "origin": "Latin imago"}, {"root": "pict", "meaning": "paint/picture", "origin": "Latin pingere"}, {"root": "phil", "meaning": "love", "origin": "Greek philos"}, {"root": "soph", "meaning": "wisdom", "origin": "Greek sophia"}, {"root": "eth", "meaning": "character/custom", "origin": "Greek ethos"}, {"root": "log (reason)", "meaning": "reason/logic", "origin": "Greek logos"}, {"root": "ontol", "meaning": "being/existence", "origin": "Greek ontos"}, {"root": "hist", "meaning": "inquiry/history", "origin": "Greek historia"}, {"root": "poli/polit", "meaning": "city/citizen", "origin": "Greek polis"}, {"root": "nation", "meaning": "birth/nation", "origin": "Latin natio"}, {"root": "tribut", "meaning": "give/assign", "origin": "Latin tribuere"}, {"root": "feder", "meaning": "league/treaty", "origin": "Latin foedus"}, {"root": "jud/judic", "meaning": "judge", "origin": "Latin judicare"}, {"root": "crit", "meaning": "judge/separate", "origin": "Greek krinein"}, {"root": "estim", "meaning": "value/estimate", "origin": "Latin aestimare"}, {"root": "approv", "meaning": "prove/approve", "origin": "Latin approbare"}, {"root": "val/valu", "meaning": "be strong/worth", "origin": "Latin valere"}, {"root": "junct/join", "meaning": "join", "origin": "Latin jungere"}, {"root": "lig", "meaning": "bind/tie", "origin": "Latin ligare"}, {"root": "nex/nect", "meaning": "bind/connect", "origin": "Latin nectere"}, {"root": "soci (join)", "meaning": "associate", "origin": "Latin sociare"}, {"root": "rel", "meaning": "relate/carry back", "origin": "Latin relatus"}, {"root": "mut", "meaning": "change", "origin": "Latin mutare"}, {"root": "alter", "meaning": "other/change", "origin": "Latin alter"}, {"root": "transform", "meaning": "change form", "origin": "Latin transformare"}, {"root": "meta", "meaning": "change/beyond", "origin": "Greek meta"}, {"root": "flux/flu", "meaning": "flow/change", "origin": "Latin fluere"}, {"root": "frag/fract", "meaning": "break", "origin": "Latin frangere"}, {"root": "seg/sect", "meaning": "cut", "origin": "Latin secare"}, {"root": "part", "meaning": "part/divide", "origin": "Latin pars"}, {"root": "separ", "meaning": "separate", "origin": "Latin separare"}, {"root": "divid/divis", "meaning": "divide", "origin": "Latin dividere"}, {"root": "greg", "meaning": "flock/herd", "origin": "Latin grex"}, {"root": "collect", "meaning": "gather", "origin": "Latin colligere"}, {"root": "accum", "meaning": "heap up", "origin": "Latin accumulare"}, {"root": "aggreg", "meaning": "gather together", "origin": "Latin aggregare"}, {"root": "mass", "meaning": "mass/lump", "origin": "Latin massa"}, {"root": "argu", "meaning": "make clear/argue", "origin": "Latin arguere"}, {"root": "clam/claim", "meaning": "cry out/claim", "origin": "Latin clamare"}, {"root": "narr", "meaning": "tell/narrate", "origin": "Latin narrare"}, {"root": "rhet", "meaning": "speak/orator", "origin": "Greek rhetor"}, {"root": "confess/fess", "meaning": "admit/acknowledge", "origin": "Latin fateri"}, {"root": "cred", "meaning": "believe/trust", "origin": "Latin credere"}, {"root": "fid/fide", "meaning": "faith/trust", "origin": "Latin fides"}, {"root": "dogm", "meaning": "belief/doctrine", "origin": "Greek dogma"}, {"root": "sacr/sanct", "meaning": "sacred/holy", "origin": "Latin sacer"}, {"root": "myth", "meaning": "story/myth", "origin": "Greek mythos"}, {"root": "evol", "meaning": "unroll/develop", "origin": "Latin evolvere"}, {"root": "progress", "meaning": "go forward", "origin": "Latin progredi"}, {"root": "augment", "meaning": "increase", "origin": "Latin augmentum"}, {"root": "expan", "meaning": "spread out", "origin": "Latin expandere"}, {"root": "advanc", "meaning": "forward", "origin": "Old French avancier"}, {"root": "obst/obstr", "meaning": "obstruct/block", "origin": "Latin obstare"}, {"root": "resist", "meaning": "stand back", "origin": "Latin resistere"}, {"root": "inhibit", "meaning": "hold back", "origin": "Latin inhibere"}, {"root": "repress", "meaning": "press back", "origin": "Latin reprimere"}, {"root": "suppress", "meaning": "press under", "origin": "Latin supprimere"}, {"root": "excess", "meaning": "go beyond", "origin": "Latin excedere"}, {"root": "abund", "meaning": "overflow", "origin": "Latin abundare"}, {"root": "satur", "meaning": "full/enough", "origin": "Latin satur"}, {"root": "inflat", "meaning": "blow into/inflate", "origin": "Latin inflare"}, {"root": "explos", "meaning": "drive out by clapping", "origin": "Latin explodere"}, {"root": "declin", "meaning": "bend away/decline", "origin": "Latin declinare"}, {"root": "depreci", "meaning": "lower in value", "origin": "Latin depretiare"}, {"root": "erod", "meaning": "gnaw away", "origin": "Latin erodere"}, {"root": "dimin", "meaning": "lessen", "origin": "Latin diminuere"}, {"root": "attrit", "meaning": "wear down", "origin": "Latin atterere"}, {"root": "metr/meter", "meaning": "measure", "origin": "Greek metron"}, {"root": "quant", "meaning": "how much/quantity", "origin": "Latin quantus"}, {"root": "calcul", "meaning": "pebble/calculate", "origin": "Latin calculus"}, {"root": "modul", "meaning": "small measure", "origin": "Latin modulus"}, {"root": "calib", "meaning": "measure/diameter", "origin": "Arabic qalib"}, {"root": "ordin/order", "meaning": "arrange in order", "origin": "Latin ordinare"}, {"root": "seri", "meaning": "row/series", "origin": "Latin series"}, {"root": "class", "meaning": "class/division", "origin": "Latin classis"}, {"root": "categor", "meaning": "accuse/assert", "origin": "Greek kategorein"}, {"root": "rank/rang", "meaning": "row/rank", "origin": "Old French reng"}, {"root": "caus", "meaning": "cause/reason", "origin": "Latin causa"}, {"root": "orig", "meaning": "rise/begin", "origin": "Latin origo"}, {"root": "found/fund", "meaning": "bottom/found", "origin": "Latin fundus"}, {"root": "init", "meaning": "beginning/enter", "origin": "Latin initium"}, {"root": "prim", "meaning": "first", "origin": "Latin primus"}, {"root": "termin", "meaning": "end/boundary", "origin": "Latin terminus"}, {"root": "complet", "meaning": "fill up/complete", "origin": "Latin complere"}, {"root": "conclus", "meaning": "shut up/end", "origin": "Latin concludere"}, {"root": "resolv", "meaning": "loosen/solve", "origin": "Latin resolvere"}, {"root": "achiev", "meaning": "bring to a head", "origin": "Old French achever"}, {"root": "eco", "meaning": "house/environment", "origin": "Greek oikos"}, {"root": "climat", "meaning": "slope/region", "origin": "Greek klima"}, {"root": "atmosph", "meaning": "vapor/sphere", "origin": "Greek atmos+sphaira"}, {"root": "carb", "meaning": "carbon/coal", "origin": "Latin carbo"}, {"root": "toxic", "meaning": "poison", "origin": "Greek toxikon"}, {"root": "algor", "meaning": "algorithm/calculation", "origin": "Arabic al-Khwarizmi"}, {"root": "data", "meaning": "given/facts", "origin": "Latin dare"}, {"root": "network", "meaning": "net/web", "origin": "English"}, {"root": "program", "meaning": "written before", "origin": "Greek programma"}, {"root": "interfac", "meaning": "between faces", "origin": "Latin inter+facies"}, {"root": "hypothes", "meaning": "suppose/base", "origin": "Greek hypothesis"}, {"root": "analys", "meaning": "unloose/examine", "origin": "Greek analyein"}, {"root": "synthes", "meaning": "put together", "origin": "Greek synthesis"}, {"root": "empir", "meaning": "experience/experiment", "origin": "Greek empeiria"}, {"root": "theor", "meaning": "look at/speculate", "origin": "Greek theorein"}, {"root": "manag", "meaning": "handle/direct", "origin": "Italian maneggiare"}, {"root": "strateg", "meaning": "general/plan", "origin": "Greek strategos"}, {"root": "optim", "meaning": "best", "origin": "Latin optimus"}, {"root": "effici", "meaning": "work out/efficient", "origin": "Latin efficere"}, {"root": "innov", "meaning": "renew/introduce new", "origin": "Latin innovare"}, {"root": "psych", "meaning": "mind/soul", "origin": "Greek psyche"}, {"root": "cogn (psych)", "meaning": "know/perceive", "origin": "Latin cognoscere"}, {"root": "behav", "meaning": "hold/conduct", "origin": "Old English behabban"}, {"root": "motiv", "meaning": "moving cause", "origin": "Latin motivus"}, {"root": "stimul", "meaning": "goad/spur", "origin": "Latin stimulus"}, {"root": "media", "meaning": "middle/means", "origin": "Latin medius"}, {"root": "broadcast", "meaning": "scatter widely", "origin": "English"}, {"root": "inform", "meaning": "give form to/tell", "origin": "Latin informare"}, {"root": "signal", "meaning": "sign/mark", "origin": "Latin signum"}, {"root": "transmit", "meaning": "send across", "origin": "Latin transmittere"}, {"root": "execut", "meaning": "carry out/follow up", "origin": "Latin exsequi"}, {"root": "direct", "meaning": "lay straight/guide", "origin": "Latin dirigere"}, {"root": "administr", "meaning": "serve/manage", "origin": "Latin administrare"}, {"root": "coordin", "meaning": "arrange together", "origin": "Latin coordinare"}, {"root": "deleg", "meaning": "send away/assign", "origin": "Latin delegare"}, {"root": "risk", "meaning": "danger/dare", "origin": "Italian rischio"}, {"root": "probab", "meaning": "provable/likely", "origin": "Latin probabilis"}, {"root": "uncert", "meaning": "not determined", "origin": "Latin incertus"}, {"root": "vulnerab", "meaning": "woundable", "origin": "Latin vulnus"}, {"root": "resili", "meaning": "spring back", "origin": "Latin resilire"}, {"root": "express", "meaning": "press out/show", "origin": "Latin exprimere"}, {"root": "emot", "meaning": "move out/stir", "origin": "Latin emovere"}, {"root": "affect", "meaning": "strive after/influence", "origin": "Latin afficere"}, {"root": "sympat", "meaning": "feel together", "origin": "Greek sympatheia"}, {"root": "empat", "meaning": "feeling into", "origin": "Greek empatheia"}, {"root": "concept", "meaning": "take together/conceive", "origin": "Latin concipere"}, {"root": "abstract", "meaning": "draw away", "origin": "Latin abstrahere"}, {"root": "intuit", "meaning": "look at/gaze", "origin": "Latin intueri"}, {"root": "imagin", "meaning": "picture to oneself", "origin": "Latin imaginari"}, {"root": "reason", "meaning": "reckon/think", "origin": "Latin ratio"}, {"root": "cooper", "meaning": "work together", "origin": "Latin cooperari"}, {"root": "collabor", "meaning": "work with", "origin": "Latin collaborare"}, {"root": "compet", "meaning": "seek together", "origin": "Latin competere"}, {"root": "negoti", "meaning": "do business/deal", "origin": "Latin negotium"}, {"root": "mediat", "meaning": "be in the middle", "origin": "Latin mediare"}, {"root": "educ", "meaning": "lead out/raise", "origin": "Latin educare"}, {"root": "doctr/doct", "meaning": "teach", "origin": "Latin docere"}, {"root": "instruct", "meaning": "build/teach", "origin": "Latin instruere"}, {"root": "erudite", "meaning": "polish/refine", "origin": "Latin erudire"}, {"root": "disciplin", "meaning": "learning/teaching", "origin": "Latin disciplina"}, {"root": "integr", "meaning": "whole/untouched", "origin": "Latin integer"}, {"root": "honest", "meaning": "honored/respectable", "origin": "Latin honestus"}, {"root": "virtue", "meaning": "excellence/strength", "origin": "Latin virtus"}, {"root": "just", "meaning": "right/lawful", "origin": "Latin justus"}, {"root": "respons", "meaning": "answer/pledge", "origin": "Latin respondere"}, {"root": "conflic", "meaning": "strike together", "origin": "Latin confligere"}, {"root": "oppos", "meaning": "set against", "origin": "Latin opponere"}, {"root": "contend", "meaning": "stretch against", "origin": "Latin contendere"}, {"root": "rivali", "meaning": "one using same stream", "origin": "Latin rivalis"}, {"root": "combat", "meaning": "fight together", "origin": "Italian combattere"}, {"root": "refine", "meaning": "make fine/purify", "origin": "re+fine"}, {"root": "perfect", "meaning": "done completely", "origin": "Latin perfectus"}, {"root": "enhance", "meaning": "raise/heighten", "origin": "Old French enhaucier"}, {"root": "elevat", "meaning": "lift up", "origin": "Latin elevare"}, {"root": "calibrat", "meaning": "adjust precisely", "origin": "French calibrer"}, {"root": "pattern", "meaning": "patron/model", "origin": "Latin patronus"}, {"root": "template", "meaning": "small timber", "origin": "Latin templum"}, {"root": "fram", "meaning": "build/structure", "origin": "Old English framian"}, {"root": "model", "meaning": "measure/small", "origin": "Latin modulus"}, {"root": "schema", "meaning": "form/figure", "origin": "Greek skhema"}, {"root": "impact", "meaning": "strike against", "origin": "Latin impactus"}, {"root": "influenc", "meaning": "flow into", "origin": "Latin influere"}, {"root": "effect", "meaning": "work out/produce", "origin": "Latin efficere"}, {"root": "consequenc", "meaning": "follow after", "origin": "Latin consequi"}, {"root": "result", "meaning": "spring back", "origin": "Latin resultare"}, {"root": "global", "meaning": "ball/sphere/world", "origin": "Latin globus"}, {"root": "sustain", "meaning": "hold up from below", "origin": "Latin sustinere"}, {"root": "diversit", "meaning": "turned different ways", "origin": "Latin diversus"}, {"root": "inclus", "meaning": "shut in/include", "origin": "Latin includere"}, {"root": "adapt", "meaning": "fit to", "origin": "Latin adaptare"}];
+
+// ══════════════════════════════════════════════════════
+// DATABASE (Dexie.js / IndexedDB)
+// ══════════════════════════════════════════════════════
+const db = new Dexie('EnglishLearning');
+db.version(1).stores({
+  word_roots:     '++id, &root, date_first_studied, next_review',
+  expressions:    '++id, chinese_text, date_added',
+  daily_progress: '&date',
+  achievements:   '&id',
+  settings:       '&key',
+  token_usage:    '++id, date, module',
+});
+
+// ══════════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════════
+const AI_MODEL = 'MiniMax-M2.5';
+const MODEL_PRICING = { input: 2.1, output: 8.4 };  // CNY per million tokens
+const MINIMAX_API_URL = 'https://api.minimaxi.com/anthropic/v1/messages';
+
+const ACH_META = {
+  first_step:  { name: '第一步',       desc: '完成第1次打卡',   icon: '🚀' },
+  streak_3:    { name: '连胜3天',       desc: '连续打卡3天',    icon: '🔥' },
+  streak_7:    { name: '一周达人',      desc: '连续打卡7天',    icon: '⚡' },
+  streak_15:   { name: '半月英雄',      desc: '连续打卡15天',   icon: '🌟' },
+  streak_30:   { name: '月度冠军',      desc: '连续打卡30天',   icon: '👑' },
+  roots_50:    { name: '词根猎手 Lv.1', desc: '学完50个词根',   icon: '🌿' },
+  roots_100:   { name: '词根猎手 Lv.2', desc: '学完100个词根',  icon: '🌲' },
+  roots_200:   { name: '词根猎手 Lv.3', desc: '学完200个词根',  icon: '🏆' },
+  expr_10:     { name: '表达大师 Lv.1', desc: '查询10个表达',   icon: '💬' },
+  expr_50:     { name: '表达大师 Lv.2', desc: '查询50个表达',   icon: '🗣️' },
+  scenario_20: { name: '情景达人',      desc: '完成20个情景',   icon: '🎭' },
+  fullweek:    { name: '全勤奖',        desc: '某周7天全完成',   icon: '🎯' },
+};
+
+const PHASE_FOCUS = {
+  1: 'Daily life, greetings, small talk, expressing opinions',
+  2: 'Tech and economics vocabulary and discussions',
+  3: 'Art, philosophy, and history conversations',
+  4: 'American idioms, phrasal verbs, natural fluency',
+  5: 'Complex arguments, debates, unscripted conversations',
+};
+
+const PRESET_EXPRESSIONS = [
+  '随便', '算了', '不一定', '差不多', '就那样', '还行', '有点', '挺好的',
+  '到时候再说', '无所谓', '说不定', '大概', '反正', '怎么都行', '凑合',
+  '没事', '无语', '整挺好', '有意思', '那倒也是', '确实', '对对对',
+  '说实话', '怎么说呢', '就是说', '不知道怎么说', '有那么一说', '这样啊', '懂了'
+];
+
+// ── AI Prompts (use {var} placeholders, replaced at runtime) ──────────────
+const ROOTS_PROMPT_TPL = [
+  'You are an expert English vocabulary teacher helping a Chinese learner who is at advanced reading level but wants to improve spoken English.',
+  '',
+  'Generate detailed study content for the word root "{root}" (meaning: {meaning}, from {origin}).',
+  '',
+  'Return ONLY valid JSON (no markdown, no extra text) with this exact structure:',
+  '{',
+  '  "root": "{root}",',
+  '  "meaning": "{meaning}",',
+  '  "origin": "{origin}",',
+  '  "mnemonic": "a vivid memory trick in Chinese or English to remember this root",',
+  '  "words": [',
+  '    {',
+  '      "word": "example",',
+  '      "pos": "v/n/adj/adv",',
+  '      "definition": "English definition",',
+  '      "chinese": "中文释义",',
+  '      "example": "A natural, contemporary example sentence."',
+  '    }',
+  '  ],',
+  '  "phrases": ["common phrase 1", "common phrase 2", "common phrase 3"],',
+  '  "dialogue": "A: Natural 4-line dialogue\\nB: using multiple words from this root\\nA: ...\\nB: ..."',
+  '}',
+  '',
+  'Include 6-8 words. Make examples feel like real native speech (tech, daily life, economics context preferred). Dialogue should feel like two colleagues or friends talking.',
+].join('\n');
+
+const EXPR_PROMPT_TPL = [
+  'A Chinese speaker wants to know how to say "{chinese}" in natural, spoken American English.',
+  '',
+  'Return ONLY valid JSON (no markdown) with this exact structure:',
+  '{',
+  '  "chinese": "{chinese}",',
+  '  "equivalents": [',
+  '    {',
+  '      "phrase": "English phrase",',
+  '      "formality": "casual/neutral/formal",',
+  '      "usage": "When and how to use this — one sentence"',
+  '    }',
+  '  ],',
+  '  "dialogues": [',
+  '    "A: ...\\nB: ...",',
+  '    "A: ...\\nB: ..."',
+  '  ],',
+  '  "trap": "Common mistake Chinese learners make when trying to say this, or null if none"',
+  '}',
+  '',
+  'Provide 3-4 equivalents. Dialogues should be short (2-4 lines), feel completely natural and native. Focus on spoken English, not written/formal English.',
+].join('\n');
+
+const SCENARIO_PROMPT_TPL = [
+  'Generate a daily spoken English practice scenario for a Chinese learner.',
+  '',
+  'Context: The learner is in Month {month}, Week {week} of a 5-month plan.',
+  'Current focus: {focus}',
+  '',
+  'Return ONLY valid JSON (no markdown) with this exact structure:',
+  '{',
+  '  "title": "Scenario title (short)",',
+  '  "description": "2-sentence description of the situation",',
+  '  "key_phrases": [',
+  '    {"phrase": "English phrase", "usage": "when to use it"}',
+  '  ],',
+  '  "dialogue": [',
+  '    {"speaker": "A", "text": "..."},',
+  '    {"speaker": "B", "text": "..."}',
+  '  ],',
+  '  "practice_tip": "One specific thing to practice after reading this"',
+  '}',
+  '',
+  'Include 6-8 key_phrases. Dialogue should be 10-14 lines. Make it feel real and useful, not textbook-stiff.',
+].join('\n');
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let currentPage = 'home';
+let rootsData = [];
+let currentRootIdx = 0;
+let savedExpressions = [];
+let showFavOnly = false;
+let rootsLoaded = false;
+let reviewLoaded = false;
+let scenarioLoaded = false;
+let scenarioDone = false;
+
+// ══════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addDays(dateStr, days) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function parseAIJSON(raw) {
+  if (!raw) return null;
+  try {
+    const cleaned = raw.trim().startsWith('```')
+      ? raw.trim().replace(/^```[a-z]*\n?/, '').replace(/\n?```$/, '').trim()
+      : raw.trim();
+    return JSON.parse(cleaned);
+  } catch {
+    return null;
+  }
+}
+
+function fillPrompt(tpl, vars) {
+  return tpl.replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== undefined ? vars[k] : '{' + k + '}'));
+}
+
+// ══════════════════════════════════════════════════════
+// DATABASE HELPERS
+// ══════════════════════════════════════════════════════
+async function getSetting(key) {
+  const row = await db.settings.get(key);
+  return row ? row.value : null;
+}
+
+async function setSetting(key, value) {
+  await db.settings.put({ key, value });
+}
+
+async function logTokens(module, inputTokens, outputTokens) {
+  await db.token_usage.put({
+    date: todayStr(),
+    module,
+    input_tokens: inputTokens || 0,
+    output_tokens: outputTokens || 0,
+    created_at: new Date().toISOString().slice(0, 19),
+  });
+}
+
+async function getDailyProgress(date) {
+  const prog = await db.daily_progress.get(date);
+  return prog || { date, roots_studied: 0, roots_reviewed: 0, expressions_done: 0, scenario_done: 0, checked_in: 0 };
+}
+
+async function upsertDailyProgress(updates) {
+  const today = todayStr();
+  const prog = await getDailyProgress(today);
+  await db.daily_progress.put(Object.assign(prog, updates));
+}
+
+// ══════════════════════════════════════════════════════
+// MINIMAX API
+// ══════════════════════════════════════════════════════
+async function callMinimax(prompt, maxTokens, module) {
+  const apiKey = localStorage.getItem('minimax_api_key');
+  if (!apiKey) throw new Error('NO_KEY');
+  const proxyUrl = localStorage.getItem('proxy_url');
+  const endpoint = proxyUrl ? proxyUrl.replace(/\/$/, '') + '/anthropic/v1/messages' : MINIMAX_API_URL;
+  let res;
+  try {
+    res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        max_tokens: maxTokens + 1024,  // M2.5 needs headroom for thinking block
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+  } catch (netErr) {
+    const msg = netErr.message || String(netErr);
+    // CORS or network-level failure
+    if (msg.includes('fetch') || msg.includes('Failed') || msg.includes('NetworkError')) {
+      throw new Error('CORS_OR_NETWORK:' + msg);
+    }
+    throw netErr;
+  }
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error('API ' + res.status + (body ? ': ' + body.slice(0, 120) : ''));
+  }
+  const data = await res.json();
+  if (data.usage) {
+    await logTokens(module, data.usage.input_tokens, data.usage.output_tokens);
+  }
+  const block = data.content && data.content.find(b => b.type === 'text');
+  return block ? block.text : null;
+}
+
+function aiErrMsg(e) {
+  if (!e) return 'AI 调用失败';
+  const m = e.message || '';
+  if (m === 'NO_KEY') return '请先设置 MiniMax API Key（底部【我的】→ 设置）';
+  if (m.startsWith('CORS_OR_NETWORK:')) {
+    return '浏览器 CORS 限制，无法直接调用 API。请部署到 HTTPS 域名（GitHub Pages），或在设置中配置代理地址。原始错误：' + m.slice(16);
+  }
+  return m || 'AI 调用失败';
+}
+
+// ══════════════════════════════════════════════════════
+// BUSINESS LOGIC
+// ══════════════════════════════════════════════════════
+async function calculateStreak() {
+  const rows = (await db.daily_progress.where('checked_in').equals(1).toArray())
+    .sort((a, b) => b.date.localeCompare(a.date));
+  if (!rows.length) return 0;
+  let streak = 0;
+  let current = new Date(todayStr() + 'T00:00:00');
+  for (const row of rows) {
+    const d = new Date(row.date + 'T00:00:00');
+    if (d.getTime() === current.getTime()) {
+      streak++;
+      current.setDate(current.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function getCurrentPhase(startDateStr) {
+  let start;
+  try { start = new Date((startDateStr || todayStr()) + 'T00:00:00'); }
+  catch { start = new Date(); }
+  const delta = Math.floor((new Date(todayStr() + 'T00:00:00') - start) / 86400000);
+  return {
+    month: Math.min(5, Math.floor(delta / 30) + 1),
+    week:  Math.min(4, Math.floor((delta % 30) / 7) + 1),
+  };
+}
+
+async function checkAndUnlockAchievements() {
+  const today = todayStr();
+  const newlyUnlocked = [];
+
+  async function unlock(id) {
+    const row = await db.achievements.get(id);
+    if (row && !row.is_unlocked) {
+      await db.achievements.update(id, { is_unlocked: 1, unlocked_date: today });
+      newlyUnlocked.push(id);
+    }
+  }
+
+  const streak = await calculateStreak();
+  const checkins = await db.daily_progress.where('checked_in').equals(1).count();
+  if (checkins >= 1)  await unlock('first_step');
+  if (streak >= 3)   await unlock('streak_3');
+  if (streak >= 7)   await unlock('streak_7');
+  if (streak >= 15)  await unlock('streak_15');
+  if (streak >= 30)  await unlock('streak_30');
+
+  const rootsDone = await db.word_roots.filter(r => !!r.date_first_studied).count();
+  if (rootsDone >= 50)  await unlock('roots_50');
+  if (rootsDone >= 100) await unlock('roots_100');
+  if (rootsDone >= 200) await unlock('roots_200');
+
+  const exprCount = await db.expressions.count();
+  if (exprCount >= 10) await unlock('expr_10');
+  if (exprCount >= 50) await unlock('expr_50');
+
+  const progRows = await db.daily_progress.toArray();
+  const scenCount = progRows.reduce((s, r) => s + (r.scenario_done || 0), 0);
+  if (scenCount >= 20) await unlock('scenario_20');
+
+  return newlyUnlocked;
+}
+
+// ── AI content generators ───────────────────────────────────────────────────
+async function generateRootContent(rootInfo) {
+  const prompt = fillPrompt(ROOTS_PROMPT_TPL, rootInfo);
+  return parseAIJSON(await callMinimax(prompt, 1500, 'root'));
+}
+
+async function generateExpression(chinese) {
+  const prompt = fillPrompt(EXPR_PROMPT_TPL, { chinese });
+  return parseAIJSON(await callMinimax(prompt, 800, 'expression'));
+}
+
+async function generateScenario(month, week) {
+  const focus = PHASE_FOCUS[month] || PHASE_FOCUS[1];
+  const prompt = fillPrompt(SCENARIO_PROMPT_TPL, { month, week, focus });
+  return parseAIJSON(await callMinimax(prompt, 1200, 'scenario'));
+}
+
+function hasApiKey() {
+  return !!localStorage.getItem('minimax_api_key');
+}
+
+// ══════════════════════════════════════════════════════
+// DATA FUNCTIONS (replacing Flask routes)
+// ══════════════════════════════════════════════════════
+
+// GET /api/today
+async function getTodayData() {
+  const today = todayStr();
+  const prog = await getDailyProgress(today);
+  const streak = await calculateStreak();
+  const recentAchs = (await db.achievements.where('is_unlocked').equals(1).toArray())
+    .sort((a, b) => (b.unlocked_date || '').localeCompare(a.unlocked_date || ''))
+    .slice(0, 3);
+  const startDate = await getSetting('start_date') || today;
+  const { month, week } = getCurrentPhase(startDate);
+  return { progress: prog, streak, month, week, recent_achievements: recentAchs };
+}
+
+// GET /api/roots/today
+async function getTodayRoots() {
+  const today = todayStr();
+  const startDate = await getSetting('start_date') || today;
+  const start = new Date(startDate + 'T00:00:00');
+  const dayNumber = Math.floor((new Date(today + 'T00:00:00') - start) / 86400000) + 1;
+  const startIdx = ((dayNumber - 1) * 5) % WORD_ROOTS.length;
+  const dailyRoots = WORD_ROOTS.slice(startIdx, startIdx + 5);
+
+  const result = [];
+  for (const r of dailyRoots) {
+    const cached = await db.word_roots.where('root').equals(r.root).first();
+    if (cached && cached.ai_content) {
+      result.push({ root_info: r, content: JSON.parse(cached.ai_content), studied: !!cached.date_first_studied });
+    } else {
+      const content = await generateRootContent(r);
+      if (content) {
+        const record = { root: r.root, meaning: r.meaning, origin: r.origin, ai_content: JSON.stringify(content), review_count: 0, difficulty: 3 };
+        if (cached) await db.word_roots.update(cached.id, { ai_content: JSON.stringify(content) });
+        else await db.word_roots.put(record);
+      }
+      result.push({ root_info: r, content: content || { root: r.root, meaning: r.meaning, origin: r.origin, mnemonic: '', words: [], phrases: [], dialogue: '' }, studied: false });
+    }
+  }
+  return { roots: result, day: dayNumber };
+}
+
+// POST /api/roots/complete
+async function markRootComplete(root, difficulty) {
+  const today = todayStr();
+  const INTERVALS = { 1: 1, 2: 1, 3: 3, 4: 7, 5: 14 };
+  const nextReview = addDays(today, INTERVALS[difficulty] || 3);
+  const row = await db.word_roots.where('root').equals(root).first();
+  if (row) {
+    await db.word_roots.update(row.id, {
+      date_first_studied: row.date_first_studied || today,
+      review_count: (row.review_count || 0) + 1,
+      next_review: nextReview,
+      difficulty,
+    });
+  }
+  const prog = await getDailyProgress(today);
+  prog.roots_studied = (prog.roots_studied || 0) + 1;
+  await db.daily_progress.put(prog);
+  return checkAndUnlockAchievements();
+}
+
+// GET /api/roots/review
+async function getRootsForReview() {
+  const today = todayStr();
+  return (await db.word_roots.toArray())
+    .filter(r => r.date_first_studied && r.next_review && r.next_review <= today)
+    .sort((a, b) => a.next_review.localeCompare(b.next_review))
+    .slice(0, 10)
+    .map(r => ({ root: r.root, meaning: r.meaning, origin: r.origin, content: r.ai_content ? JSON.parse(r.ai_content) : {}, difficulty: r.difficulty || 3 }));
+}
+
+// POST /api/roots/review
+async function submitRootReview(root, difficulty) {
+  const today = todayStr();
+  const INTERVALS = { 1: 1, 2: 1, 3: 3, 4: 7, 5: 14 };
+  const nextReview = addDays(today, INTERVALS[difficulty] || 3);
+  const row = await db.word_roots.where('root').equals(root).first();
+  if (row) await db.word_roots.update(row.id, { review_count: (row.review_count || 0) + 1, next_review: nextReview, difficulty });
+  const prog = await getDailyProgress(today);
+  prog.roots_reviewed = (prog.roots_reviewed || 0) + 1;
+  await db.daily_progress.put(prog);
+}
+
+// GET /api/expressions/saved
+async function getSavedExpressions() {
+  return (await db.expressions.orderBy('date_added').reverse().limit(50).toArray()).map(r => ({
+    id: r.id, chinese: r.chinese_text,
+    content: r.ai_content ? JSON.parse(r.ai_content) : {},
+    date: r.date_added, favorite: !!r.is_favorite,
+  }));
+}
+
+// POST /api/expressions/favorite
+async function setFavorite(id, fav) {
+  await db.expressions.update(id, { is_favorite: fav ? 1 : 0 });
+}
+
+// GET /api/scenario/today
+async function getTodayScenario() {
+  const today = todayStr();
+  const startDate = await getSetting('start_date') || today;
+  const { month, week } = getCurrentPhase(startDate);
+  const cached = await getSetting('scenario_' + today);
+  if (cached) return { scenario: JSON.parse(cached), month, week };
+  const scenario = await generateScenario(month, week);
+  if (!scenario) throw new Error('AI 返回内容为空，请重试');
+  await setSetting('scenario_' + today, JSON.stringify(scenario));
+  return { scenario, month, week };
+}
+
+// GET /api/progress
+async function getProgress() {
+  const [streak, rootsDone, exprCount, progRows, totalDays, achRows] = await Promise.all([
+    calculateStreak(),
+    db.word_roots.filter(r => !!r.date_first_studied).count(),
+    db.expressions.count(),
+    db.daily_progress.toArray(),
+    db.daily_progress.where('checked_in').equals(1).count(),
+    db.achievements.toArray(),
+  ]);
+  const totalScenarios = progRows.reduce((s, r) => s + (r.scenario_done || 0), 0);
+  const achievements = achRows
+    .map(row => {
+      const m = ACH_META[row.id] || { name: row.id, desc: '', icon: '🏅' };
+      return { id: row.id, name: m.name, desc: m.desc, icon: m.icon, unlocked: !!row.is_unlocked, date: row.unlocked_date };
+    })
+    .sort((a, b) => (b.unlocked ? 1 : 0) - (a.unlocked ? 1 : 0));
+  return { streak, total_roots: rootsDone, total_expressions: exprCount, total_scenarios: totalScenarios, total_days: totalDays, achievements };
+}
+
+// GET /api/usage
+async function getUsage() {
+  const allUsage = await db.token_usage.toArray();
+  const byModule = {};
+  let grandInput = 0, grandOutput = 0, grandCalls = 0;
+  for (const row of allUsage) {
+    if (!byModule[row.module]) byModule[row.module] = { calls: 0, input_tokens: 0, output_tokens: 0, cost_cny: 0 };
+    byModule[row.module].calls++;
+    byModule[row.module].input_tokens += row.input_tokens;
+    byModule[row.module].output_tokens += row.output_tokens;
+    grandInput += row.input_tokens;
+    grandOutput += row.output_tokens;
+    grandCalls++;
+  }
+  for (const d of Object.values(byModule)) {
+    d.cost_cny = Math.round((d.input_tokens * MODEL_PRICING.input + d.output_tokens * MODEL_PRICING.output) / 1e6 * 1e4) / 1e4;
+  }
+  const grandCost = Math.round((grandInput * MODEL_PRICING.input + grandOutput * MODEL_PRICING.output) / 1e6 * 1e4) / 1e4;
+
+  const monthPrefix = todayStr().slice(0, 7);
+  const monthUsage = allUsage.filter(r => r.date && r.date.startsWith(monthPrefix));
+  const monthInput = monthUsage.reduce((s, r) => s + r.input_tokens, 0);
+  const monthOutput = monthUsage.reduce((s, r) => s + r.output_tokens, 0);
+  const monthCalls = monthUsage.length;
+  const monthCost = (monthInput * MODEL_PRICING.input + monthOutput * MODEL_PRICING.output) / 1e6;
+
+  // Last 14 days
+  const dailyMap = {};
+  const todayDate = new Date(todayStr() + 'T00:00:00');
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(todayDate); d.setDate(d.getDate() - i);
+    const ds = d.toISOString().slice(0, 10);
+    dailyMap[ds] = { date: ds, input: 0, output: 0, calls: 0 };
+  }
+  const cutoff = new Date(todayDate); cutoff.setDate(cutoff.getDate() - 13);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  for (const row of allUsage) {
+    if (row.date >= cutoffStr && dailyMap[row.date]) {
+      dailyMap[row.date].input += row.input_tokens;
+      dailyMap[row.date].output += row.output_tokens;
+      dailyMap[row.date].calls++;
+    }
+  }
+  const dailyRows = Object.values(dailyMap);
+
+  const activeDays = Math.max(1, dailyRows.filter(d => d.date.startsWith(monthPrefix) && d.calls > 0).length || 1);
+  const projectedMonthly = (monthCost / activeDays) * 30;
+  const avgDailyCalls = monthCalls / activeDays;
+  const projectedCalls = avgDailyCalls * 30;
+
+  const tiers = [
+    { name: 'Starter', price: 29,  monthly_calls: 600 * 30 / 5 },
+    { name: 'Plus',    price: 49,  monthly_calls: 1500 * 30 / 5 },
+    { name: 'Max',     price: 119, monthly_calls: 4500 * 30 / 5 },
+  ];
+  let recommendation = null;
+  if (projectedMonthly > 0) {
+    if (projectedMonthly < 29) {
+      recommendation = '按量计费（当前用量低，订阅不划算）';
+    } else {
+      for (const tier of tiers) {
+        if (projectedCalls <= tier.monthly_calls) {
+          recommendation = tier.name + ' 套餐 ¥' + tier.price + '/月（可覆盖预计 ' + Math.round(projectedCalls) + ' 次/月调用）';
+          break;
+        }
+      }
+      if (!recommendation) recommendation = 'Max 套餐 ¥119/月（或考虑高速版）';
+    }
+  }
+
+  return {
+    model: AI_MODEL,
+    pricing: MODEL_PRICING,
+    all_time: { calls: grandCalls, input_tokens: grandInput, output_tokens: grandOutput, cost_cny: grandCost },
+    this_month: { calls: monthCalls, input_tokens: monthInput, output_tokens: monthOutput, cost_cny: Math.round(monthCost * 1e4) / 1e4, projected_monthly_cny: Math.round(projectedMonthly * 1e4) / 1e4 },
+    by_module: byModule,
+    daily: dailyRows,
+    recommendation,
+    tiers,
+  };
+}
+
+async function getSettingsForProfile() {
+  const startDate = await getSetting('start_date') || todayStr();
+  return {
+    start_date: startDate,
+    has_api_key: !!localStorage.getItem('minimax_api_key'),
+    proxy_url: localStorage.getItem('proxy_url') || '',
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+function goPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  currentPage = page;
+  if (page === 'home')     loadHome();
+  if (page === 'roots')    loadRoots();
+  if (page === 'expr')     loadExprPage();
+  if (page === 'scenario') loadScenario();
+  if (page === 'profile')  loadProfile();
+}
+
+// ══════════════════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════════════════
+async function loadHome() {
+  const today = new Date();
+  document.getElementById('home-date').textContent =
+    today.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+  // Show/hide no-key warning
+  document.getElementById('no-key-banner').style.display = hasApiKey() ? 'none' : '';
+
+  try {
+    const d = await getTodayData();
+    document.getElementById('home-streak').textContent = d.streak;
+    const p = d.progress;
+    document.getElementById('home-roots-count').textContent = p.roots_studied;
+    document.getElementById('home-expr-count').textContent  = p.expressions_done;
+    document.getElementById('home-scenario-count').textContent = p.scenario_done ? '✓' : '0';
+
+    const pct = Math.min(100, Math.round(
+      (Math.min(p.roots_studied, 5) / 5 * 60) +
+      (Math.min(p.expressions_done, 1) * 20) +
+      (p.scenario_done ? 20 : 0)
+    ));
+    document.getElementById('home-progress-bar').style.width = pct + '%';
+    document.getElementById('home-progress-label').textContent = pct + '%';
+
+    const tasks = [
+      { label: '学习今日词根 (' + p.roots_studied + '/5)', done: p.roots_studied >= 5, page: 'roots' },
+      { label: '查询中文表达', done: p.expressions_done > 0, page: 'expr' },
+      { label: '完成情景练习', done: p.scenario_done > 0, page: 'scenario' },
+    ];
+    document.getElementById('task-list').innerHTML = tasks.map(t => `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;
+        background:${t.done ? '#f0fdf4' : '#f8fafc'};border-radius:10px;cursor:pointer"
+        onclick="goPage('${t.page}')">
+        <span style="font-size:22px">${t.done ? '✅' : '⬜'}</span>
+        <span style="font-size:14px;font-weight:${t.done ? '500' : '400'};
+          color:${t.done ? '#16a34a' : 'var(--text)'}">${t.label}</span>
+        <span style="margin-left:auto;color:var(--muted)">›</span>
+      </div>
+    `).join('');
+
+    const phases = { 1: '基础日常', 2: '科技经济', 3: '艺术哲学', 4: '地道表达', 5: '综合提升' };
+    document.getElementById('phase-text').textContent =
+      '第 ' + d.month + ' 月 · 第 ' + d.week + ' 周 — ' + (phases[d.month] || '综合');
+
+    if (d.recent_achievements && d.recent_achievements.length > 0) {
+      document.getElementById('recent-ach-section').style.display = '';
+      document.getElementById('recent-ach-list').innerHTML = d.recent_achievements.map(a => {
+        const m = ACH_META[a.id] || { name: a.id, icon: '🏅' };
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="font-size:28px">' +
+          m.icon + '</span><span style="font-weight:500">' + m.name + '</span></div>';
+      }).join('');
+    }
+
+    const btn = document.getElementById('checkin-btn');
+    if (p.checked_in) {
+      btn.textContent = '✅ 今日已打卡';
+      btn.disabled = true;
+    } else {
+      btn.textContent = '📅 打卡';
+      btn.disabled = false;
+    }
+  } catch (e) { console.error(e); }
+}
+
+async function doCheckin() {
+  const btn = document.getElementById('checkin-btn');
+  btn.disabled = true;
+  try {
+    const today = todayStr();
+    const prog = await getDailyProgress(today);
+    prog.checked_in = 1;
+    await db.daily_progress.put(prog);
+    const newly = await checkAndUnlockAchievements();
+    const streak = await calculateStreak();
+    btn.textContent = '✅ 今日已打卡';
+    document.getElementById('home-streak').textContent = streak;
+    showToast('🔥 打卡成功！连续 ' + streak + ' 天');
+    if (newly.length > 0) showAchievement(newly[0]);
+    loadHome();
+  } catch (e) { btn.disabled = false; }
+}
+
+// ══════════════════════════════════════════════════════
+// ROOTS
+// ══════════════════════════════════════════════════════
+async function loadRoots() {
+  if (rootsLoaded) return;
+  rootsLoaded = true;
+  await fetchTodayRoots();
+}
+
+async function fetchTodayRoots() {
+  document.getElementById('roots-loading').style.display = '';
+  document.getElementById('root-card-area').style.display = '';
+  try {
+    const d = await getTodayRoots();
+    rootsData = d.roots;
+    document.getElementById('roots-day-info').textContent = '第 ' + d.day + ' 天 · 今日5个词根';
+    renderRootCard(0);
+    renderDots();
+    document.getElementById('roots-loading').style.display = 'none';
+  } catch (e) {
+    document.getElementById('roots-loading').innerHTML =
+      '<div style="color:#ef4444;text-align:center;padding:12px">' + aiErrMsg(e) + '</div>';
+  }
+}
+
+function renderDots() {
+  const dots = document.getElementById('root-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < rootsData.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === currentRootIdx ? ' active' : '');
+    d.onclick = () => renderRootCard(i);
+    dots.appendChild(d);
+  }
+}
+
+function renderRootCard(idx) {
+  currentRootIdx = idx;
+  renderDots();
+  const area = document.getElementById('root-card-area');
+  const item = rootsData[idx];
+  if (!item) return;
+  const c = item.content || {};
+  const words = c.words || [];
+  const phrases = c.phrases || [];
+
+  area.innerHTML = `
+    <div style="margin-bottom:12px">
+      <div class="card" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;text-align:center;padding:28px 20px">
+        <div style="font-size:13px;opacity:0.8;margin-bottom:8px">${c.origin || item.root_info?.origin || ''}</div>
+        <div style="font-size:40px;font-weight:800;letter-spacing:2px">-${c.root || item.root_info?.root}-</div>
+        <div style="font-size:18px;opacity:0.9;margin-top:8px">${c.meaning || item.root_info?.meaning || ''}</div>
+        ${c.mnemonic ? '<div style="margin-top:14px;background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;font-size:13px;line-height:1.5">💡 ' + c.mnemonic + '</div>' : ''}
+      </div>
+
+      ${phrases.length > 0 ? `
+      <div class="card" style="padding:14px 16px">
+        <div class="section-title">常用短语</div>
+        <div>${phrases.map(p => '<span class="phrase-chip">' + p + '</span>').join('')}</div>
+      </div>` : ''}
+
+      ${words.length > 0 ? `
+      <div class="card">
+        <div class="section-title">相关单词 (${words.length})</div>
+        ${words.map(w => `
+          <div style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+              <span style="font-size:17px;font-weight:600">${w.word}</span>
+              <span style="font-size:12px;color:var(--muted);background:#f1f5f9;padding:1px 6px;border-radius:4px">${w.pos}</span>
+              <span style="font-size:13px;color:var(--muted)">${w.chinese || ''}</span>
+            </div>
+            <div style="font-size:13px;color:#475569;margin-bottom:3px">${w.definition}</div>
+            <div style="font-size:13px;color:#64748b;font-style:italic">"${w.example}"</div>
+          </div>
+        `).join('')}
+      </div>` : ''}
+
+      ${c.dialogue ? `
+      <div class="card">
+        <div class="section-title">对话示例</div>
+        ${c.dialogue.split('\n').map(line => {
+          if (!line.trim()) return '';
+          const isA = line.startsWith('A:');
+          return '<div class="dialogue-line ' + (isA ? 'dialogue-a' : 'dialogue-b') + '">' + line + '</div>';
+        }).join('')}
+      </div>` : ''}
+
+      ${item.studied
+        ? '<div style="text-align:center;padding:8px;color:#10b981;font-weight:600">✅ 今日已学习</div>'
+        : `<div class="card">
+            <div class="section-title" style="margin-bottom:10px">学完了？给自己打个分</div>
+            <div style="display:flex;gap:8px">
+              <button class="diff-btn" style="background:#fef2f2;color:#dc2626;border-color:#fecaca" onclick="markRoot('${c.root || item.root_info?.root}', 1)">😵 很难</button>
+              <button class="diff-btn" style="background:#fff7ed;color:#ea580c;border-color:#fed7aa" onclick="markRoot('${c.root || item.root_info?.root}', 2)">🤔 较难</button>
+              <button class="diff-btn" style="background:#fefce8;color:#ca8a04;border-color:#fde68a" onclick="markRoot('${c.root || item.root_info?.root}', 3)">😊 一般</button>
+              <button class="diff-btn" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0" onclick="markRoot('${c.root || item.root_info?.root}', 5)">😎 已掌握</button>
+            </div>
+          </div>`}
+
+      <div style="display:flex;gap:10px;margin-top:4px">
+        ${idx > 0 ? '<button onclick="renderRootCard(' + (idx-1) + ')" style="flex:1;padding:12px;background:white;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;font-size:14px">← 上一个</button>' : '<div style="flex:1"></div>'}
+        ${idx < rootsData.length - 1 ? '<button onclick="renderRootCard(' + (idx+1) + ')" style="flex:1;padding:12px;background:var(--primary);color:white;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600">下一个 →</button>' : ''}
+      </div>
+    </div>
+  `;
+}
+
+async function markRoot(root, difficulty) {
+  const newly = await markRootComplete(root, difficulty);
+  showToast('✅ 已记录！');
+  if (newly && newly.length) showAchievement(newly[0]);
+  const item = rootsData[currentRootIdx];
+  if (item) item.studied = true;
+  renderRootCard(currentRootIdx);
+}
+
+function switchRootsTab(tab) {
+  document.getElementById('tab-learn').classList.toggle('active', tab === 'learn');
+  document.getElementById('tab-review').classList.toggle('active', tab === 'review');
+  document.getElementById('roots-learn-section').style.display = tab === 'learn' ? '' : 'none';
+  document.getElementById('roots-review-section').style.display = tab === 'review' ? '' : 'none';
+  if (tab === 'review') loadReview();
+}
+
+async function loadReview() {
+  if (reviewLoaded) return;
+  reviewLoaded = true;
+  document.getElementById('review-loading').style.display = '';
+  try {
+    const roots = await getRootsForReview();
+    document.getElementById('review-loading').style.display = 'none';
+    const list = document.getElementById('review-list');
+    if (!roots || roots.length === 0) {
+      document.getElementById('review-empty').style.display = '';
+      return;
+    }
+    list.innerHTML = roots.map(r => `
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <span style="font-size:20px;font-weight:700">-${r.root}-</span>
+            <span style="color:var(--muted);font-size:13px;margin-left:8px">${r.meaning}</span>
+          </div>
+          <span style="font-size:12px;background:#f1f5f9;padding:2px 8px;border-radius:6px;color:var(--muted)">复习</span>
+        </div>
+        ${r.content?.mnemonic ? '<div style="font-size:13px;color:#7c3aed;background:#f5f3ff;padding:8px 12px;border-radius:8px;margin-bottom:10px">💡 ' + r.content.mnemonic + '</div>' : ''}
+        <div style="display:flex;gap:8px">
+          <button class="diff-btn" style="background:#fef2f2;color:#dc2626;border-color:#fecaca" onclick="submitReview('${r.root}',1)">😵 忘了</button>
+          <button class="diff-btn" style="background:#fff7ed;color:#ea580c;border-color:#fed7aa" onclick="submitReview('${r.root}',3)">🤔 模糊</button>
+          <button class="diff-btn" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0" onclick="submitReview('${r.root}',5)">😎 记住了</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    document.getElementById('review-loading').innerHTML = '<div style="color:#ef4444">加载失败</div>';
+  }
+}
+
+async function submitReview(root, difficulty) {
+  await submitRootReview(root, difficulty);
+  showToast('✅ 复习记录已保存');
+  reviewLoaded = false;
+  loadReview();
+}
+
+// ══════════════════════════════════════════════════════
+// EXPRESSION
+// ══════════════════════════════════════════════════════
+function loadExprPage() {
+  const list = document.getElementById('preset-list');
+  list.innerHTML = PRESET_EXPRESSIONS.map(p =>
+    '<span class="word-chip" onclick="quickLookup(\'' + p + '\')">' + p + '</span>'
+  ).join('');
+  loadSavedExpressions();
+}
+
+async function loadSavedExpressions() {
+  try {
+    savedExpressions = await getSavedExpressions();
+    renderSavedExpressions();
+  } catch (e) {}
+}
+
+function renderSavedExpressions() {
+  const list = document.getElementById('saved-expr-list');
+  const items = showFavOnly ? savedExpressions.filter(e => e.favorite) : savedExpressions;
+  if (!items.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px">' + (showFavOnly ? '暂无收藏' : '暂无记录') + '</div>';
+    return;
+  }
+  list.innerHTML = items.map(e => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;cursor:pointer"
+      onclick="quickLookup('${e.chinese}')">
+      <div style="flex:1">
+        <span style="font-weight:600">${e.chinese}</span>
+        <span style="color:var(--muted);font-size:12px;margin-left:8px">${e.date}</span>
+      </div>
+      <button onclick="event.stopPropagation();toggleFavorite(${e.id},${!e.favorite})"
+        style="background:none;border:none;font-size:20px;cursor:pointer">${e.favorite ? '⭐' : '☆'}</button>
+    </div>
+  `).join('');
+}
+
+function switchExprTab(tab) {
+  showFavOnly = tab === 'fav';
+  document.getElementById('tab-all').classList.toggle('active', tab === 'all');
+  document.getElementById('tab-fav').classList.toggle('active', tab === 'fav');
+  renderSavedExpressions();
+}
+
+async function toggleFavorite(id, fav) {
+  await setFavorite(id, fav);
+  const e = savedExpressions.find(x => x.id === id);
+  if (e) e.favorite = fav;
+  renderSavedExpressions();
+}
+
+async function quickLookup(text) {
+  document.getElementById('expr-input').value = text;
+  await lookupExpression();
+}
+
+async function lookupExpression() {
+  const chinese = document.getElementById('expr-input').value.trim();
+  if (!chinese) return;
+
+  const loading = document.getElementById('expr-loading');
+  const result  = document.getElementById('expr-result');
+  loading.style.display = '';
+  result.style.display  = 'none';
+
+  try {
+    const cached = await db.expressions.where('chinese_text').equals(chinese).first();
+    if (cached) {
+      loading.style.display = 'none';
+      result.style.display  = '';
+      renderExprResult(JSON.parse(cached.ai_content), true);
+      return;
+    }
+    const content = await generateExpression(chinese);
+    if (!content) throw new Error('AI 返回内容为空，请重试');
+
+    const today = todayStr();
+    await db.expressions.put({ chinese_text: chinese, ai_content: JSON.stringify(content), date_added: today, is_favorite: 0 });
+    const prog = await getDailyProgress(today);
+    prog.expressions_done = (prog.expressions_done || 0) + 1;
+    await db.daily_progress.put(prog);
+    await checkAndUnlockAchievements();
+
+    loading.style.display = 'none';
+    result.style.display  = '';
+    renderExprResult(content, false);
+    loadSavedExpressions();
+  } catch (e) {
+    loading.style.display = 'none';
+    result.style.display  = '';
+    result.innerHTML = '<div class="card" style="color:#ef4444">' + aiErrMsg(e) + '</div>';
+  }
+}
+
+function renderExprResult(c, cached) {
+  const result = document.getElementById('expr-result');
+  const eqs = c.equivalents || [];
+  const fmtLabel = { casual: '日常口语', neutral: '通用', formal: '正式' };
+  const pillCls  = { casual: 'pill-casual', neutral: 'pill-neutral', formal: 'pill-formal' };
+
+  result.innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:20px;font-weight:700">"${c.chinese}"</div>
+        ${cached ? '<span style="font-size:11px;background:#f1f5f9;padding:2px 8px;border-radius:6px;color:var(--muted)">已缓存</span>' : ''}
+      </div>
+      ${eqs.map(eq => `
+        <div style="padding:12px;background:#f8fafc;border-radius:10px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:16px;font-weight:600">${eq.phrase}</span>
+            <span class="pill ${pillCls[eq.formality] || 'pill-neutral'}">${fmtLabel[eq.formality] || eq.formality}</span>
+          </div>
+          <div style="font-size:13px;color:var(--muted)">${eq.usage}</div>
+        </div>
+      `).join('')}
+      ${c.dialogues && c.dialogues.length > 0 ? `
+        <div style="margin-top:16px">
+          <div class="section-title">对话示例</div>
+          ${c.dialogues.map(dlg => `
+            <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:10px">
+              ${dlg.split('\n').map(line => {
+                if (!line.trim()) return '';
+                const isA = line.startsWith('A:');
+                return '<div class="dialogue-line ' + (isA ? 'dialogue-a' : 'dialogue-b') + '" style="margin-bottom:4px">' + line + '</div>';
+              }).join('')}
+            </div>
+          `).join('')}
+        </div>` : ''}
+      ${c.trap ? `
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px;margin-top:12px">
+          <div style="font-size:12px;font-weight:600;color:#dc2626;margin-bottom:4px">⚠️ 避免误区</div>
+          <div style="font-size:13px;color:#7f1d1d">${c.trap}</div>
+        </div>` : ''}
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+// SCENARIO
+// ══════════════════════════════════════════════════════
+async function loadScenario() {
+  if (scenarioLoaded) return;
+  scenarioLoaded = true;
+
+  // Check if already done today
+  const prog = await getDailyProgress(todayStr());
+  if (prog.scenario_done) scenarioDone = true;
+
+  document.getElementById('scenario-loading').style.display = '';
+  document.getElementById('scenario-loading').innerHTML = `
+    <div class="loader"></div>
+    <div style="margin-top:12px;color:var(--muted);font-size:14px">AI 生成今日情景...</div>`;
+  document.getElementById('scenario-content').style.display = 'none';
+
+  try {
+    const d = await getTodayScenario();
+    const phases = { 1: '月1·基础日常', 2: '月2·科技经济', 3: '月3·艺术哲学', 4: '月4·地道表达', 5: '月5·综合提升' };
+    document.getElementById('scenario-phase-text').textContent =
+      (phases[d.month] || '') + ' · 第' + d.week + '周';
+    document.getElementById('scenario-loading').style.display = 'none';
+    document.getElementById('scenario-content').style.display = '';
+    renderScenario(d.scenario);
+  } catch (e) {
+    scenarioLoaded = false;
+    document.getElementById('scenario-loading').innerHTML = `
+      <div style="color:#ef4444;padding:20px;text-align:center">
+        <div style="font-size:32px;margin-bottom:8px">⚠️</div>
+        <div style="font-weight:600;margin-bottom:4px">加载失败</div>
+        <div style="font-size:13px;color:#94a3b8">${aiErrMsg(e)}</div>
+        <button onclick="scenarioLoaded=false;loadScenario()"
+          style="margin-top:16px;background:var(--primary);color:white;border:none;border-radius:10px;padding:10px 24px;cursor:pointer;font-size:14px">重试</button>
+      </div>`;
+  }
+}
+
+function renderScenario(s) {
+  const el = document.getElementById('scenario-content');
+  const phrases = s.key_phrases || [];
+  const dialogue = s.dialogue || [];
+
+  el.innerHTML = `
+    <div class="card" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:white">
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px">${s.title || '今日情景'}</div>
+      <div style="font-size:14px;opacity:0.9;line-height:1.6">${s.description || ''}</div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:12px">关键句型 (${phrases.length})</div>
+      ${phrases.map(p => `
+        <div style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+          <div style="font-size:15px;font-weight:600;margin-bottom:3px">${p.phrase}</div>
+          <div style="font-size:13px;color:var(--muted)">${p.usage}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:12px">对话示例</div>
+      ${dialogue.map(line => `
+        <div class="sc-line ${line.speaker === 'A' ? 'sc-a' : 'sc-b'}">
+          <span style="font-weight:600;font-size:13px;color:var(--muted)">${line.speaker}: </span>
+          <span style="font-size:14px">${line.text}</span>
+        </div>
+      `).join('')}
+    </div>
+    ${s.practice_tip ? `
+    <div class="card" style="background:#f0fdf4;border:1px solid #bbf7d0">
+      <div style="font-size:12px;font-weight:600;color:#16a34a;margin-bottom:6px">🎯 练习提示</div>
+      <div style="font-size:14px;color:#14532d;line-height:1.6">${s.practice_tip}</div>
+    </div>` : ''}
+    <button id="scenario-done-btn" onclick="completeScenario()"
+      class="btn-primary" ${scenarioDone ? 'disabled' : ''}>
+      ${scenarioDone ? '✅ 已完成今日练习' : '✅ 标记已练习'}
+    </button>
+  `;
+}
+
+async function completeScenario() {
+  const today = todayStr();
+  const prog = await getDailyProgress(today);
+  prog.scenario_done = 1;
+  await db.daily_progress.put(prog);
+  const newly = await checkAndUnlockAchievements();
+  scenarioDone = true;
+  const btn = document.getElementById('scenario-done-btn');
+  if (btn) { btn.textContent = '✅ 已完成今日练习'; btn.disabled = true; }
+  showToast('🎭 情景练习已完成！');
+  if (newly && newly.length) showAchievement(newly[0]);
+}
+
+// ══════════════════════════════════════════════════════
+// PROFILE
+// ══════════════════════════════════════════════════════
+async function loadProfile() {
+  try {
+    const [progress, settings, usage] = await Promise.all([
+      getProgress(),
+      getSettingsForProfile(),
+      getUsage().catch(() => null),
+    ]);
+
+    document.getElementById('stat-streak').textContent = progress.streak;
+    document.getElementById('stat-days').textContent   = progress.total_days;
+    document.getElementById('stat-roots').textContent  = progress.total_roots;
+    document.getElementById('stat-expr').textContent   = progress.total_expressions;
+
+    document.getElementById('achievements-list').innerHTML = progress.achievements.map(a => `
+      <div class="ach-card ${a.unlocked ? '' : 'locked'}" style="background:${a.unlocked ? '#f0fdf4' : '#f8fafc'}">
+        <span class="ach-icon">${a.icon}</span>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px">${a.name}</div>
+          <div style="font-size:12px;color:var(--muted)">${a.desc}</div>
+          ${a.unlocked && a.date ? '<div style="font-size:11px;color:#10b981;margin-top:2px">' + a.date + ' 解锁</div>' : ''}
+        </div>
+        ${a.unlocked ? '<span style="color:#10b981;font-size:18px">✓</span>' : '<span style="color:#cbd5e1;font-size:14px">🔒</span>'}
+      </div>
+    `).join('');
+
+    renderUsage(usage);
+
+    document.getElementById('start-date-input').value = settings.start_date || '';
+    document.getElementById('proxy-url-input').value  = settings.proxy_url || '';
+    const statusEl = document.getElementById('api-status');
+    statusEl.textContent = settings.has_api_key ? '✅ API Key 已配置' : '⚠️ 请配置 MiniMax API Key';
+    statusEl.style.color = settings.has_api_key ? '#16a34a' : '#f59e0b';
+  } catch (e) { console.error(e); }
+}
+
+function renderUsage(u) {
+  const el = document.getElementById('usage-content');
+  if (!u || u.all_time.calls === 0) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:14px;text-align:center;padding:12px">暂无记录，使用 AI 功能后会在这里显示</div>';
+    return;
+  }
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : n;
+  const fmtCost = n => n < 0.01 ? '<¥0.01' : '¥' + n.toFixed(4);
+  const moduleLabel = { root: '词根学习', expression: '中文表达', scenario: '口语情景', unknown: '其他' };
+  const moduleColor = { root: '#4f46e5', expression: '#10b981', scenario: '#f59e0b', unknown: '#94a3b8' };
+  const m = u.this_month;
+  const a = u.all_time;
+  const todayIso = todayStr();
+  const dailyMax = Math.max(...u.daily.map(d => d.input + d.output), 1);
+  const sparkline = u.daily.map(d => {
+    const h = Math.max(4, Math.round(((d.input + d.output) / dailyMax) * 40));
+    return '<div title="' + d.date + ': ' + fmt(d.input + d.output) + ' tokens, ' + d.calls + '次" style="width:14px;height:' + h + 'px;border-radius:3px 3px 0 0;background:' + (d.date === todayIso ? '#f59e0b' : '#818cf8') + ';flex-shrink:0"></div>';
+  }).join('');
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">本月费用</div>
+        <div style="font-size:22px;font-weight:700;color:#4f46e5">${fmtCost(m.cost_cny)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${m.calls} 次调用</div>
+      </div>
+      <div style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">预计本月</div>
+        <div style="font-size:22px;font-weight:700;color:#7c3aed">${fmtCost(m.projected_monthly_cny)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">按当前用量</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:6px">本月 Token 明细</div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #f1f5f9">
+      <span>输入 tokens</span>
+      <span style="font-weight:600">${fmt(m.input_tokens)} <span style="color:var(--muted);font-weight:400">× ¥2.1/M</span></span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #f1f5f9">
+      <span>输出 tokens</span>
+      <span style="font-weight:600">${fmt(m.output_tokens)} <span style="color:var(--muted);font-weight:400">× ¥8.4/M</span></span>
+    </div>
+    <div style="margin-top:14px;margin-bottom:6px;font-size:12px;color:var(--muted)">按功能分布</div>
+    ${Object.entries(u.by_module).map(([mod, d]) => `
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0">
+        <div style="width:8px;height:8px;border-radius:50%;background:${moduleColor[mod] || '#94a3b8'};flex-shrink:0"></div>
+        <span style="flex:1;font-size:13px">${moduleLabel[mod] || mod}</span>
+        <span style="font-size:12px;color:var(--muted)">${d.calls}次</span>
+        <span style="font-size:13px;font-weight:600">${fmtCost(d.cost_cny)}</span>
+      </div>
+    `).join('')}
+    ${u.daily.length > 0 ? `
+    <div style="margin-top:16px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">近14天 Token 用量</div>
+      <div style="display:flex;align-items:flex-end;gap:3px;height:44px">${sparkline}</div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#cbd5e1;margin-top:2px">
+        <span>${u.daily[0]?.date.slice(5) || ''}</span><span>今天</span>
+      </div>
+    </div>` : ''}
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;color:var(--muted)">累计总费用</div>
+      <div style="font-weight:700;color:var(--text)">${fmtCost(a.cost_cny)} <span style="font-size:12px;color:var(--muted);font-weight:400">(${a.calls}次)</span></div>
+    </div>
+    ${u.recommendation ? `
+    <div style="margin-top:14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px">
+      <div style="font-size:12px;font-weight:600;color:#1d4ed8;margin-bottom:4px">💡 订阅建议</div>
+      <div style="font-size:13px;color:#1e40af">${u.recommendation}</div>
+      <div style="margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+        ${u.tiers.map(t => `
+          <div style="text-align:center;background:white;border-radius:8px;padding:8px;border:1px solid #e0e7ff">
+            <div style="font-size:12px;font-weight:600">${t.name}</div>
+            <div style="font-size:16px;font-weight:700;color:#4f46e5">¥${t.price}</div>
+            <div style="font-size:10px;color:var(--muted)">/月</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+  `;
+}
+
+async function saveSettings() {
+  const apiKey    = document.getElementById('api-key-input').value.trim();
+  const startDate = document.getElementById('start-date-input').value;
+  const proxyUrl  = document.getElementById('proxy-url-input').value.trim();
+  if (apiKey)   localStorage.setItem('minimax_api_key', apiKey);
+  if (proxyUrl) localStorage.setItem('proxy_url', proxyUrl);
+  else          localStorage.removeItem('proxy_url');
+  if (startDate) await setSetting('start_date', startDate);
+  showToast('✅ 设置已保存');
+  const statusEl = document.getElementById('api-status');
+  if (apiKey) { statusEl.textContent = '✅ API Key 已配置'; statusEl.style.color = '#16a34a'; }
+  document.getElementById('api-key-input').value = '';
+  const banner = document.getElementById('no-key-banner');
+  if (banner) banner.style.display = 'none';
+  rootsLoaded = false;
+  scenarioLoaded = false;
+}
+
+async function exportData() {
+  const [roots, expressions, progress, achievements, tokenUsage] = await Promise.all([
+    db.word_roots.toArray(), db.expressions.toArray(),
+    db.daily_progress.toArray(), db.achievements.toArray(), db.token_usage.toArray(),
+  ]);
+  const data = {
+    exported_at: new Date().toISOString(),
+    word_roots: roots, expressions, daily_progress: progress,
+    achievements, token_usage: tokenUsage,
+    settings: { start_date: await getSetting('start_date'), minimax_api_key: localStorage.getItem('minimax_api_key') },
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'english-app-backup-' + todayStr() + '.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ 数据已导出');
+}
+
+async function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (data.word_roots)     await db.word_roots.bulkPut(data.word_roots);
+    if (data.expressions)    await db.expressions.bulkPut(data.expressions);
+    if (data.daily_progress) await db.daily_progress.bulkPut(data.daily_progress);
+    if (data.achievements)   await db.achievements.bulkPut(data.achievements);
+    if (data.token_usage)    await db.token_usage.bulkPut(data.token_usage);
+    if (data.settings) {
+      if (data.settings.start_date)      await setSetting('start_date', data.settings.start_date);
+      if (data.settings.minimax_api_key) localStorage.setItem('minimax_api_key', data.settings.minimax_api_key);
+    }
+    showToast('✅ 导入成功，刷新页面生效');
+  } catch (e) { showToast('❌ 导入失败：' + e.message); }
+}
+
+// ══════════════════════════════════════════════════════
+// UI UTILITIES
+// ══════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function showAchievement(id) {
+  const m = ACH_META[id];
+  if (!m) return;
+  document.getElementById('ach-popup-icon').textContent = m.icon;
+  document.getElementById('ach-popup-name').textContent = m.name;
+  document.getElementById('ach-popup-desc').textContent = m.desc;
+  document.getElementById('ach-popup').classList.add('show');
+}
+
+function closeAchPopup() {
+  document.getElementById('ach-popup').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+async function initApp() {
+  // Seed achievements (insert if not exists)
+  for (const id of Object.keys(ACH_META)) {
+    const existing = await db.achievements.get(id);
+    if (!existing) await db.achievements.put({ id, is_unlocked: 0, unlocked_date: null });
+  }
+  loadHome();
+  // Preset chips for expression page
+  const presetList = document.getElementById('preset-list');
+  if (presetList) {
+    presetList.innerHTML = PRESET_EXPRESSIONS.map(p =>
+      '<span class="word-chip" onclick="quickLookup(\'' + p + '\')">' + p + '</span>'
+    ).join('');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(e => console.warn('SW:', e));
+}
+</script>
+</body>
+</html>
