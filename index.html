@@ -688,7 +688,8 @@ function aiErrMsg(e) {
 // BUSINESS LOGIC
 // ══════════════════════════════════════════════════════
 async function calculateStreak() {
-  const rows = (await db.daily_progress.where('checked_in').equals(1).toArray())
+  const rows = (await db.daily_progress.toArray())
+    .filter(r => r.checked_in === 1)
     .sort((a, b) => b.date.localeCompare(a.date));
   if (!rows.length) return 0;
   let streak = 0;
@@ -729,7 +730,7 @@ async function checkAndUnlockAchievements() {
   }
 
   const streak = await calculateStreak();
-  const checkins = await db.daily_progress.where('checked_in').equals(1).count();
+  const checkins = (await db.daily_progress.toArray()).filter(r => r.checked_in === 1).length;
   if (checkins >= 1)  await unlock('first_step');
   if (streak >= 3)   await unlock('streak_3');
   if (streak >= 7)   await unlock('streak_7');
