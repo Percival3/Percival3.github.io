@@ -254,7 +254,7 @@
     <div id="root-card-area" style="margin-bottom:16px">
       <div id="roots-loading" style="text-align:center;padding:40px">
         <div class="loader"></div>
-        <div style="margin-top:12px;color:var(--muted);font-size:14px">AI 正在生成今日词根内容...</div>
+        <div style="margin-top:12px;color:var(--muted);font-size:14px">加载中...</div>
       </div>
     </div>
     <div id="root-dots" style="display:flex;justify-content:center;gap:8px;margin-bottom:16px"></div>
@@ -806,13 +806,7 @@ async function getTodayRoots() {
     if (cached && cached.ai_content) {
       result.push({ root_info: r, content: JSON.parse(cached.ai_content), studied: !!cached.date_first_studied });
     } else {
-      const content = await generateRootContent(r);
-      if (content) {
-        const record = { root: r.root, meaning: r.meaning, origin: r.origin, ai_content: JSON.stringify(content), review_count: 0, difficulty: 3 };
-        if (cached) await db.word_roots.update(cached.id, { ai_content: JSON.stringify(content) });
-        else await db.word_roots.put(record);
-      }
-      result.push({ root_info: r, content: content || { root: r.root, meaning: r.meaning, origin: r.origin, mnemonic: '', words: [], phrases: [], dialogue: '' }, studied: false });
+      result.push({ root_info: r, content: null, studied: false });
     }
   }
   return { roots: result, day: dayNumber };
@@ -1140,6 +1134,48 @@ function renderRootCard(idx) {
   const area = document.getElementById('root-card-area');
   const item = rootsData[idx];
   if (!item) return;
+
+  // No cached content — show skeleton and trigger AI for this root only
+  if (!item.content) {
+    const r = item.root_info;
+    area.innerHTML = `
+      <div class="card" style="text-align:center;padding:40px 24px">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">${r.origin || ''}</div>
+        <div style="font-size:40px;font-weight:800;letter-spacing:2px;color:var(--primary)">-${r.root}-</div>
+        <div style="font-size:18px;margin-top:8px;margin-bottom:28px">${r.meaning || ''}</div>
+        <div class="loader" style="margin:0 auto"></div>
+        <div style="margin-top:14px;color:var(--muted);font-size:14px">AI 生成中，请稍候...</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        ${idx > 0 ? '<button onclick="renderRootCard(' + (idx-1) + ')" style="flex:1;padding:12px;background:white;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;font-size:14px">← 上一个</button>' : '<div style="flex:1"></div>'}
+        ${idx < rootsData.length - 1 ? '<button onclick="renderRootCard(' + (idx+1) + ')" style="flex:1;padding:12px;background:var(--primary);color:white;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600">下一个 →</button>' : ''}
+      </div>
+    `;
+    generateRootContent(r).then(async content => {
+      if (!content) return;
+      const existing = await db.word_roots.where('root').equals(r.root).first();
+      const record = { root: r.root, meaning: r.meaning, origin: r.origin, ai_content: JSON.stringify(content), review_count: 0, difficulty: 3 };
+      if (existing) await db.word_roots.update(existing.id, { ai_content: JSON.stringify(content) });
+      else await db.word_roots.put(record);
+      item.content = content;
+      if (currentRootIdx === idx) renderRootCard(idx);
+    }).catch(e => {
+      if (currentRootIdx !== idx) return;
+      area.innerHTML = `
+        <div class="card" style="text-align:center;padding:40px 24px">
+          <div style="font-size:40px;font-weight:800;letter-spacing:2px;color:var(--primary);margin-bottom:12px">-${r.root}-</div>
+          <div style="color:#dc2626;margin-bottom:20px;font-size:14px">${aiErrMsg(e)}</div>
+          <button onclick="renderRootCard(${idx})" style="padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:10px;cursor:pointer;font-size:14px">重试</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          ${idx > 0 ? '<button onclick="renderRootCard(' + (idx-1) + ')" style="flex:1;padding:12px;background:white;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;font-size:14px">← 上一个</button>' : '<div style="flex:1"></div>'}
+          ${idx < rootsData.length - 1 ? '<button onclick="renderRootCard(' + (idx+1) + ')" style="flex:1;padding:12px;background:var(--primary);color:white;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600">下一个 →</button>' : ''}
+        </div>
+      `;
+    });
+    return;
+  }
+
   const c = item.content || {};
   const words = c.words || [];
   const phrases = c.phrases || [];
