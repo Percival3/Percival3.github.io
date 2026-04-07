@@ -888,7 +888,7 @@ async function getProgress() {
     db.word_roots.filter(r => !!r.date_first_studied).count(),
     db.expressions.count(),
     db.daily_progress.toArray(),
-    db.daily_progress.where('checked_in').equals(1).count(),
+    db.daily_progress.toArray().then(rows => rows.filter(r => r.checked_in === 1).length),
     db.achievements.toArray(),
   ]);
   const totalScenarios = progRows.reduce((s, r) => s + (r.scenario_done || 0), 0);
@@ -1248,6 +1248,9 @@ async function markRoot(root, difficulty) {
   const item = rootsData[currentRootIdx];
   if (item) item.studied = true;
   renderRootCard(currentRootIdx);
+  // Refresh home & profile stats in background
+  loadHome();
+  loadProfile();
 }
 
 function switchRootsTab(tab) {
