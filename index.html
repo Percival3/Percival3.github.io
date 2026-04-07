@@ -359,7 +359,7 @@
   <div class="card" id="usage-card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div class="section-title" style="margin-bottom:0">Token 用量 & 费用</div>
-      <span style="font-size:11px;background:#f1f5f9;padding:2px 8px;border-radius:6px;color:var(--muted)">MiniMax-M2.5</span>
+      <span style="font-size:11px;background:#f1f5f9;padding:2px 8px;border-radius:6px;color:var(--muted)">MiniMax-M2.5-highspeed</span>
     </div>
     <div id="usage-content">
       <div style="text-align:center;padding:20px"><div class="loader"></div></div>
@@ -448,7 +448,7 @@ db.version(1).stores({
 // ══════════════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════════════
-const AI_MODEL = 'MiniMax-M2.5';
+const AI_MODEL = 'MiniMax-M2.5-highspeed';
 const MODEL_PRICING = { input: 2.1, output: 8.4 };  // CNY per million tokens
 const MINIMAX_API_URL = 'https://api.minimaxi.com/anthropic/v1/messages';
 
@@ -650,7 +650,7 @@ async function callMinimax(prompt, maxTokens, module) {
       },
       body: JSON.stringify({
         model: AI_MODEL,
-        max_tokens: maxTokens + 1024,  // M2.5 needs headroom for thinking block
+        max_tokens: maxTokens,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
