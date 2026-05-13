@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-bg-paper: #FAFAFA;
+  --color-ink-main: #2A2A2A;
+  --color-ink-muted: #6B6B6B;
+  --color-highlight: #E2E8D5;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg-paper);
+    color: var(--color-ink-main);
+    font-family: "Noto Serif SC", "Noto Sans SC", serif;
+  }
+}
+
+/* Customizing the prose typography to fit our minimal hand-drawn theme */
+@layer components {
+  .prose {
+    --tw-prose-body: var(--color-ink-main);
+    --tw-prose-headings: var(--color-ink-main);
+    --tw-prose-links: var(--color-ink-main);
+    --tw-prose-bold: var(--color-ink-main);
+    --tw-prose-quotes: var(--color-ink-muted);
+  }
+  
+  .prose a {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-highlight);
+    text-underline-offset: 4px;
+    transition: all 0.2s;
+  }
+  
+  .prose a:hover {
+    background-color: var(--color-highlight);
+  }
+
+  .prose blockquote {
+    border-left: none;
+    position: relative;
+    padding-left: 1.5rem;
+    font-style: italic;
+  }
+  
+  /* A hand-drawn pseudo-border for blockquotes */
+  .prose blockquote::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: url('data:image/svg+xml;utf8,<svg preserveAspectRatio="none" viewBox="0 0 10 100" xmlns="http://www.w3.org/2000/svg"><path d="M5,0 Q0,25 5,50 T5,100" stroke="%232A2A2A" stroke-width="2" fill="none"/></svg>') repeat-y;
+    background-size: 100% 40px;
+  }
+}
