@@ -12,13 +12,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^5.0.4",
-    "@astrojs/react": "^5.0.4",
+    "@astrojs/markdown-remark": "^7.2.1",
+    "@astrojs/mdx": "^6.0.1",
+    "@astrojs/react": "^5.0.6",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "astro": "^6.2.1",
+    "astro": "^6.4.2",
     "framer-motion": "^12.38.0",
     "katex": "^0.16.45",
     "react": "^19.2.5",
