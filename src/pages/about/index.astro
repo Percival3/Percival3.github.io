@@ -1,18 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import HandDrawnDivider from '../../components/HandDrawnDivider';
+import BackDoor from '../../components/BackDoor.astro';
 ---
 
 <Layout title="About | Zhong Pengchen">
-  <main class="w-full min-h-screen max-w-3xl mx-auto px-6 py-16 relative">
+  <main class="bg-bg-paper w-full min-h-screen max-w-3xl mx-auto px-6 py-16 relative">
     
-    <!-- Back / Door icon -->
-    <a href="/" class="group absolute top-8 left-0 md:-left-16 flex flex-col items-center justify-center transition-transform hover:-translate-x-2 z-10">
-      <div class="w-8 h-12 border-2 border-ink-main border-b-0 relative bg-bg-paper">
-        <div class="absolute right-1 top-1/2 w-1 h-1 bg-ink-main rounded-full"></div>
-      </div>
-      <span class="font-[Caveat] text-lg text-ink-muted mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Return</span>
-    </a>
+    <BackDoor />
 
     <header class="mb-12 text-center">
       <h1 class="text-4xl md:text-5xl font-bold tracking-wide mb-4">About Me / 关于我</h1>
@@ -23,17 +18,17 @@ import HandDrawnDivider from '../../components/HandDrawnDivider';
 
     <article class="prose prose-lg mt-12 w-full max-w-none">
       <p>
-        Hi, I'm <strong>Zhong Pengchen</strong>. I am a researcher and designer interested in the intersection of human-computer interaction, spatial interfaces, and minimalist web design.
+        Hi, I'm <strong>Zhong Pengchen</strong>. Welcome to my personal site.
       </p>
       
       <p>
-        你好，我是钟鹏晨。我相信个人网站应该是非常私人化的表达，而不是使用千篇一律的标准化模板。这也是为什么我用手绘元素（Rough.js）和空间隐喻（门与楼梯）来构建这个属于我的空间。
+        你好，我是钟朋辰。欢迎来到我的个人主页。
       </p>
 
       <h2>Experience</h2>
       <ul class="list-none pl-0">
-        <li class="mb-2"><span class="font-mono text-ink-muted mr-4">2025 - 现今</span> <strong>Independent Researcher</strong> (独立研究员)</li>
-        <li class="mb-2"><span class="font-mono text-ink-muted mr-4">2022 - 2025</span> <strong>Frontend Engineer</strong> (前端开发)</li>
+        <li class="mb-2"><span class="font-mono text-ink-muted mr-4">2026 - 现今</span> <strong>Fudan University</strong> /复旦大学  Phd(Economics) </li> 
+        <li class="mb-2"><span class="font-mono text-ink-muted mr-4">2022 - 2026</span> <strong>Peking University</strong> /北京大学 BA(Economics & Philosophy)  </li> 
       </ul>
 
       <h2>Contact</h2>

@@ -2,22 +2,38 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-bg-paper: #FAFAFA;
+  --color-bg-paper: #fafafa;
+  --color-bg-gray: #d0d0d0;
   --color-ink-main: #2A2A2A;
   --color-ink-muted: #6B6B6B;
   --color-highlight: #E2E8D5;
 }
 
 @layer base {
+  html,
   body {
     background-color: var(--color-bg-paper);
+  }
+
+  body {
+    min-height: 100vh;
     color: var(--color-ink-main);
     font-family: "Noto Serif SC", "Noto Sans SC", serif;
   }
 }
 
-/* Customizing the prose typography to fit our minimal hand-drawn theme */
+/* Avoid carrying the homepage gradient into subpages during View Transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
 @layer components {
+  .home-stage {
+    background-color: var(--color-bg-gray);
+    background-image: linear-gradient(to bottom right, var(--color-bg-paper), var(--color-bg-gray));
+  }
+
   .prose {
     --tw-prose-body: var(--color-ink-main);
     --tw-prose-headings: var(--color-ink-main);

@@ -1,45 +1,27 @@
-# Astro Starter Kit: Minimal
+# Z.PC Personal Website
 
-```sh
-npm create astro@latest -- --template minimal
-```
+A minimal personal site built with Astro, React, and hand-drawn UI elements.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Commands
 
-## 🚀 Project Structure
+| Command           | Action                                      |
+| ----------------- | ------------------------------------------- |
+| `npm install`     | Install dependencies                        |
+| `npm run dev`     | Start local dev server at `localhost:4321`  |
+| `npm run build`   | Build production site to `./dist/`          |
+| `npm run preview` | Preview the production build locally        |
 
-Inside of your Astro project, you'll see the following folders and files:
+## Third-party assets
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+### Oneko sleeping cat sprite
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+The sleeping cat animation on the homepage uses a sprite sheet from the [oneko](http://agtoys.sourceforge.net/oneko/) program.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- **File:** `public/oneko-sleeping.png`
+- **Source:** [Wikimedia Commons — Neko animation steps - falling asleep](https://commons.wikimedia.org/wiki/File:Neko_animation_steps_-_falling_asleep.png)
+- **Authors:** Masayuki Koba; modified by Tatsuya Kato
+- **License:** [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)
 
-Any static assets, like images, can be placed in the `public/` directory.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the copyright notice, license, and disclaimer are retained. Neither the name of the author nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-
-| Command                   | Action                                           |
-| ------------------------- | ------------------------------------------------ |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+This software is provided by the author and contributors "as is" and any express or implied warranties are disclaimed. In no event shall the author and contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages arising in any way out of the use of this software.

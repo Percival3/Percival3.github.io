@@ -27,5 +27,13 @@ const { title } = Astro.props;
   </head>
   <body class="antialiased min-h-screen">
     <slot />
+    <script is:inline>
+      const resetViewportBackground = () => {
+        document.documentElement.style.backgroundImage = 'none';
+        document.body.style.backgroundImage = 'none';
+      };
+      document.addEventListener('astro:after-swap', resetViewportBackground);
+      document.addEventListener('astro:page-load', resetViewportBackground);
+    </script>
   </body>
 </html>
