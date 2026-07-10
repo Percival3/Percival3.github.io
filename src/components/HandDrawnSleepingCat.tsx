@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useState, type CSSProperties } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 
 // Oneko "falling asleep" sprite sheet (BSD License)
 // https://commons.wikimedia.org/wiki/File:Neko_animation_steps_-_falling_asleep.png
@@ -28,15 +28,35 @@ const FRAME_DURATIONS_MS = [
   1000, 1800, 900,
 ] as const;
 
+const DEFAULT_STYLE: CSSProperties = {
+  position: 'absolute',
+  bottom: '1.5rem',
+  right: '1.5rem',
+  zIndex: 0,
+  pointerEvents: 'none',
+};
+
 interface HandDrawnSleepingCatProps {
   isHidden?: boolean;
+  className?: string;
+  style?: CSSProperties;
 }
 
-export default function HandDrawnSleepingCat({ isHidden = false }: HandDrawnSleepingCatProps) {
+export default function HandDrawnSleepingCat({
+  isHidden = false,
+  className,
+  style,
+}: HandDrawnSleepingCatProps) {
   const [frame, setFrame] = useState(0);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (isHidden) return;
+
+    if (shouldReduceMotion) {
+      setFrame(8);
+      return;
+    }
 
     setFrame(0);
     let timeoutId = 0;
@@ -53,16 +73,17 @@ export default function HandDrawnSleepingCat({ isHidden = false }: HandDrawnSlee
     scheduleNext(0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [isHidden]);
+  }, [isHidden, shouldReduceMotion]);
 
   const { x, y } = ANIMATION_FRAMES[frame];
 
   return (
     <motion.div
-      className="absolute bottom-6 right-6 md:bottom-10 md:right-12 pointer-events-none z-0"
+      className={className}
+      style={style ?? (className ? undefined : DEFAULT_STYLE)}
       initial={false}
       animate={{ opacity: isHidden ? 0 : 0.95 }}
-      transition={{ duration: 0.8, ease: 'easeInOut' }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }}
     >
       <div className="origin-bottom-right scale-[3] md:scale-[4]">
         <div

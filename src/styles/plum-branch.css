@@ -1,0 +1,211 @@
+/* Global background is CSS-owned so ClientRouter cannot detach it during a swap. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  pointer-events: none;
+  user-select: none;
+}
+
+body::before {
+  inset: 0;
+  z-index: 0;
+  background: #f0f5f5;
+  background-image:
+    linear-gradient(
+      to bottom,
+      #f0f5f5 0%,
+      rgba(240, 245, 245, 0.98) 58%,
+      rgba(240, 245, 245, 0) 100%
+    ),
+    url('/ink-grove.png');
+  background-repeat: no-repeat, no-repeat;
+  background-position: top center, center center;
+  background-size: 100% 34%, cover;
+}
+
+body::after {
+  inset: -0.6%;
+  z-index: 1;
+  opacity: 0.32;
+  background: url('/ink-grove.png') center center / cover no-repeat;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.28) 14%,
+    #000 31%,
+    rgba(0, 0, 0, 0.82) 62%,
+    transparent 88%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.28) 14%,
+    #000 31%,
+    rgba(0, 0, 0, 0.82) 62%,
+    transparent 88%
+  );
+  transform-origin: 50% 72%;
+  animation: grove-wind-drift 11s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.home-identity {
+  position: absolute;
+  top: 3rem;
+  left: 3rem;
+  right: auto;
+  z-index: 20;
+  text-align: left;
+  text-shadow: 0 1px 0 rgba(247, 244, 236, 0.72);
+}
+
+.home-scene {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  --scene-anchor-y: 57%;
+}
+
+.plum-branch-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: clamp(15rem, 31vw, 28rem);
+  max-width: 62vw;
+}
+
+.plum-branch {
+  position: relative;
+  width: 100%;
+}
+
+.plum-branch-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.plum-branch-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  /* Shift left so ink root (~4% into PNG) meets the screen edge */
+  margin-left: -4%;
+  width: 104%;
+}
+
+.plum-branch-base,
+.plum-branch-wind {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left top;
+}
+
+.plum-branch-base {
+  position: relative;
+  z-index: 0;
+}
+
+.plum-branch-wind {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  filter: url(#plum-wind);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 28%,
+    rgba(0, 0, 0, 0.45) 48%,
+    rgba(0, 0, 0, 0.85) 70%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 28%,
+    rgba(0, 0, 0, 0.45) 48%,
+    rgba(0, 0, 0, 0.85) 70%,
+    #000 100%
+  );
+}
+
+.plum-nav {
+  position: absolute;
+  top: min(52vh, 27rem);
+  left: clamp(1.5rem, 4vw, 3.5rem);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.55rem, 1.6vh, 1rem);
+}
+
+.door-slot {
+  position: absolute;
+  left: calc(50% - 6.25rem);
+  top: calc(var(--scene-anchor-y) - 7.25rem);
+  z-index: 5;
+  width: 12.5rem;
+  height: 14.5rem;
+}
+
+.sleeping-cat-slot {
+  position: absolute;
+  left: calc(50% + 11.5rem);
+  top: calc(var(--scene-anchor-y) + 3.25rem);
+  right: auto;
+  bottom: auto;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@keyframes grove-wind-drift {
+  0% {
+    transform: translate3d(-0.16%, 0.04%, 0) skewX(-0.08deg);
+  }
+  45% {
+    transform: translate3d(0.12%, -0.08%, 0) skewX(0.12deg);
+  }
+  100% {
+    transform: translate3d(0.22%, 0.02%, 0) skewX(-0.04deg);
+  }
+}
+
+@media (max-width: 767px) {
+  .home-identity {
+    top: 1.25rem;
+    left: 1.25rem;
+    right: auto;
+  }
+
+  .home-identity h1 {
+    font-size: 2.35rem;
+  }
+
+  .home-identity p {
+    margin-top: 0.15rem;
+    font-size: 1.2rem;
+  }
+
+  .plum-nav {
+    top: min(46vh, 20rem);
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    display: none;
+  }
+
+  .plum-branch-wind {
+    display: none;
+  }
+}
