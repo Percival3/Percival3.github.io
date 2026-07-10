@@ -27,6 +27,48 @@ const { title } = Astro.props;
     <ClientRouter />
   </head>
   <body class="antialiased min-h-screen">
+    <!-- Shared wind filter for ink-grove (body::after); kept in layout so ClientRouter swaps cannot drop it. -->
+    <svg aria-hidden="true" class="grove-wind-defs">
+      <defs>
+        <filter
+          id="grove-wind"
+          x="-8%"
+          y="-8%"
+          width="116%"
+          height="116%"
+          color-interpolation-filters="sRGB"
+        >
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.012 0.018"
+            numOctaves="2"
+            seed="3"
+            result="noise"
+          >
+            <animate
+              attributeName="baseFrequency"
+              dur="11s"
+              values="0.010 0.016;0.014 0.022;0.011 0.015;0.013 0.020;0.010 0.016"
+              repeatCount="indefinite"
+            />
+          </feTurbulence>
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="3.2"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          >
+            <animate
+              attributeName="scale"
+              dur="9s"
+              values="2;4.2;2.8;3.8;2"
+              repeatCount="indefinite"
+            />
+          </feDisplacementMap>
+        </filter>
+      </defs>
+    </svg>
     <div class="site-content">
       <slot />
     </div>
