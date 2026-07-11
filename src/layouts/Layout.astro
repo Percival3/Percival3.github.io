@@ -33,10 +33,10 @@ const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
       <defs>
         <filter
           id="grove-wind"
-          x="-8%"
-          y="-8%"
-          width="116%"
-          height="116%"
+          x="-12%"
+          y="-12%"
+          width="124%"
+          height="124%"
           color-interpolation-filters="sRGB"
         >
           <feTurbulence
@@ -56,14 +56,14 @@ const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
           <feDisplacementMap
             in="SourceGraphic"
             in2="noise"
-            scale="3.2"
+            scale="6.5"
             xChannelSelector="R"
             yChannelSelector="G"
           >
             <animate
               attributeName="scale"
               dur="9s"
-              values="2;4.2;2.8;3.8;2"
+              values="4.5;8.5;5.5;7.5;4.5"
               repeatCount="indefinite"
             />
           </feDisplacementMap>
