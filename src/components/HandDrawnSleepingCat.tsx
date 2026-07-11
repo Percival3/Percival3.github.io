@@ -8,8 +8,6 @@ const SHEET_WIDTH = 128;
 const SHEET_HEIGHT = 96;
 const DISPLAY_SCALE = 4;
 const DISPLAY_SIZE = FRAME_SIZE * DISPLAY_SCALE;
-const SHEET_COLS = SHEET_WIDTH / FRAME_SIZE;
-const SHEET_ROWS = SHEET_HEIGHT / FRAME_SIZE;
 
 // Row-major order: sit → groom/blink → curl up → sleep (+ zzz) → breathe → sit (loop)
 const ANIMATION_FRAMES = [
@@ -84,11 +82,13 @@ function CatSprite({ paused }: { paused: boolean }) {
     <div
       aria-hidden="true"
       style={{
-        width: '100%',
-        height: '100%',
+        width: FRAME_SIZE,
+        height: FRAME_SIZE,
+        transform: 'scale(var(--cat-scale, 4))',
+        transformOrigin: 'top left',
         backgroundImage: 'url(/oneko-sleeping.png)',
-        backgroundPosition: `calc(${-x} * 100%) calc(${-y} * 100%)`,
-        backgroundSize: `${SHEET_COLS * 100}% ${SHEET_ROWS * 100}%`,
+        backgroundPosition: `${-x * FRAME_SIZE}px ${-y * FRAME_SIZE}px`,
+        backgroundSize: `${SHEET_WIDTH}px ${SHEET_HEIGHT}px`,
         backgroundRepeat: 'no-repeat',
         imageRendering: 'pixelated',
         pointerEvents: 'none',
