@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties, type RefObject } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 // Oneko "falling asleep" sprite sheet (BSD License)
@@ -6,6 +6,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 const FRAME_SIZE = 32;
 const SHEET_WIDTH = 128;
 const SHEET_HEIGHT = 96;
+const DISPLAY_SCALE = 4;
+const DISPLAY_SIZE = FRAME_SIZE * DISPLAY_SCALE;
 
 // Row-major order: sit → groom/blink → curl up → sleep (+ zzz) → breathe → sit (loop)
 const ANIMATION_FRAMES = [
@@ -33,25 +35,23 @@ const DEFAULT_STYLE: CSSProperties = {
   bottom: '1.5rem',
   right: '1.5rem',
   zIndex: 0,
-  pointerEvents: 'none',
 };
 
 interface HandDrawnSleepingCatProps {
   isHidden?: boolean;
   className?: string;
   style?: CSSProperties;
+  /** Enable mouse/touch drag within this container (homepage scene). */
+  dragConstraintsRef?: RefObject<HTMLElement | null>;
 }
 
-export default function HandDrawnSleepingCat({
-  isHidden = false,
-  className,
-  style,
-}: HandDrawnSleepingCatProps) {
+/** Sprite sheet animation — kept separate so frame ticks do not reset drag transform. */
+function CatSprite({ paused }: { paused: boolean }) {
   const [frame, setFrame] = useState(0);
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (isHidden) return;
+    if (paused) return;
 
     if (shouldReduceMotion) {
       setFrame(8);
@@ -71,33 +71,64 @@ export default function HandDrawnSleepingCat({
     };
 
     scheduleNext(0);
-
     return () => window.clearTimeout(timeoutId);
-  }, [isHidden, shouldReduceMotion]);
+  }, [paused, shouldReduceMotion]);
 
   const { x, y } = ANIMATION_FRAMES[frame];
 
   return (
+    <div
+      aria-hidden="true"
+      style={{
+        width: DISPLAY_SIZE,
+        height: DISPLAY_SIZE,
+        backgroundImage: 'url(/oneko-sleeping.png)',
+        backgroundPosition: `${-x * DISPLAY_SIZE}px ${-y * DISPLAY_SIZE}px`,
+        backgroundSize: `${SHEET_WIDTH * DISPLAY_SCALE}px ${SHEET_HEIGHT * DISPLAY_SCALE}px`,
+        backgroundRepeat: 'no-repeat',
+        imageRendering: 'pixelated',
+        pointerEvents: 'none',
+      }}
+    />
+  );
+}
+
+export default function HandDrawnSleepingCat({
+  isHidden = false,
+  className,
+  style,
+  dragConstraintsRef,
+}: HandDrawnSleepingCatProps) {
+  const canDrag = Boolean(dragConstraintsRef) && !isHidden;
+
+  return (
     <motion.div
       className={className}
-      style={style ?? (className ? undefined : DEFAULT_STYLE)}
-      initial={false}
-      animate={{ opacity: isHidden ? 0 : 0.95 }}
-      transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }}
+      style={{
+        ...(style ?? (className ? undefined : DEFAULT_STYLE)),
+        width: DISPLAY_SIZE,
+        height: DISPLAY_SIZE,
+        opacity: isHidden ? 0 : 0.95,
+        cursor: canDrag ? 'grab' : undefined,
+        touchAction: canDrag ? 'none' : undefined,
+        pointerEvents: canDrag ? 'auto' : 'none',
+        userSelect: 'none',
+      }}
+      drag={canDrag}
+      dragConstraints={dragConstraintsRef}
+      dragMomentum={false}
+      dragElastic={0.08}
+      dragPropagation={false}
+      whileDrag={
+        canDrag
+          ? { cursor: 'grabbing', scale: 1.08, zIndex: 40 }
+          : undefined
+      }
+      aria-label={canDrag ? '拖动小猫' : undefined}
+      role={canDrag ? 'img' : undefined}
+      title={canDrag ? '按住拖动' : undefined}
     >
-      <div className="origin-bottom-right scale-[3] md:scale-[4]">
-        <div
-          className="h-8 w-8"
-          style={{
-            backgroundImage: 'url(/oneko-sleeping.png)',
-            backgroundPosition: `${-x * FRAME_SIZE}px ${-y * FRAME_SIZE}px`,
-            backgroundSize: `${SHEET_WIDTH}px ${SHEET_HEIGHT}px`,
-            backgroundRepeat: 'no-repeat',
-            imageRendering: 'pixelated',
-          }}
-          aria-hidden="true"
-        />
-      </div>
+      <CatSprite paused={isHidden} />
     </motion.div>
   );
 }

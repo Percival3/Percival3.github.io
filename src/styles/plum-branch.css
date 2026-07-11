@@ -181,8 +181,10 @@ body::after {
   top: calc(var(--scene-anchor-y) + 2.75rem);
   right: auto;
   bottom: auto;
-  z-index: 2;
-  pointer-events: none;
+  z-index: 30;
+  margin: 0;
+  padding: 0;
+  /* Size comes from the component (matches visible sprite for hit-testing) */
 }
 
 @media (max-width: 767px) {

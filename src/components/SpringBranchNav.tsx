@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { navigate } from 'astro:transitions/client';
 import HandDrawnSleepingCat from './HandDrawnSleepingCat';
@@ -98,10 +99,11 @@ function NavLink({ href, label }: { href: string; label: string }) {
 }
 
 export default function SpringBranchNav() {
+  const sceneRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <div className="home-scene">
+    <div className="home-scene" ref={sceneRef}>
       <div className="plum-branch-slot">
         <PlumBranch motionEnabled={!shouldReduceMotion} />
       </div>
@@ -112,7 +114,10 @@ export default function SpringBranchNav() {
         ))}
       </nav>
 
-      <HandDrawnSleepingCat className="sleeping-cat-slot" />
+      <HandDrawnSleepingCat
+        className="sleeping-cat-slot"
+        dragConstraintsRef={sceneRef}
+      />
     </div>
   );
 }
