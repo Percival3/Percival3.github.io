@@ -176,6 +176,8 @@ body::after {
 }
 
 .sleeping-cat-slot {
+  --cat-scale: 4;
+  --cat-size: calc(32px * var(--cat-scale));
   position: absolute;
   left: calc(var(--scene-anchor-x) + 10.5rem);
   top: calc(var(--scene-anchor-y) + 2.75rem);
@@ -184,7 +186,8 @@ body::after {
   z-index: 30;
   margin: 0;
   padding: 0;
-  /* Size comes from the component (matches visible sprite for hit-testing) */
+  width: var(--cat-size);
+  height: var(--cat-size);
 }
 
 @media (max-width: 767px) {
@@ -207,6 +210,18 @@ body::after {
     top: min(46vh, 20rem);
   }
 
+  /* Percentage-only anchor so the cat stays on the clearing, not the edge */
+  .home-scene {
+    --scene-anchor-x: 50%;
+    --scene-anchor-y: 76%;
+  }
+
+  .sleeping-cat-slot {
+    --cat-scale: 3;
+    left: calc(var(--scene-anchor-x) - var(--cat-size) / 2);
+    top: var(--scene-anchor-y);
+    max-width: calc(100vw - 2rem - env(safe-area-inset-right, 0px));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

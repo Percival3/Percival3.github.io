@@ -8,6 +8,8 @@ const SHEET_WIDTH = 128;
 const SHEET_HEIGHT = 96;
 const DISPLAY_SCALE = 4;
 const DISPLAY_SIZE = FRAME_SIZE * DISPLAY_SCALE;
+const SHEET_COLS = SHEET_WIDTH / FRAME_SIZE;
+const SHEET_ROWS = SHEET_HEIGHT / FRAME_SIZE;
 
 // Row-major order: sit → groom/blink → curl up → sleep (+ zzz) → breathe → sit (loop)
 const ANIMATION_FRAMES = [
@@ -35,6 +37,8 @@ const DEFAULT_STYLE: CSSProperties = {
   bottom: '1.5rem',
   right: '1.5rem',
   zIndex: 0,
+  width: DISPLAY_SIZE,
+  height: DISPLAY_SIZE,
 };
 
 interface HandDrawnSleepingCatProps {
@@ -80,11 +84,11 @@ function CatSprite({ paused }: { paused: boolean }) {
     <div
       aria-hidden="true"
       style={{
-        width: DISPLAY_SIZE,
-        height: DISPLAY_SIZE,
+        width: '100%',
+        height: '100%',
         backgroundImage: 'url(/oneko-sleeping.png)',
-        backgroundPosition: `${-x * DISPLAY_SIZE}px ${-y * DISPLAY_SIZE}px`,
-        backgroundSize: `${SHEET_WIDTH * DISPLAY_SCALE}px ${SHEET_HEIGHT * DISPLAY_SCALE}px`,
+        backgroundPosition: `calc(${-x} * 100%) calc(${-y} * 100%)`,
+        backgroundSize: `${SHEET_COLS * 100}% ${SHEET_ROWS * 100}%`,
         backgroundRepeat: 'no-repeat',
         imageRendering: 'pixelated',
         pointerEvents: 'none',
@@ -100,14 +104,14 @@ export default function HandDrawnSleepingCat({
   dragConstraintsRef,
 }: HandDrawnSleepingCatProps) {
   const canDrag = Boolean(dragConstraintsRef) && !isHidden;
+  // When className provides layout (e.g. .sleeping-cat-slot), size comes from CSS vars.
+  const sizedByClass = Boolean(className);
 
   return (
     <motion.div
       className={className}
       style={{
-        ...(style ?? (className ? undefined : DEFAULT_STYLE)),
-        width: DISPLAY_SIZE,
-        height: DISPLAY_SIZE,
+        ...(style ?? (sizedByClass ? undefined : DEFAULT_STYLE)),
         opacity: isHidden ? 0 : 0.95,
         cursor: canDrag ? 'grab' : undefined,
         touchAction: canDrag ? 'none' : undefined,
