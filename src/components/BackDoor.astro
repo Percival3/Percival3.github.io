@@ -9,32 +9,13 @@ const { href = '/', label = 'Return' } = Astro.props;
 
 <a
   href={href}
-  class="back-door group z-10 flex flex-col items-center justify-center transition-transform hover:-translate-x-2"
+  class="group absolute top-4 left-6 z-10 flex flex-col items-center justify-center transition-transform hover:-translate-x-2"
   aria-label={label}
 >
   <div class="w-8 h-12 border-2 border-ink-main border-b-0 relative bg-bg-paper">
     <div class="absolute right-1 top-1/2 w-1 h-1 bg-ink-main rounded-full"></div>
   </div>
-  <span class="font-[Caveat] text-lg text-ink-muted mt-1 opacity-0 group-hover:opacity-100 transition-opacity max-md:opacity-100 max-md:text-base">
+  <span class="font-[Caveat] text-lg text-ink-muted mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
     {label}
   </span>
 </a>
-
-<style>
-  .back-door {
-    position: relative;
-    top: auto;
-    left: auto;
-    width: fit-content;
-    margin-bottom: 1.5rem;
-  }
-
-  @media (min-width: 768px) {
-    .back-door {
-      position: absolute;
-      top: 2rem;
-      left: 1.5rem;
-      margin-bottom: 0;
-    }
-  }
-</style>
