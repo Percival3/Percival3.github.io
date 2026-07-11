@@ -50,12 +50,29 @@
     position: relative;
     z-index: 1;
     min-height: 100vh;
+    /* Own stacking context above decorative body::before/::after */
+    isolation: isolate;
   }
 
   .subpage-surface {
     background: rgba(240, 245, 245, 0.84);
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
+  }
+
+  /*
+   * Shared door ↔ title spacing for Blog / Research / About.
+   * Door is absolute (top-4 left-6); title always clears it the same way.
+   */
+  .subpage-title {
+    margin-top: 4.5rem;
+    margin-bottom: 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .subpage-title {
+      margin-top: 2rem;
+    }
   }
 
   .prose {

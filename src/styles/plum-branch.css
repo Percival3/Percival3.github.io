@@ -30,10 +30,12 @@ body::before {
  */
 body::after {
   inset: 0;
-  z-index: 1;
+  /* Behind .site-content so subpages can scroll; never intercept touches */
+  z-index: 0;
   opacity: 0.72;
   background: url('/ink-grove.png') center 38% / cover no-repeat;
   filter: url(#grove-wind);
+  pointer-events: none;
   -webkit-mask-image:
     linear-gradient(
       to bottom,
@@ -220,4 +222,9 @@ body::after {
   .plum-branch-wind {
     display: none;
   }
+}
+
+/* Subpages: drop the filtered wind overlay so touch scroll is never intercepted */
+body.is-subpage::after {
+  display: none;
 }

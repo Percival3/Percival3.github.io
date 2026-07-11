@@ -9,6 +9,7 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
 ---
 
 <!doctype html>
@@ -26,7 +27,7 @@ const { title } = Astro.props;
     <title>{title}</title>
     <ClientRouter />
   </head>
-  <body class="antialiased min-h-screen">
+  <body class:list={['antialiased', 'min-h-screen', isHome ? 'is-home' : 'is-subpage']}>
     <!-- Shared wind filter for ink-grove (body::after); kept in layout so ClientRouter swaps cannot drop it. -->
     <svg aria-hidden="true" class="grove-wind-defs">
       <defs>
@@ -73,12 +74,17 @@ const { title } = Astro.props;
       <slot />
     </div>
     <script is:inline>
-      const resetViewportBackground = () => {
+      const resetViewportChrome = () => {
         document.documentElement.style.backgroundImage = 'none';
         document.body.style.backgroundImage = 'none';
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        const home = location.pathname === '/' || location.pathname === '';
+        document.body.classList.toggle('is-home', home);
+        document.body.classList.toggle('is-subpage', !home);
       };
-      document.addEventListener('astro:after-swap', resetViewportBackground);
-      document.addEventListener('astro:page-load', resetViewportBackground);
+      document.addEventListener('astro:after-swap', resetViewportChrome);
+      document.addEventListener('astro:page-load', resetViewportChrome);
     </script>
   </body>
 </html>
