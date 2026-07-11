@@ -93,8 +93,8 @@ body::after {
   min-height: 100vh;
   min-height: 100svh;
   overflow: hidden;
-  /* Sit the cat on the open ground clearing between tree clusters */
-  --scene-anchor-x: 46%;
+  /* Default cat sits on the left clearing so it stays on-screen on mobile */
+  --scene-anchor-x: 18%;
   --scene-anchor-y: 72%;
 }
 
@@ -177,14 +177,13 @@ body::after {
 
 .sleeping-cat-slot {
   position: absolute;
-  left: calc(var(--scene-anchor-x) + 10.5rem);
+  left: var(--scene-anchor-x);
   top: calc(var(--scene-anchor-y) + 2.75rem);
   right: auto;
   bottom: auto;
   z-index: 30;
   margin: 0;
   padding: 0;
-  /* Size comes from the component (matches visible sprite for hit-testing) */
 }
 
 @media (max-width: 767px) {
@@ -207,6 +206,10 @@ body::after {
     top: min(46vh, 20rem);
   }
 
+  .home-scene {
+    --scene-anchor-x: 12%;
+    --scene-anchor-y: 70%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

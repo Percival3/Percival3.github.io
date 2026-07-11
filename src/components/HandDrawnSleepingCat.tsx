@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type RefObject } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useMotionValue, useReducedMotion } from 'framer-motion';
 
 // Oneko "falling asleep" sprite sheet (BSD License)
 // https://commons.wikimedia.org/wiki/File:Neko_animation_steps_-_falling_asleep.png
@@ -8,6 +8,8 @@ const SHEET_WIDTH = 128;
 const SHEET_HEIGHT = 96;
 const DISPLAY_SCALE = 4;
 const DISPLAY_SIZE = FRAME_SIZE * DISPLAY_SCALE;
+
+const CAT_POS_KEY = 'zpc-home-cat-drag';
 
 // Row-major order: sit → groom/blink → curl up → sleep (+ zzz) → breathe → sit (loop)
 const ANIMATION_FRAMES = [
@@ -43,6 +45,27 @@ interface HandDrawnSleepingCatProps {
   style?: CSSProperties;
   /** Enable mouse/touch drag within this container (homepage scene). */
   dragConstraintsRef?: RefObject<HTMLElement | null>;
+}
+
+function readSavedOffset(): { x: number; y: number } {
+  try {
+    const raw = localStorage.getItem(CAT_POS_KEY);
+    if (!raw) return { x: 0, y: 0 };
+    const parsed = JSON.parse(raw) as { x?: unknown; y?: unknown };
+    const x = typeof parsed.x === 'number' && Number.isFinite(parsed.x) ? parsed.x : 0;
+    const y = typeof parsed.y === 'number' && Number.isFinite(parsed.y) ? parsed.y : 0;
+    return { x, y };
+  } catch {
+    return { x: 0, y: 0 };
+  }
+}
+
+function writeSavedOffset(x: number, y: number) {
+  try {
+    localStorage.setItem(CAT_POS_KEY, JSON.stringify({ x, y }));
+  } catch {
+    // Ignore quota / private-mode failures.
+  }
 }
 
 /** Sprite sheet animation — kept separate so frame ticks do not reset drag transform. */
@@ -100,6 +123,17 @@ export default function HandDrawnSleepingCat({
   dragConstraintsRef,
 }: HandDrawnSleepingCatProps) {
   const canDrag = Boolean(dragConstraintsRef) && !isHidden;
+  const dragX = useMotionValue(0);
+  const dragY = useMotionValue(0);
+  const [offsetReady, setOffsetReady] = useState(false);
+
+  // Restore last drag offset after mount so View Transitions / remounts keep the spot.
+  useEffect(() => {
+    const saved = readSavedOffset();
+    dragX.set(saved.x);
+    dragY.set(saved.y);
+    setOffsetReady(true);
+  }, [dragX, dragY]);
 
   return (
     <motion.div
@@ -108,17 +142,22 @@ export default function HandDrawnSleepingCat({
         ...(style ?? (className ? undefined : DEFAULT_STYLE)),
         width: DISPLAY_SIZE,
         height: DISPLAY_SIZE,
-        opacity: isHidden ? 0 : 0.95,
+        opacity: isHidden ? 0 : offsetReady ? 0.95 : 0,
         cursor: canDrag ? 'grab' : undefined,
         touchAction: canDrag ? 'none' : undefined,
         pointerEvents: canDrag ? 'auto' : 'none',
         userSelect: 'none',
+        x: dragX,
+        y: dragY,
       }}
       drag={canDrag}
       dragConstraints={dragConstraintsRef}
       dragMomentum={false}
       dragElastic={0.08}
       dragPropagation={false}
+      onDragEnd={() => {
+        writeSavedOffset(dragX.get(), dragY.get());
+      }}
       whileDrag={
         canDrag
           ? { cursor: 'grabbing', scale: 1.08, zIndex: 40 }
