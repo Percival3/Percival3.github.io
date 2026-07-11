@@ -50,6 +50,8 @@
     position: relative;
     z-index: 1;
     min-height: 100vh;
+    /* Keep page UI above body::before/::after decorative layers */
+    isolation: isolate;
   }
 
   .subpage-surface {

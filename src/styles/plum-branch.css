@@ -30,7 +30,8 @@ body::before {
  */
 body::after {
   inset: 0;
-  z-index: 1;
+  /* Must stay behind .site-content; same z-index paints ::after on top and can flicker over the cat on mobile. */
+  z-index: 0;
   opacity: 0.72;
   background: url('/ink-grove.png') center 38% / cover no-repeat;
   filter: url(#grove-wind);
@@ -176,8 +177,6 @@ body::after {
 }
 
 .sleeping-cat-slot {
-  --cat-scale: 4;
-  --cat-size: calc(32px * var(--cat-scale));
   position: absolute;
   left: calc(var(--scene-anchor-x) + 10.5rem);
   top: calc(var(--scene-anchor-y) + 2.75rem);
@@ -186,8 +185,7 @@ body::after {
   z-index: 30;
   margin: 0;
   padding: 0;
-  width: var(--cat-size);
-  height: var(--cat-size);
+  /* width/height set inline from sprite scale (no CSS transform scaling) */
 }
 
 @media (max-width: 767px) {
@@ -213,14 +211,22 @@ body::after {
   /* Percentage-only anchor so the cat stays on the clearing, not the edge */
   .home-scene {
     --scene-anchor-x: 50%;
-    --scene-anchor-y: 76%;
+    --scene-anchor-y: 72%;
   }
 
   .sleeping-cat-slot {
-    --cat-scale: 3;
-    left: calc(var(--scene-anchor-x) - var(--cat-size) / 2);
+    left: 50%;
     top: var(--scene-anchor-y);
-    max-width: calc(100vw - 2rem - env(safe-area-inset-right, 0px));
+    /* Center without transform — Framer Motion drag owns transform on this node */
+    margin-left: -48px; /* half of 32*3 mobile sprite */
+  }
+
+  /*
+   * Full-viewport SVG displacement is expensive on mobile GPUs and can make
+   * composited layers (including the cat) shimmer / blink. Keep the static grove only.
+   */
+  body::after {
+    display: none;
   }
 }
 
