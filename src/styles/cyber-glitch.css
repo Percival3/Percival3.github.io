@@ -1,0 +1,146 @@
+/* Cyberpunk 2077–flavored corner HUD: text + scanlines + tear (home, bottom-right). */
+
+.cyber-glitch {
+  --cyber-yellow: #fcee0a;
+  --cyber-cyan: #00f0ff;
+  --cyber-magenta: #ff003c;
+
+  position: fixed;
+  z-index: 6;
+  width: min(11.5rem, 38vw);
+  pointer-events: none;
+  user-select: none;
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace;
+  font-size: 0.62rem;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  color: var(--cyber-yellow);
+  text-transform: uppercase;
+  mix-blend-mode: multiply;
+}
+
+.cyber-glitch--br {
+  right: 0.65rem;
+  bottom: 0.65rem;
+  text-align: right;
+}
+
+.cyber-glitch__body {
+  position: relative;
+  padding: 0.2rem 0.1rem;
+  overflow: hidden;
+  animation: cyber-glitch-tear 7.5s steps(1, end) infinite;
+}
+
+/* Scanlines over text */
+.cyber-glitch__body::after {
+  content: '';
+  position: absolute;
+  inset: -0.15rem 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(13, 13, 13, 0.16) 2px,
+    rgba(13, 13, 13, 0.16) 3px
+  );
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+  animation: cyber-glitch-scan 4.8s linear infinite;
+}
+
+.cyber-glitch__label {
+  position: relative;
+  z-index: 1;
+  font-weight: 600;
+  opacity: 0.95;
+  text-shadow:
+    0.6px 0 var(--cyber-cyan),
+    -0.6px 0 var(--cyber-magenta);
+  animation: cyber-glitch-chromatic 5.6s steps(1, end) infinite;
+}
+
+@keyframes cyber-glitch-tear {
+  0%,
+  86%,
+  100% {
+    transform: none;
+    filter: none;
+  }
+  87% {
+    transform: translateX(2px);
+    filter: contrast(1.12);
+  }
+  88% {
+    transform: translateX(-3px) skewX(-2deg);
+  }
+  89% {
+    transform: translateX(1px);
+  }
+  90% {
+    transform: none;
+  }
+}
+
+@keyframes cyber-glitch-chromatic {
+  0%,
+  91%,
+  100% {
+    text-shadow:
+      0.6px 0 var(--cyber-cyan),
+      -0.6px 0 var(--cyber-magenta);
+    transform: none;
+  }
+  92% {
+    text-shadow:
+      2px 0 var(--cyber-cyan),
+      -2px 0 var(--cyber-magenta);
+    transform: translateX(1px);
+  }
+  93% {
+    text-shadow:
+      -2px 0 var(--cyber-cyan),
+      2px 0 var(--cyber-magenta);
+    transform: translateX(-1px);
+  }
+  94% {
+    text-shadow:
+      0.6px 0 var(--cyber-cyan),
+      -0.6px 0 var(--cyber-magenta);
+    transform: none;
+  }
+}
+
+@keyframes cyber-glitch-scan {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .cyber-glitch {
+    width: min(8.5rem, 44vw);
+    font-size: 0.55rem;
+  }
+
+  .cyber-glitch--br {
+    right: 0.45rem;
+    bottom: 0.45rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cyber-glitch__body,
+  .cyber-glitch__body::after,
+  .cyber-glitch__label {
+    animation: none !important;
+  }
+
+  .cyber-glitch__label {
+    text-shadow: none;
+  }
+}

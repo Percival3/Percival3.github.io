@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import '../styles/plum-branch.css';
+import '../styles/cyber-glitch.css';
 import 'katex/dist/katex.min.css';
 import { ClientRouter } from 'astro:transitions';
 
@@ -28,48 +29,8 @@ const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
     <ClientRouter />
   </head>
   <body class:list={['antialiased', 'min-h-screen', isHome ? 'is-home' : 'is-subpage']}>
-    <!-- Shared wind filter for ink-grove (body::after); kept in layout so ClientRouter swaps cannot drop it. -->
-    <svg aria-hidden="true" class="grove-wind-defs">
-      <defs>
-        <filter
-          id="grove-wind"
-          x="-12%"
-          y="-12%"
-          width="124%"
-          height="124%"
-          color-interpolation-filters="sRGB"
-        >
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.012 0.018"
-            numOctaves="2"
-            seed="3"
-            result="noise"
-          >
-            <animate
-              attributeName="baseFrequency"
-              dur="11s"
-              values="0.010 0.016;0.014 0.022;0.011 0.015;0.013 0.020;0.010 0.016"
-              repeatCount="indefinite"
-            />
-          </feTurbulence>
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="noise"
-            scale="6.5"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          >
-            <animate
-              attributeName="scale"
-              dur="9s"
-              values="4.5;8.5;5.5;7.5;4.5"
-              repeatCount="indefinite"
-            />
-          </feDisplacementMap>
-        </filter>
-      </defs>
-    </svg>
+    <!-- WebGL water surface (jquery.ripples-style); canvas mounted by grove-water-init -->
+    <div class="grove-water" aria-hidden="true"></div>
     <div class="site-content">
       <slot />
     </div>
@@ -85,6 +46,9 @@ const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
       };
       document.addEventListener('astro:after-swap', resetViewportChrome);
       document.addEventListener('astro:page-load', resetViewportChrome);
+    </script>
+    <script>
+      import '../scripts/grove-water-init';
     </script>
   </body>
 </html>

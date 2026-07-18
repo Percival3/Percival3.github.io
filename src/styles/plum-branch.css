@@ -1,15 +1,11 @@
 /* Global background is CSS-owned so ClientRouter cannot detach it during a swap. */
-body::before,
-body::after {
+body::before {
   content: '';
   position: fixed;
-  pointer-events: none;
-  user-select: none;
-}
-
-body::before {
   inset: 0;
   z-index: 0;
+  pointer-events: none;
+  user-select: none;
   background-color: #f7f4ec;
   background-image: url('/ink-grove.png');
   background-repeat: no-repeat;
@@ -17,66 +13,26 @@ body::before {
   background-size: cover;
 }
 
-.grove-wind-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
+/*
+ * WebGL water surface (jquery.ripples-style).
+ * Scene is already the reflection; drops spawn at mid-lower and expand outward.
+ */
+.grove-water {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
   overflow: hidden;
 }
 
-/*
- * Wind layer mirrors plum-branch: base stays still; canopy moves.
- * Vertical mask keeps trunks/ground static; horizontal softens the center
- * so the mid canopy still breathes without heavy trunk ghosting.
- */
-body::after {
+.grove-water-canvas {
+  position: absolute;
   inset: 0;
-  /* Behind .site-content so subpages can scroll; never intercept touches */
-  z-index: 0;
-  opacity: 0.9;
-  background: url('/ink-grove.png') center 38% / cover no-repeat;
-  filter: url(#grove-wind);
+  width: 100%;
+  height: 100%;
+  display: block;
   pointer-events: none;
-  -webkit-mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(0, 0, 0, 0.4) 8%,
-      rgba(0, 0, 0, 0.8) 18%,
-      rgba(0, 0, 0, 0.95) 30%,
-      rgba(0, 0, 0, 0.55) 44%,
-      rgba(0, 0, 0, 0.2) 54%,
-      transparent 64%
-    ),
-    linear-gradient(
-      to right,
-      rgba(0, 0, 0, 0.95) 0%,
-      rgba(0, 0, 0, 0.75) 18%,
-      rgba(0, 0, 0, 0.5) 50%,
-      rgba(0, 0, 0, 0.75) 82%,
-      rgba(0, 0, 0, 0.95) 100%
-    );
-  mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(0, 0, 0, 0.4) 8%,
-      rgba(0, 0, 0, 0.8) 18%,
-      rgba(0, 0, 0, 0.95) 30%,
-      rgba(0, 0, 0, 0.55) 44%,
-      rgba(0, 0, 0, 0.2) 54%,
-      transparent 64%
-    ),
-    linear-gradient(
-      to right,
-      rgba(0, 0, 0, 0.95) 0%,
-      rgba(0, 0, 0, 0.75) 18%,
-      rgba(0, 0, 0, 0.5) 50%,
-      rgba(0, 0, 0, 0.75) 82%,
-      rgba(0, 0, 0, 0.95) 100%
-    );
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
 }
 
 .home-identity {
@@ -216,7 +172,7 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body::after {
+  .grove-water {
     display: none;
   }
 
@@ -225,7 +181,7 @@ body::after {
   }
 }
 
-/* Subpages: drop the filtered wind overlay so touch scroll is never intercepted */
-body.is-subpage::after {
+/* Subpages: drop water overlay so touch scroll is never intercepted */
+body.is-subpage .grove-water {
   display: none;
 }
