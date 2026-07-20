@@ -2,75 +2,275 @@
 import Layout from '../../layouts/Layout.astro';
 import HandDrawnDivider from '../../components/HandDrawnDivider';
 import BackDoor from '../../components/BackDoor.astro';
+import BlogSidebar from '../../components/BlogSidebar.astro';
 import { getCollection } from 'astro:content';
+import { BLOG_SECTIONS, categoryHref, type BlogCategory } from '../../lib/blog';
 
 const allPosts = await getCollection('blog');
-const sortedPosts = allPosts.sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf());
+const sortedPosts = allPosts.sort(
+  (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+);
+
+const tocPosts = sortedPosts.map((p) => ({
+  id: p.id,
+  title: p.data.title,
+  category: p.data.category as BlogCategory,
+  description: p.data.description,
+}));
+
+const sections = BLOG_SECTIONS.map((sec) => ({
+  ...sec,
+  items: sortedPosts.filter((p) => p.data.category === sec.key),
+  preview: sortedPosts.filter((p) => p.data.category === sec.key).slice(0, 2),
+}));
 ---
 
 <Layout title="Blog | Zhong Pengchen">
   <main class="subpage-surface w-full min-h-screen max-w-5xl mx-auto px-6 py-16 relative">
-    
     <BackDoor />
 
-    <header class="subpage-title text-center md:text-left md:ml-64">
-      <h1 class="text-4xl md:text-5xl font-bold tracking-wide mb-4">Blog / Notes</h1>
-      <p class="font-[Caveat] text-2xl text-ink-muted">Thoughts, reflections, and technical notes.</p>
-    </header>
+    <div class="blog-shell flex flex-col md:flex-row gap-10 md:gap-14 relative mt-[4.5rem]">
+      <BlogSidebar posts={tocPosts} active="all" />
 
-    <div class="md:ml-64 mb-12">
-      <HandDrawnDivider client:load />
-    </div>
+      <div class="blog-main flex-1 min-w-0">
+        <header class="blog-hero">
+          <p class="blog-kicker">NOTES · REFLECTIONS</p>
+          <h1 class="blog-title">Blog</h1>
+          <div class="blog-hero-rule">
+            <HandDrawnDivider client:load />
+          </div>
+        </header>
 
-    <div class="flex flex-col md:flex-row gap-12 relative">
-      
-      <!-- Left Sidebar: Browser & Archive -->
-      <aside class="w-full md:w-48 shrink-0 flex flex-col gap-10">
-        
-        <!-- BROWSER Section -->
-        <div>
-          <h3 class="text-sm font-bold tracking-widest text-ink-muted uppercase mb-4 border-b-2 border-ink-main/10 pb-2 inline-block">Browser</h3>
-          <ul class="space-y-3 font-[Caveat] text-xl text-ink-main">
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">All Posts</a></li>
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">Design</a></li>
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">Engineering</a></li>
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">Thoughts</a></li>
-          </ul>
-        </div>
+        {
+          sections.map((sec) => {
+            const truncated = sec.items.length > sec.preview.length;
+            return (
+              <section class="blog-sec">
+                <a class="sec-head" href={categoryHref(sec.key)}>
+                  <span class="sec-mark" aria-hidden="true">❖</span>
+                  <h2 class="sec-title">
+                    {sec.label}
+                    <span class="sec-en">{sec.en}</span>
+                  </h2>
+                  <span class="sec-count">
+                    {truncated
+                      ? `${sec.preview.length} / ${sec.items.length}`
+                      : `${sec.items.length} 篇`}
+                  </span>
+                </a>
 
-        <!-- ARCHIVE Section -->
-        <div>
-          <h3 class="text-sm font-bold tracking-widest text-ink-muted uppercase mb-4 border-b-2 border-ink-main/10 pb-2 inline-block">Archive</h3>
-          <ul class="space-y-3 font-[Caveat] text-xl text-ink-main">
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">2026</a></li>
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">2025</a></li>
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">2024</a></li>
-          </ul>
-        </div>
-      </aside>
-
-      <!-- Main Content: Articles list -->
-      <div class="flex-1 space-y-16 border-l-0 md:border-l-2 md:border-dashed border-ink-main/10 md:pl-12">
-        
-        {sortedPosts.map((post) => (
-          <article class="group relative">
-            <div class="absolute -left-12 top-0 bottom-0 w-1 bg-highlight scale-y-0 group-hover:scale-y-100 transition-transform origin-top hidden md:block"></div>
-            <time class="font-mono text-sm text-ink-muted">{post.data.date}</time>
-            <h2 class="text-2xl font-bold mt-2 mb-3">
-              <a href={`/blog/${post.id}`} class="hover:text-ink-muted transition-colors">{post.data.title}</a>
-            </h2>
-            <p class="text-ink-muted leading-relaxed">
-              {post.data.description}
-            </p>
-            <a href={`/blog/${post.id}`} class="inline-block mt-4 font-[Caveat] text-xl underline decoration-highlight decoration-2 underline-offset-4 hover:bg-highlight transition-colors">
-              Read more
-            </a>
-          </article>
-        ))}
-
+                {sec.preview.length === 0 ? (
+                  <p class="sec-empty">墨迹未干，敬请期待。</p>
+                ) : (
+                  <ul class:list={['post-list', { 'is-truncated': truncated }]}>
+                    {sec.preview.map((post) => (
+                      <li class="post">
+                        <a class="post-link" href={`/blog/${post.id}`}>
+                          <span class="post-body">
+                            <span class="post-title">{post.data.title}</span>
+                            {post.data.description && (
+                              <span class="post-summary">{post.data.description}</span>
+                            )}
+                          </span>
+                          <time class="post-date">{post.data.date}</time>
+                        </a>
+                      </li>
+                    ))}
+                    {truncated && (
+                      <li class="post post-more">
+                        <a class="post-link post-link-more" href={categoryHref(sec.key)} aria-label={`查看全部${sec.label}文章`}>
+                          <span class="post-ellipsis" aria-hidden="true">···</span>
+                        </a>
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </section>
+            );
+          })
+        }
       </div>
-
     </div>
-
   </main>
 </Layout>
+
+<style>
+  .blog-hero {
+    text-align: center;
+    margin-bottom: clamp(2rem, 5vh, 3.5rem);
+  }
+  @media (min-width: 768px) {
+    .blog-hero {
+      text-align: left;
+    }
+  }
+
+  .blog-kicker {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.74rem;
+    letter-spacing: 0.36em;
+    text-indent: 0.36em;
+    color: var(--color-ink-muted);
+  }
+  .blog-title {
+    margin: 0.35em 0 0;
+    font-weight: 700;
+    font-size: clamp(2.6rem, 7vw, 3.6rem);
+    letter-spacing: 0.08em;
+    color: var(--color-ink-main);
+  }
+  .blog-hero-rule {
+    margin-top: 0.5rem;
+  }
+  .blog-hero-rule :global(.my-12) {
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .blog-sec {
+    margin-top: clamp(2.4rem, 5vh, 3.6rem);
+  }
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65em;
+    flex-wrap: wrap;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 2px;
+    transition: background 0.2s ease;
+  }
+  .sec-head:hover .sec-title {
+    color: var(--color-ink-muted);
+  }
+  .sec-head:hover .sec-count {
+    text-decoration: underline;
+    text-decoration-color: var(--color-highlight);
+    text-underline-offset: 3px;
+  }
+  .sec-mark {
+    color: color-mix(in srgb, var(--color-ink-main) 55%, #8a9a4a);
+    font-size: 0.95em;
+    opacity: 0.9;
+  }
+  .sec-title {
+    margin: 0;
+    font-weight: 700;
+    font-size: clamp(1.45rem, 3.5vw, 1.8rem);
+    letter-spacing: 0.06em;
+    color: var(--color-ink-main);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.55em;
+    transition: color 0.2s ease;
+  }
+  .sec-en {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 500;
+    font-size: 0.58em;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+  .sec-count {
+    margin-left: auto;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--color-ink-muted);
+  }
+  .sec-empty {
+    margin: 1.1em 0 0;
+    padding: 1.1em 1.2em;
+    font-style: italic;
+    font-family: Caveat, cursive;
+    font-size: 1.25rem;
+    color: var(--color-ink-muted);
+    border: 1px dashed color-mix(in srgb, var(--color-ink-main) 22%, transparent);
+    background: color-mix(in srgb, white 55%, transparent);
+  }
+
+  .post-list {
+    list-style: none;
+    margin: 1.15em 0 0;
+    padding: 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-ink-main) 14%, transparent);
+  }
+  .post {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink-main) 14%, transparent);
+  }
+  .post-link {
+    display: flex;
+    align-items: baseline;
+    gap: 1.4em;
+    padding: 1.05em 0.35em 1.05em 0.15em;
+    text-decoration: none;
+    transition: background 0.25s ease, padding-left 0.25s ease;
+  }
+  .post-link:hover {
+    background: linear-gradient(90deg, var(--color-highlight), transparent 82%);
+    padding-left: 0.75em;
+  }
+  .post-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .post-title {
+    display: block;
+    font-weight: 700;
+    font-size: clamp(1.05rem, 2.4vw, 1.2rem);
+    color: var(--color-ink-main);
+    transition: color 0.25s ease;
+  }
+  .post-link:hover .post-title {
+    color: var(--color-ink-muted);
+  }
+  .post-summary {
+    display: block;
+    margin-top: 0.35em;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+  }
+  .post-date {
+    flex-shrink: 0;
+    font-family: ui-monospace, monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--color-ink-muted);
+    white-space: nowrap;
+  }
+  .post-link-more {
+    justify-content: center;
+    padding-block: 0.75em;
+    color: var(--color-ink-muted);
+  }
+  .post-ellipsis {
+    letter-spacing: 0.35em;
+    font-size: 1.15rem;
+    line-height: 1;
+    opacity: 0.7;
+  }
+  .post-list.is-truncated .post:nth-last-child(2) {
+    border-bottom-color: transparent;
+  }
+  .post-list.is-truncated .post-more {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink-main) 14%, transparent);
+    background: linear-gradient(
+      180deg,
+      transparent,
+      color-mix(in srgb, var(--color-bg-paper) 55%, transparent)
+    );
+  }
+
+  @media (max-width: 560px) {
+    .post-link:not(.post-link-more) {
+      flex-direction: column;
+      gap: 0.45em;
+    }
+    .post-link:not(.post-link-more) .post-date {
+      order: -1;
+    }
+  }
+</style>

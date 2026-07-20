@@ -1,9 +1,9 @@
 ---
-
 title: "Markdown, 中文, 与数学公式测试"
 date: "May 2, 2026"
 author: "Z.PC"
 description: "展示中文排版（思源宋体）、代码高亮以及由 KaTeX 渲染的复杂数学公式..."
+category: "essays"
 ---
 
 由于设置了 `Noto Serif SC` (思源宋体) 作为主字体，中文的阅读体验非常棒。同时我们原生支持在 MDX/Markdown 中书写**加粗**、*斜体* 和删除线等基本样式。

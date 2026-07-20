@@ -1,0 +1,228 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import HandDrawnDivider from '../../components/HandDrawnDivider';
+import BackDoor from '../../components/BackDoor.astro';
+import BlogSidebar from '../../components/BlogSidebar.astro';
+import { getCollection } from 'astro:content';
+import {
+  BLOG_SECTIONS,
+  collectYears,
+  postYear,
+  type BlogCategory,
+} from '../../lib/blog';
+
+export function getStaticPaths() {
+  return [
+    { params: { category: 'reading' } },
+    { params: { category: 'essays' } },
+  ];
+}
+
+const category = Astro.params.category as BlogCategory;
+const sec = BLOG_SECTIONS.find((s) => s.key === category)!;
+
+const allPosts = await getCollection('blog');
+const sortedAll = allPosts.sort(
+  (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+);
+const sortedPosts = sortedAll.filter((p) => p.data.category === category);
+
+const years = collectYears(sortedPosts.map((p) => p.data.date));
+const byYear = years.map((year) => ({
+  year,
+  posts: sortedPosts.filter((p) => postYear(p.data.date) === year),
+}));
+const yearNav = byYear.map(({ year, posts }) => ({
+  year,
+  count: posts.length,
+}));
+---
+
+<Layout title={`${sec.label} | Blog | Zhong Pengchen`}>
+  <main class="subpage-surface w-full min-h-screen max-w-5xl mx-auto px-6 py-16 relative">
+    <BackDoor href="/blog" label="Blog" />
+
+    <div class="blog-shell flex flex-col md:flex-row gap-10 md:gap-14 relative mt-[4.5rem]">
+      <BlogSidebar years={yearNav} />
+
+      <div class="blog-main flex-1 min-w-0">
+        <header class="blog-hero">
+          <p class="blog-kicker">{sec.en.toUpperCase()}</p>
+          <h1 class="blog-title">{sec.label}</h1>
+          <p class="blog-epigraph">{sec.desc}</p>
+          <div class="blog-hero-rule">
+            <HandDrawnDivider client:load />
+          </div>
+        </header>
+
+        {
+          sortedPosts.length === 0 ? (
+            <p class="sec-empty">墨迹未干，敬请期待。</p>
+          ) : (
+            byYear.map(({ year, posts }) => (
+              <section class="blog-sec" id={`year-${year}`}>
+                <div class="sec-head">
+                  <span class="sec-mark" aria-hidden="true">❖</span>
+                  <h2 class="sec-title">{year}</h2>
+                  <span class="sec-count">{posts.length} 篇</span>
+                </div>
+                <ul class="post-list">
+                  {posts.map((post) => (
+                    <li class="post">
+                      <a class="post-link" href={`/blog/${post.id}`}>
+                        <span class="post-body">
+                          <span class="post-title">{post.data.title}</span>
+                          {post.data.description && (
+                            <span class="post-summary">{post.data.description}</span>
+                          )}
+                        </span>
+                        <time class="post-date">{post.data.date}</time>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))
+          )
+        }
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .blog-hero {
+    text-align: center;
+    margin-bottom: clamp(2rem, 5vh, 3.5rem);
+  }
+  @media (min-width: 768px) {
+    .blog-hero {
+      text-align: left;
+    }
+  }
+
+  .blog-kicker {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.74rem;
+    letter-spacing: 0.36em;
+    text-indent: 0.36em;
+    color: var(--color-ink-muted);
+  }
+  .blog-title {
+    margin: 0.35em 0 0;
+    font-weight: 700;
+    font-size: clamp(2.6rem, 7vw, 3.6rem);
+    letter-spacing: 0.08em;
+    color: var(--color-ink-main);
+  }
+  .blog-epigraph {
+    margin: 0.65em 0 0;
+    font-family: Caveat, cursive;
+    font-size: clamp(1.35rem, 3vw, 1.7rem);
+    color: var(--color-ink-muted);
+  }
+  .blog-hero-rule {
+    margin-top: 0.5rem;
+  }
+  .blog-hero-rule :global(.my-12) {
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .blog-sec {
+    margin-top: clamp(2rem, 4vh, 3rem);
+  }
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65em;
+  }
+  .sec-mark {
+    color: color-mix(in srgb, var(--color-ink-main) 55%, #8a9a4a);
+    font-size: 0.95em;
+  }
+  .sec-title {
+    margin: 0;
+    font-family: ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
+    color: var(--color-ink-muted);
+  }
+  .sec-count {
+    margin-left: auto;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.78rem;
+    color: var(--color-ink-muted);
+  }
+  .sec-empty {
+    margin: 1.1em 0 0;
+    padding: 1.1em 1.2em;
+    font-style: italic;
+    font-family: Caveat, cursive;
+    font-size: 1.25rem;
+    color: var(--color-ink-muted);
+    border: 1px dashed color-mix(in srgb, var(--color-ink-main) 22%, transparent);
+    background: color-mix(in srgb, white 55%, transparent);
+  }
+
+  .post-list {
+    list-style: none;
+    margin: 1em 0 0;
+    padding: 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-ink-main) 14%, transparent);
+  }
+  .post {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink-main) 14%, transparent);
+  }
+  .post-link {
+    display: flex;
+    align-items: baseline;
+    gap: 1.4em;
+    padding: 1.05em 0.35em 1.05em 0.15em;
+    text-decoration: none;
+    transition: background 0.25s ease, padding-left 0.25s ease;
+  }
+  .post-link:hover {
+    background: linear-gradient(90deg, var(--color-highlight), transparent 82%);
+    padding-left: 0.75em;
+  }
+  .post-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .post-title {
+    display: block;
+    font-weight: 700;
+    font-size: clamp(1.05rem, 2.4vw, 1.2rem);
+    color: var(--color-ink-main);
+  }
+  .post-link:hover .post-title {
+    color: var(--color-ink-muted);
+  }
+  .post-summary {
+    display: block;
+    margin-top: 0.35em;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+  }
+  .post-date {
+    flex-shrink: 0;
+    font-family: ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--color-ink-muted);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 560px) {
+    .post-link {
+      flex-direction: column;
+      gap: 0.45em;
+    }
+    .post-date {
+      order: -1;
+    }
+  }
+</style>

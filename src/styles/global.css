@@ -27,6 +27,13 @@
     color: var(--color-ink-main);
     font-family: "Noto Serif SC", "Noto Sans SC", serif;
   }
+
+  /* Site-wide pen cursor; hotspot near nib (tip of the SVG). */
+  *,
+  *::before,
+  *::after {
+    cursor: url('/pen.svg') 7 4, auto !important;
+  }
 }
 
 /* Avoid carrying the homepage gradient into subpages during View Transitions */

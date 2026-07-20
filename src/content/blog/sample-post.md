@@ -3,6 +3,7 @@ title: "Designing a Minimalist Hand-Drawn Personal Site"
 date: "May 2, 2026"
 author: "Z.PC"
 description: "Exploring spatial metaphors and rough.js to create a website that feels like a sketchbook rather than a typical corporate template..."
+category: "essays"
 ---
 
 When thinking about how a personal website should look, we often fall into the trap of using the same clean, highly-polished layouts seen in SaaS products. But a personal space should be exactly that—**personal**.

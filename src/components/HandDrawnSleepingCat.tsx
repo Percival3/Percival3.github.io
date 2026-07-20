@@ -143,7 +143,7 @@ export default function HandDrawnSleepingCat({
         width: DISPLAY_SIZE,
         height: DISPLAY_SIZE,
         opacity: isHidden ? 0 : offsetReady ? 0.95 : 0,
-        cursor: canDrag ? 'grab' : undefined,
+        cursor: undefined,
         touchAction: canDrag ? 'none' : undefined,
         pointerEvents: canDrag ? 'auto' : 'none',
         userSelect: 'none',
@@ -160,7 +160,7 @@ export default function HandDrawnSleepingCat({
       }}
       whileDrag={
         canDrag
-          ? { cursor: 'grabbing', scale: 1.08, zIndex: 40 }
+          ? { scale: 1.08, zIndex: 40 }
           : undefined
       }
       aria-label={canDrag ? '拖动小猫' : undefined}

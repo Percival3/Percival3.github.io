@@ -3,6 +3,7 @@ title: "The Philosophy of White Space in Web Design"
 date: "April 15, 2026"
 author: "Z.PC"
 description: "Why leaving parts of the screen completely empty can sometimes communicate more than filling every pixel..."
+category: "essays"
 ---
 
 Why leaving parts of the screen completely empty can sometimes communicate more than filling every pixel.

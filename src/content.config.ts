@@ -8,6 +8,8 @@ const blogCollection = defineCollection({
     date: z.string(),
     author: z.string().optional().default('Z.PC'),
     description: z.string().optional().default(''),
+    category: z.enum(['reading', 'essays']),
+    cover: z.string().optional(),
   }),
 });
 

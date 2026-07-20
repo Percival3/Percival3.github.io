@@ -1,0 +1,118 @@
+---
+import { BLOG_SECTIONS, type BlogCategory, type BlogTocItem } from '../lib/blog';
+
+interface Props {
+  posts?: BlogTocItem[];
+  active?: 'all' | BlogCategory;
+  /** Category archive pages: show year anchors instead of 读书/杂谈 */
+  years?: { year: number; count: number }[];
+}
+
+const { posts = [], active = 'all', years } = Astro.props;
+const isYearNav = Boolean(years && years.length > 0);
+
+const sections = BLOG_SECTIONS.map((sec) => ({
+  ...sec,
+  count: posts.filter((p) => p.category === sec.key).length,
+}));
+---
+
+<aside
+  id="blog-sidebar"
+  class:list={['blog-sidebar', { 'blog-sidebar--years': isYearNav }]}
+  aria-label={isYearNav ? '年份归档' : 'Blog 栏目'}
+>
+  <nav class:list={['blog-toc', { 'blog-toc--years': isYearNav }]}>
+    {
+      isYearNav
+        ? years!.map(({ year, count }) => (
+            <a class="blog-toc-item blog-toc-year" href={`#year-${year}`}>
+              <span class="blog-toc-label">{year}</span>
+              <span class="blog-toc-count">{count}</span>
+            </a>
+          ))
+        : sections.map((sec) => (
+            <a
+              class:list={['blog-toc-item', { 'is-current': active === sec.key }]}
+              href={`/blog/${sec.key}`}
+              aria-current={active === sec.key ? 'page' : undefined}
+            >
+              <span class="blog-toc-label">{sec.label}</span>
+              <span class="blog-toc-count">{sec.count}</span>
+            </a>
+          ))
+    }
+  </nav>
+</aside>
+
+<style>
+  .blog-sidebar {
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 768px) {
+    .blog-sidebar {
+      width: 10rem;
+      position: sticky;
+      top: 50%;
+      transform: translateY(-50%);
+      align-self: flex-start;
+    }
+  }
+
+  .blog-toc {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .blog-toc--years {
+    align-items: center;
+    text-align: center;
+  }
+
+  .blog-toc-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75em;
+    text-decoration: none;
+    color: var(--color-ink-main);
+    transition: color 0.2s ease;
+  }
+  .blog-toc--years .blog-toc-item {
+    justify-content: center;
+    gap: 0.45em;
+    width: 100%;
+  }
+  .blog-toc-item:hover,
+  .blog-toc-item.is-current {
+    color: var(--color-ink-muted);
+  }
+  .blog-toc-item.is-current .blog-toc-label,
+  .blog-toc-year:hover .blog-toc-label {
+    text-decoration: underline;
+    text-decoration-color: var(--color-highlight);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .blog-toc-label {
+    font-family: "Noto Serif SC", serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+  .blog-toc--years .blog-toc-label {
+    font-family: ui-monospace, monospace;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  .blog-toc-count {
+    font-family: ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--color-ink-muted);
+  }
+</style>
