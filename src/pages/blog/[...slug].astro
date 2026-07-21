@@ -1,22 +1,116 @@
 ---
+import Layout from '../../layouts/Layout.astro';
+import HandDrawnDivider from '../../components/HandDrawnDivider';
+import BackDoor from '../../components/BackDoor.astro';
 import { getCollection, render } from 'astro:content';
-import BlogPostLayout from '../../layouts/BlogPostLayout.astro';
+import {
+  blogSlug,
+  isLongIntro,
+  isPublishedPdf,
+  pdfDownloadName,
+  resolveBlogPdfUrl,
+} from '../../lib/blog';
 
 export async function getStaticPaths() {
-  const blogEntries = await getCollection('blog');
-  const reserved = new Set(['reading', 'essays']);
-  return blogEntries
-    .filter((entry) => !reserved.has(entry.id))
-    .map(entry => ({
-      params: { slug: entry.id },
+  const entries = await getCollection('blog');
+  return entries
+    .filter((entry) => isPublishedPdf(entry) && isLongIntro(entry))
+    .map((entry) => ({
+      params: { slug: blogSlug(entry) },
       props: { entry },
     }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+const pdfUrl = resolveBlogPdfUrl(entry);
+const downloadName = pdfDownloadName(entry);
 ---
 
-<BlogPostLayout frontmatter={entry.data}>
-  <Content />
-</BlogPostLayout>
+<Layout title={`${entry.data.title} | Blog`}>
+  <main class="subpage-surface w-full min-h-screen max-w-2xl mx-auto px-6 py-16 relative">
+    <BackDoor href="/blog" label="Blog" />
+
+    <article class="intro-page mt-[4.5rem]">
+      <time class="intro-date font-mono text-sm text-ink-muted">{entry.data.date}</time>
+
+      <div class="intro-body prose prose-lg mt-8 w-full max-w-none">
+        <Content />
+      </div>
+
+      <div class="intro-footer mt-14">
+        <HandDrawnDivider client:load />
+        <h1 class="entry-title mt-10">{entry.data.title}</h1>
+        {
+          pdfUrl && (
+            <p class="entry-actions">
+              <a
+                class="entry-link"
+                href={pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                打开 PDF
+              </a>
+              <a class="entry-link" href={pdfUrl} download={downloadName}>
+                下载 PDF
+              </a>
+            </p>
+          )
+        }
+        <p class="back-wrap">
+          <a href="/blog" class="back-link">Return to Blog</a>
+        </p>
+      </div>
+    </article>
+  </main>
+</Layout>
+
+<style>
+  .intro-date {
+    display: block;
+  }
+
+  .entry-title {
+    margin: 0;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-main);
+  }
+
+  .entry-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.4rem;
+    margin: 1rem 0 0;
+  }
+
+  .entry-link {
+    font-family: Caveat, cursive;
+    font-size: 1.35rem;
+    color: var(--color-ink-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--color-highlight);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  .entry-link:hover {
+    background: var(--color-highlight);
+    color: var(--color-ink-main);
+  }
+
+  .back-wrap {
+    margin-top: 2.5rem;
+    text-align: center;
+  }
+  .back-link {
+    font-family: Caveat, cursive;
+    font-size: 1.5rem;
+    color: var(--color-ink-muted);
+    text-decoration: none;
+  }
+  .back-link:hover {
+    color: var(--color-ink-main);
+  }
+</style>

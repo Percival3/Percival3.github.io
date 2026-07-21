@@ -8,7 +8,9 @@ const blogCollection = defineCollection({
     date: z.string(),
     author: z.string().optional().default('Z.PC'),
     description: z.string().optional().default(''),
-    category: z.enum(['reading', 'essays']),
+    pdf: z.string().optional(),
+    intro: z.enum(['short', 'long']).optional(),
+    category: z.enum(['reading', 'essays']).optional(),
     cover: z.string().optional(),
   }),
 });
@@ -19,13 +21,15 @@ const researchCollection = defineCollection({
     title: z.string(),
     year: z.number(),
     venue: z.string(),
-    abstract: z.string(),
+    status: z.enum(['published', 'working']).default('published'),
+    abstract: z.string().optional(),
     pdfUrl: z.string().optional(),
     codeUrl: z.string().optional(),
+    dataUrl: z.string().optional(),
   }),
 });
 
 export const collections = {
-  'blog': blogCollection,
-  'research': researchCollection,
+  blog: blogCollection,
+  research: researchCollection,
 };

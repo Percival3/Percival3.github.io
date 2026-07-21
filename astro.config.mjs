@@ -12,7 +12,11 @@ import rehypeKatex from 'rehype-katex';
 export default defineConfig({
   site: 'https://percival3.github.io',
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    build: {
+      // Co-located blog PDFs should stay as files, not base64 data URLs
+      assetsInlineLimit: (filePath) => (String(filePath).endsWith('.pdf') ? 0 : 4096),
+    },
   },
   integrations: [react(), mdx()],
   markdown: {

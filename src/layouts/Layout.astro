@@ -34,6 +34,11 @@ const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
     <div class="site-content">
       <slot />
     </div>
+    <div class="cyber-glitch cyber-glitch--br" aria-hidden="true">
+      <div class="cyber-glitch__body">
+        <div class="cyber-glitch__label">GHOST // NET // Error …</div>
+      </div>
+    </div>
     <script is:inline>
       const resetViewportChrome = () => {
         document.documentElement.style.backgroundImage = 'none';

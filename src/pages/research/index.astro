@@ -2,77 +2,296 @@
 import Layout from '../../layouts/Layout.astro';
 import HandDrawnDivider from '../../components/HandDrawnDivider';
 import BackDoor from '../../components/BackDoor.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
-const allResearch = await getCollection('research');
-const sortedResearch = allResearch.sort((a, b) => b.data.year - a.data.year);
+type ResearchEntry = CollectionEntry<'research'>;
+
+const allResearch = (await getCollection('research')).sort(
+  (a, b) => b.data.year - a.data.year || a.data.title.localeCompare(b.data.title)
+);
+
+function realUrl(url?: string) {
+  if (!url || url === '#' || url.trim() === '') return undefined;
+  return url;
+}
+
+const sections: { key: 'published' | 'working'; label: string; en: string; items: ResearchEntry[] }[] = [
+  {
+    key: 'published',
+    label: 'Published',
+    en: '已发表',
+    items: allResearch.filter((i) => i.data.status === 'published'),
+  },
+  {
+    key: 'working',
+    label: 'Working Papers',
+    en: '工作论文',
+    items: allResearch.filter((i) => i.data.status === 'working'),
+  },
+];
 ---
 
 <Layout title="Research | Zhong Pengchen">
-  <main class="subpage-surface w-full min-h-screen max-w-5xl mx-auto px-6 py-16 relative">
-    
+  <main class="subpage-surface w-full min-h-screen max-w-3xl mx-auto px-6 py-16 relative">
     <BackDoor />
 
-    <header class="subpage-title text-center md:text-left md:ml-64">
-      <h1 class="text-4xl md:text-5xl font-bold tracking-wide mb-4">Research / 学术</h1>
-      <p class="font-[Caveat] text-2xl text-ink-muted">Publications, preprints, and working papers.</p>
-    </header>
-
-    <div class="md:ml-64 mb-12">
-      <HandDrawnDivider client:load />
-    </div>
-
-    <div class="flex flex-col md:flex-row gap-12 relative">
-      
-      <!-- Left Sidebar: Filter -->
-      <aside class="w-full md:w-48 shrink-0 flex flex-col gap-10">
-        <div>
-          <h3 class="text-sm font-bold tracking-widest text-ink-muted uppercase mb-4 border-b-2 border-ink-main/10 pb-2 inline-block">Filter</h3>
-          <ul class="space-y-3 font-[Caveat] text-xl text-ink-main">
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">All</a></li>
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">Journal Papers</a></li>
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">Conference</a></li>
-            <li><a href="#" class="hover:text-ink-muted hover:underline decoration-highlight decoration-2 underline-offset-4 transition-all">Working Papers</a></li>
-          </ul>
+    <div class="research-page mt-[4.5rem]">
+      <header class="research-hero">
+        <p class="research-kicker">ANALYSIS</p>
+        <h1 class="research-title">Research</h1>
+        <div class="research-hero-rule">
+          <HandDrawnDivider client:load />
         </div>
-      </aside>
+      </header>
 
-      <!-- Main Content: Publications list -->
-      <div class="flex-1 space-y-16 border-l-0 md:border-l-2 md:border-dashed border-ink-main/10 md:pl-12">
-        
-        {sortedResearch.map((item) => (
-          <article class="grid grid-cols-1 md:grid-cols-[100px_1fr] gap-4 md:gap-6 group relative">
-            <div class="absolute -left-12 top-0 bottom-0 w-1 bg-highlight scale-y-0 group-hover:scale-y-100 transition-transform origin-top hidden md:block"></div>
-            
-            <div class="font-mono text-xl text-ink-muted md:text-right pt-1">{item.data.year}</div>
-            
-            <div class="relative">
-              <div class="inline-block border border-ink-main/20 rounded px-2 py-1 text-xs font-mono text-ink-muted mb-3 group-hover:border-ink-main/60 transition-colors">{item.data.venue}</div>
-              <h2 class="text-2xl font-bold mb-3">
-                <a href={`/research/${item.id}`} class="hover:text-ink-muted transition-colors">{item.data.title}</a>
-              </h2>
-              <p class="text-ink-muted leading-relaxed mb-4">
-                {item.data.abstract}
-              </p>
-              <div class="flex items-center gap-4">
-                {item.data.pdfUrl && (
-                  <a href={item.data.pdfUrl} class="font-[Caveat] text-xl underline decoration-highlight decoration-2 underline-offset-4 hover:bg-highlight transition-colors flex items-center gap-1">
-                    [PDF]
-                  </a>
-                )}
-                {item.data.codeUrl && (
-                  <a href={item.data.codeUrl} class="font-[Caveat] text-xl underline decoration-highlight decoration-2 underline-offset-4 hover:bg-highlight transition-colors flex items-center gap-1">
-                    [Code]
-                  </a>
-                )}
-              </div>
-            </div>
-          </article>
-        ))}
+      {
+        allResearch.length === 0 ? (
+          <p class="research-empty">尚无发表。</p>
+        ) : (
+          sections.map((sec) =>
+            sec.items.length === 0 ? null : (
+              <section class="research-sec">
+                <header class="sec-head">
+                  <h2 class="sec-title">{sec.label}</h2>
+                  <p class="sec-en">{sec.en}</p>
+                </header>
+                <ol class="cite-list">
+                  {sec.items.map((item) => {
+                    const pdfUrl = realUrl(item.data.pdfUrl);
+                    const codeUrl = realUrl(item.data.codeUrl);
+                    const dataUrl = realUrl(item.data.dataUrl);
+                    const links = [
+                      pdfUrl && { label: 'PDF', href: pdfUrl },
+                      codeUrl && { label: 'Code', href: codeUrl },
+                      dataUrl && { label: 'Data', href: dataUrl },
+                    ].filter(Boolean) as { label: string; href: string }[];
 
+                    return (
+                      <li class="cite-item">
+                        <div class="cite-row">
+                          <h3 class="cite-title">
+                            {pdfUrl ? (
+                              <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
+                                {item.data.title}
+                              </a>
+                            ) : (
+                              <span>{item.data.title}</span>
+                            )}
+                          </h3>
+                          <div class="cite-meta">
+                            <span class="cite-venue">{item.data.venue}</span>
+                            <time class="cite-year" datetime={String(item.data.year)}>
+                              {item.data.year}
+                            </time>
+                          </div>
+                        </div>
+                        {links.length > 0 && (
+                          <div class="cite-actions">
+                            {links.map((link) => (
+                              <a
+                                class="cite-btn"
+                                href={link.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {link.label}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ol>
+              </section>
+            )
+          )
+        )
+      }
+
+      <div class="mt-20 mb-8">
+        <HandDrawnDivider client:load />
+        <div class="text-center mt-8">
+          <a
+            href="/about"
+            class="font-[Caveat] text-2xl text-ink-muted no-underline hover:text-ink-main hover:bg-transparent transition-colors"
+          >
+            Enter the introduction
+          </a>
+        </div>
       </div>
-
     </div>
-
   </main>
 </Layout>
+
+<style>
+  .research-hero {
+    text-align: center;
+    margin-bottom: clamp(2rem, 5vh, 3.2rem);
+  }
+  @media (min-width: 768px) {
+    .research-hero {
+      text-align: left;
+    }
+  }
+
+  .research-kicker {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.74rem;
+    letter-spacing: 0.36em;
+    text-indent: 0.36em;
+    color: var(--color-ink-muted);
+  }
+  .research-title {
+    margin: 0.35em 0 0;
+    font-weight: 700;
+    font-size: clamp(2.6rem, 7vw, 3.6rem);
+    letter-spacing: 0.08em;
+    color: var(--color-ink-main);
+  }
+  .research-hero-rule {
+    margin-top: 0.35rem;
+  }
+  .research-hero-rule :global(.my-12) {
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .research-empty {
+    margin: 2rem 0 0;
+    padding: 1.1em 1.2em;
+    font-family: Caveat, cursive;
+    font-size: 1.3rem;
+    color: var(--color-ink-muted);
+    border: 1px dashed color-mix(in srgb, var(--color-ink-main) 22%, transparent);
+  }
+
+  .research-sec {
+    margin-top: clamp(3rem, 7vh, 4.5rem);
+    padding-top: clamp(0.5rem, 2vh, 1rem);
+  }
+  .research-sec + .research-sec {
+    margin-top: clamp(4rem, 10vh, 6rem);
+    padding-top: clamp(2rem, 4vh, 2.75rem);
+    border-top: 1px solid color-mix(in srgb, var(--color-ink-main) 16%, transparent);
+  }
+
+  .sec-head {
+    margin-bottom: 1.5rem;
+  }
+  .sec-title {
+    margin: 0;
+    font-size: clamp(1.35rem, 3vw, 1.65rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-main);
+  }
+  .sec-en {
+    margin: 0.35rem 0 0;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .cite-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .cite-item {
+    padding: 1.05rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink-main) 10%, transparent);
+  }
+  .cite-item:last-child {
+    border-bottom: 0;
+  }
+
+  .cite-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  @media (min-width: 720px) {
+    .cite-row {
+      flex-direction: row;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1.75rem;
+    }
+  }
+
+  .cite-title {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--color-ink-muted);
+  }
+  .cite-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .cite-title a:hover {
+    color: var(--color-ink-main);
+    text-decoration: underline;
+    text-decoration-color: var(--color-highlight);
+    text-underline-offset: 3px;
+  }
+
+  .cite-meta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.65rem;
+  }
+
+  .cite-venue {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.82rem;
+    font-style: italic;
+    color: var(--color-ink-muted);
+  }
+
+  .cite-year {
+    font-family: ui-monospace, monospace;
+    font-size: 0.88rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-muted);
+  }
+
+  .cite-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.7rem;
+  }
+
+  .cite-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.6rem;
+    padding: 0.28rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--color-ink-main) 28%, transparent);
+    background: color-mix(in srgb, white 45%, transparent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-ink-main);
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease;
+  }
+  .cite-btn:hover {
+    background: var(--color-highlight);
+    border-color: color-mix(in srgb, var(--color-ink-main) 45%, transparent);
+  }
+</style>

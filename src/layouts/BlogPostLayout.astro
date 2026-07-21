@@ -2,16 +2,12 @@
 import Layout from './Layout.astro';
 import HandDrawnDivider from '../components/HandDrawnDivider';
 import BackDoor from '../components/BackDoor.astro';
-import { CATEGORY_LABELS, categoryHref, type BlogCategory } from '../lib/blog';
 
 const { frontmatter } = Astro.props;
 const pathname = Astro.url.pathname;
 const isResearch = pathname.startsWith('/research');
 const backUrl = isResearch ? '/research' : '/blog';
 const backText = isResearch ? 'Return to Research' : 'Return to Blog';
-
-const category = frontmatter.category as BlogCategory | undefined;
-const categoryLabel = category ? CATEGORY_LABELS[category] : undefined;
 ---
 
 <Layout title={frontmatter.title}>
@@ -20,34 +16,18 @@ const categoryLabel = category ? CATEGORY_LABELS[category] : undefined;
     <BackDoor href={backUrl} label="Back" />
 
     <header class="subpage-title">
-      <time class="font-mono text-sm text-ink-muted block mb-4">{frontmatter.date}</time>
-      {categoryLabel && category && (
-        <a
-          href={categoryHref(category)}
-          class="inline-block font-[Caveat] text-lg text-ink-muted hover:text-ink-main underline decoration-highlight decoration-2 underline-offset-4 mb-3 transition-colors"
-        >
-          {categoryLabel}
-        </a>
-      )}
+      <time class="font-mono text-sm text-ink-muted block mb-4">{frontmatter.date ?? frontmatter.year}</time>
       <h1 class="text-3xl md:text-5xl font-bold leading-tight tracking-wide mb-6">{frontmatter.title}</h1>
-      <div class="flex items-center gap-3">
-        <span class="font-[Caveat] text-xl text-ink-muted">by {frontmatter.author || 'Z.PC'}</span>
-      </div>
+      {
+        !isResearch && (
+          <div class="flex items-center gap-3">
+            <span class="font-[Caveat] text-xl text-ink-muted">by {frontmatter.author || 'Z.PC'}</span>
+          </div>
+        )
+      }
     </header>
 
     <HandDrawnDivider client:load />
-
-    {frontmatter.cover && (
-      <figure class="mt-10 mb-2">
-        <img
-          src={frontmatter.cover}
-          alt=""
-          class="w-full h-auto"
-          loading="eager"
-          decoding="async"
-        />
-      </figure>
-    )}
 
     <article class="prose prose-lg mt-12 w-full max-w-none prose-img:mx-auto prose-img:rounded-none">
       <slot />

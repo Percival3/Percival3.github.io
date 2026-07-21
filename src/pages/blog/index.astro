@@ -2,93 +2,106 @@
 import Layout from '../../layouts/Layout.astro';
 import HandDrawnDivider from '../../components/HandDrawnDivider';
 import BackDoor from '../../components/BackDoor.astro';
-import BlogSidebar from '../../components/BlogSidebar.astro';
-import { getCollection } from 'astro:content';
-import { BLOG_SECTIONS, categoryHref, type BlogCategory } from '../../lib/blog';
+import { getCollection, render } from 'astro:content';
+import {
+  blogSlug,
+  entryTitleHref,
+  formatTimelineDate,
+  isLongIntro,
+  isPublishedPdf,
+  pdfDownloadName,
+  resolveBlogPdfUrl,
+} from '../../lib/blog';
 
-const allPosts = await getCollection('blog');
-const sortedPosts = allPosts.sort(
-  (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+const allPosts = (await getCollection('blog'))
+  .filter(isPublishedPdf)
+  .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf());
+
+const items = await Promise.all(
+  allPosts.map(async (entry) => {
+    const pdfUrl = resolveBlogPdfUrl(entry);
+    const long = isLongIntro(entry);
+    const rendered = long ? null : await render(entry);
+    return {
+      entry,
+      slug: blogSlug(entry),
+      pdfUrl,
+      long,
+      titleHref: entryTitleHref(entry, pdfUrl),
+      downloadName: pdfDownloadName(entry),
+      Content: rendered?.Content,
+    };
+  })
 );
-
-const tocPosts = sortedPosts.map((p) => ({
-  id: p.id,
-  title: p.data.title,
-  category: p.data.category as BlogCategory,
-  description: p.data.description,
-}));
-
-const sections = BLOG_SECTIONS.map((sec) => ({
-  ...sec,
-  items: sortedPosts.filter((p) => p.data.category === sec.key),
-  preview: sortedPosts.filter((p) => p.data.category === sec.key).slice(0, 2),
-}));
 ---
 
 <Layout title="Blog | Zhong Pengchen">
   <main class="subpage-surface w-full min-h-screen max-w-5xl mx-auto px-6 py-16 relative">
     <BackDoor />
 
-    <div class="blog-shell flex flex-col md:flex-row gap-10 md:gap-14 relative mt-[4.5rem]">
-      <BlogSidebar posts={tocPosts} active="all" />
+    <div class="blog-page mt-[4.5rem]">
+      <header class="blog-hero">
+        <p class="blog-kicker">NOTES · MEDITATION</p>
+        <h1 class="blog-title">Blog</h1>
+        <div class="blog-hero-rule">
+          <HandDrawnDivider client:load />
+        </div>
+      </header>
 
-      <div class="blog-main flex-1 min-w-0">
-        <header class="blog-hero">
-          <p class="blog-kicker">NOTES · REFLECTIONS</p>
-          <h1 class="blog-title">Blog</h1>
-          <div class="blog-hero-rule">
-            <HandDrawnDivider client:load />
-          </div>
-        </header>
-
-        {
-          sections.map((sec) => {
-            const truncated = sec.items.length > sec.preview.length;
-            return (
-              <section class="blog-sec">
-                <a class="sec-head" href={categoryHref(sec.key)}>
-                  <span class="sec-mark" aria-hidden="true">❖</span>
-                  <h2 class="sec-title">
-                    {sec.label}
-                    <span class="sec-en">{sec.en}</span>
+      {
+        items.length === 0 ? (
+          <p class="blog-empty">墨迹未干，敬请期待。</p>
+        ) : (
+          <ol class="timeline">
+            {items.map(({ entry, pdfUrl, long, titleHref, downloadName, Content }) => (
+              <li class="timeline-item">
+                <div class="timeline-rail" aria-hidden="true">
+                  <span class="timeline-dot" />
+                </div>
+                <time class="timeline-date" datetime={entry.data.date}>
+                  {formatTimelineDate(entry.data.date)}
+                </time>
+                <article class="timeline-body">
+                  <h2 class="entry-title">
+                    <a
+                      href={titleHref}
+                      target={long ? undefined : '_blank'}
+                      rel={long ? undefined : 'noopener noreferrer'}
+                    >
+                      {entry.data.title}
+                    </a>
                   </h2>
-                  <span class="sec-count">
-                    {truncated
-                      ? `${sec.preview.length} / ${sec.items.length}`
-                      : `${sec.items.length} 篇`}
-                  </span>
-                </a>
 
-                {sec.preview.length === 0 ? (
-                  <p class="sec-empty">墨迹未干，敬请期待。</p>
-                ) : (
-                  <ul class:list={['post-list', { 'is-truncated': truncated }]}>
-                    {sec.preview.map((post) => (
-                      <li class="post">
-                        <a class="post-link" href={`/blog/${post.id}`}>
-                          <span class="post-body">
-                            <span class="post-title">{post.data.title}</span>
-                            {post.data.description && (
-                              <span class="post-summary">{post.data.description}</span>
-                            )}
-                          </span>
-                          <time class="post-date">{post.data.date}</time>
-                        </a>
-                      </li>
-                    ))}
-                    {truncated && (
-                      <li class="post post-more">
-                        <a class="post-link post-link-more" href={categoryHref(sec.key)} aria-label={`查看全部${sec.label}文章`}>
-                          <span class="post-ellipsis" aria-hidden="true">···</span>
-                        </a>
-                      </li>
-                    )}
-                  </ul>
-                )}
-              </section>
-            );
-          })
-        }
+                  {pdfUrl && (
+                    <p class="entry-actions">
+                      <a class="entry-download" href={pdfUrl} download={downloadName}>
+                        下载 PDF
+                      </a>
+                    </p>
+                  )}
+
+                  {!long && Content && (
+                    <div class="entry-intro prose prose-sm max-w-none">
+                      <Content />
+                    </div>
+                  )}
+                </article>
+              </li>
+            ))}
+          </ol>
+        )
+      }
+
+      <div class="mt-20 mb-8">
+        <HandDrawnDivider client:load />
+        <div class="text-center mt-8">
+          <a
+            href="/research"
+            class="font-[Caveat] text-2xl text-ink-muted no-underline hover:text-ink-main hover:bg-transparent transition-colors"
+          >
+            Enter the research
+          </a>
+        </div>
       </div>
     </div>
   </main>
@@ -97,11 +110,12 @@ const sections = BLOG_SECTIONS.map((sec) => ({
 <style>
   .blog-hero {
     text-align: center;
-    margin-bottom: clamp(2rem, 5vh, 3.5rem);
+    margin-bottom: clamp(2rem, 5vh, 3.2rem);
   }
   @media (min-width: 768px) {
     .blog-hero {
       text-align: left;
+      padding-left: 9.5rem;
     }
   }
 
@@ -121,156 +135,141 @@ const sections = BLOG_SECTIONS.map((sec) => ({
     color: var(--color-ink-main);
   }
   .blog-hero-rule {
-    margin-top: 0.5rem;
+    margin-top: 0.35rem;
   }
   .blog-hero-rule :global(.my-12) {
-    margin-top: 1.25rem;
-    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
   }
 
-  .blog-sec {
-    margin-top: clamp(2.4rem, 5vh, 3.6rem);
-  }
-  .sec-head {
-    display: flex;
-    align-items: baseline;
-    gap: 0.65em;
-    flex-wrap: wrap;
-    text-decoration: none;
-    color: inherit;
-    border-radius: 2px;
-    transition: background 0.2s ease;
-  }
-  .sec-head:hover .sec-title {
-    color: var(--color-ink-muted);
-  }
-  .sec-head:hover .sec-count {
-    text-decoration: underline;
-    text-decoration-color: var(--color-highlight);
-    text-underline-offset: 3px;
-  }
-  .sec-mark {
-    color: color-mix(in srgb, var(--color-ink-main) 55%, #8a9a4a);
-    font-size: 0.95em;
-    opacity: 0.9;
-  }
-  .sec-title {
-    margin: 0;
-    font-weight: 700;
-    font-size: clamp(1.45rem, 3.5vw, 1.8rem);
-    letter-spacing: 0.06em;
-    color: var(--color-ink-main);
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.55em;
-    transition: color 0.2s ease;
-  }
-  .sec-en {
-    font-family: ui-sans-serif, system-ui, sans-serif;
-    font-weight: 500;
-    font-size: 0.58em;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--color-ink-muted);
-  }
-  .sec-count {
-    margin-left: auto;
-    font-family: ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    color: var(--color-ink-muted);
-  }
-  .sec-empty {
-    margin: 1.1em 0 0;
+  .blog-empty {
+    margin: 2rem 0 0;
     padding: 1.1em 1.2em;
-    font-style: italic;
     font-family: Caveat, cursive;
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     color: var(--color-ink-muted);
     border: 1px dashed color-mix(in srgb, var(--color-ink-main) 22%, transparent);
-    background: color-mix(in srgb, white 55%, transparent);
   }
 
-  .post-list {
+  .timeline {
     list-style: none;
-    margin: 1.15em 0 0;
+    margin: 0;
     padding: 0;
-    border-top: 1px solid color-mix(in srgb, var(--color-ink-main) 14%, transparent);
-  }
-  .post {
-    border-bottom: 1px solid color-mix(in srgb, var(--color-ink-main) 14%, transparent);
-  }
-  .post-link {
-    display: flex;
-    align-items: baseline;
-    gap: 1.4em;
-    padding: 1.05em 0.35em 1.05em 0.15em;
-    text-decoration: none;
-    transition: background 0.25s ease, padding-left 0.25s ease;
-  }
-  .post-link:hover {
-    background: linear-gradient(90deg, var(--color-highlight), transparent 82%);
-    padding-left: 0.75em;
-  }
-  .post-body {
-    flex: 1;
-    min-width: 0;
-  }
-  .post-title {
-    display: block;
-    font-weight: 700;
-    font-size: clamp(1.05rem, 2.4vw, 1.2rem);
-    color: var(--color-ink-main);
-    transition: color 0.25s ease;
-  }
-  .post-link:hover .post-title {
-    color: var(--color-ink-muted);
-  }
-  .post-summary {
-    display: block;
-    margin-top: 0.35em;
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: var(--color-ink-muted);
-  }
-  .post-date {
-    flex-shrink: 0;
-    font-family: ui-monospace, monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.02em;
-    color: var(--color-ink-muted);
-    white-space: nowrap;
-  }
-  .post-link-more {
-    justify-content: center;
-    padding-block: 0.75em;
-    color: var(--color-ink-muted);
-  }
-  .post-ellipsis {
-    letter-spacing: 0.35em;
-    font-size: 1.15rem;
-    line-height: 1;
-    opacity: 0.7;
-  }
-  .post-list.is-truncated .post:nth-last-child(2) {
-    border-bottom-color: transparent;
-  }
-  .post-list.is-truncated .post-more {
-    border-bottom: 1px solid color-mix(in srgb, var(--color-ink-main) 14%, transparent);
-    background: linear-gradient(
-      180deg,
-      transparent,
-      color-mix(in srgb, var(--color-bg-paper) 55%, transparent)
-    );
+    position: relative;
   }
 
-  @media (max-width: 560px) {
-    .post-link:not(.post-link-more) {
-      flex-direction: column;
-      gap: 0.45em;
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.35rem 1.25rem;
+    padding: 0 0 2.4rem;
+    position: relative;
+  }
+
+  @media (min-width: 768px) {
+    .timeline-item {
+      grid-template-columns: 7.5rem 1.25rem 1fr;
+      grid-template-areas: 'date rail body';
+      column-gap: 0.75rem;
     }
-    .post-link:not(.post-link-more) .post-date {
-      order: -1;
+    .timeline-date {
+      grid-area: date;
+      text-align: right;
+      padding-top: 0.35rem;
     }
+    .timeline-rail {
+      grid-area: rail;
+    }
+    .timeline-body {
+      grid-area: body;
+    }
+  }
+
+  .timeline-rail {
+    display: none;
+  }
+  @media (min-width: 768px) {
+    .timeline-rail {
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+    .timeline-rail::before {
+      content: '';
+      position: absolute;
+      top: 0.55rem;
+      bottom: -2.4rem;
+      width: 1px;
+      background: color-mix(in srgb, var(--color-ink-main) 18%, transparent);
+    }
+    .timeline-item:last-child .timeline-rail::before {
+      bottom: 0;
+      height: 0.6rem;
+    }
+  }
+
+  .timeline-dot {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 999px;
+    background: var(--color-ink-main);
+    border: 2px solid color-mix(in srgb, var(--color-bg-paper) 80%, white);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-ink-main) 25%, transparent);
+    margin-top: 0.45rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .timeline-date {
+    font-family: ui-monospace, monospace;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-muted);
+  }
+
+  .entry-title {
+    margin: 0;
+    font-size: clamp(1.15rem, 2.6vw, 1.4rem);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .entry-title a {
+    color: var(--color-ink-main);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .entry-title a:hover {
+    color: var(--color-ink-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--color-highlight);
+    text-underline-offset: 4px;
+  }
+
+  .entry-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem 1.1rem;
+    margin: 0.55rem 0 0;
+  }
+  .entry-download {
+    font-family: Caveat, cursive;
+    font-size: 1.2rem;
+    color: var(--color-ink-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--color-highlight);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .entry-download:hover {
+    background: var(--color-highlight);
+    color: var(--color-ink-main);
+  }
+
+  .entry-intro {
+    margin-top: 0.85rem;
+    color: var(--color-ink-muted);
+  }
+  .entry-intro :global(p) {
+    margin: 0.4em 0;
   }
 </style>
